@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: ec2 | tushman.io]]></title>
+  <link href="http://jtushman.github.io/blog/categories/ec2/atom.xml" rel="self"/>
+  <link href="http://jtushman.github.io/"/>
+  <updated>2013-05-21T12:25:05-04:00</updated>
+  <id>http://jtushman.github.io/</id>
+  <author>
+    <name><![CDATA[Jonathan Tushman]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Deamonize Processes on Ubuntu]]></title>
+    <link href="http://jtushman.github.io/blog/2013/05/14/deamonize-processes-on-ubuntu/"/>
+    <updated>2013-05-14T13:07:00-04:00</updated>
+    <id>http://jtushman.github.io/blog/2013/05/14/deamonize-processes-on-ubuntu</id>
+    <content type="html"><![CDATA[<p><strong>Problem Statement:  What is the simplest was to deamonize a serivce (Celeryd)on Ubuntu.</strong></p>
+
+<p>I am relatively new to Unix sys admin tasks (I have been relying on <a href="https://www.heroku.com/">heroku</a> to handle all of that for me)  But I ran into a problem where I could not rely on that paradigm.  I thought it was going to be really easy to do.  But it ended up taking me a lot longer then I expected.  Hopefuly this post will help someone in a similar situation.</p>
+
+<p>There are a handful of unix initialization options:</p>
+
+<ul>
+<li><a href="http://supervisord.org/">Supervisor</a></li>
+<li><a href="http://upstart.ubuntu.com/">Upstart</a> (/etc/init)</li>
+<li>and <a href="http://en.wikipedia.org/wiki/Init">System V Init</a> (/etc/init.d)</li>
+</ul>
+
+
+<p>I tried all three, and really the only one where I am not throwing up in my mouth is Upstart.  This should be your default choice if you are running Ubuntu</p>
+
+<p>Let me jump to the final solution, then I can go into the finer points</p>
+
+<h4>1) Create an init script</h4>
+
+<pre><code># This goes into /etc/init/celeryd
+# celeryd -runs the celery worker as my virutal env user
+#
+#
+# This task is run on startup to start the celery worker
+
+description "runs the celery worker"
+author "jonathan tushman"
+
+start on runlevel [2345]
+stop on runlevel [!2345]
+
+# retry if ended unexpectedly
+respawn
+
+# limit the retries to max 15 times with timeouts of 5 seconds
+respawn limit 15 5
+
+# Time to wait between sending TERM and KILL signals
+kill timeout 20
+
+chdir /home/ubuntu/apps/money
+exec su -c  'FLASK_ENV=production /usr/local/bin/celeryd --loglevel=info --concurrency=1 --logfile=/var/log/worker.log'
+</code></pre>
+
+<h4>F*ck thats it. (I hate how simple this solution is once you figured out how to do it)</h4>
+
+<p>Now you are able to execute the following commands:</p>
+
+<pre><code>&gt; sudo start celeryd
+&gt; sudo restart celeryd
+&gt; sudo stop celeryd
+&gt; sudo status celeryd
+</code></pre>
+
+<p><strong>and</strong> whenever your machine startsup or shutsdown the service will automatically start up and stop respectively.  Thats what the following lines are for:</p>
+
+<pre><code>start on runlevel [2345]
+stop on runlevel [!2345]
+</code></pre>
+
+<p>To see whats going on, these tail commands are useful:</p>
+
+<pre><code>&gt;   tail -f /var/log/money-worker.log -f /var/log/celery/celery.log
+
+&gt;   tail -f /var/log/syslog
+</code></pre>
+
+<h4>The main thing that haunted me, was once again Unix permissions</h4>
+
+<p>(One day, I am sure I am going to say &mdash; man! Unix permissions are awesome)</p>
+
+<p>The most important line in the init script is the exec line:</p>
+
+<pre><code>exec su -c  'FLASK_ENV=production /usr/local/bin/celeryd --loglevel=info --concurrency=1 --logfile=/var/log/worker.log'
+</code></pre>
+
+<p>So what I learned here is that sudo has its own environment variable space.  So even if I set the FLASK_ENV environement varable above in the script, it wouln&rsquo;t be applied.  So you need to use <code>su -c</code> which will execute the given string as super user.  Check out this StackOverflow <a href="http://stackoverflow.com/a/16533951/192791">post</a> for more info.</p>
+]]></content>
+  </entry>
+  
+</feed>

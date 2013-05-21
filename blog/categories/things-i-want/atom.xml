@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Things I want | tushman.io]]></title>
+  <link href="http://jtushman.github.io/blog/categories/things-i-want/atom.xml" rel="self"/>
+  <link href="http://jtushman.github.io/"/>
+  <updated>2013-05-21T12:25:05-04:00</updated>
+  <id>http://jtushman.github.io/</id>
+  <author>
+    <name><![CDATA[Jonathan Tushman]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Mailing It In]]></title>
+    <link href="http://jtushman.github.io/blog/2013/05/17/mailing-it-in/"/>
+    <updated>2013-05-17T12:10:00-04:00</updated>
+    <id>http://jtushman.github.io/blog/2013/05/17/mailing-it-in</id>
+    <content type="html"><![CDATA[<p>File this under, something I want, but not going to build &hellip;</p>
+
+<p>Had another idea in the shower this morning (all of my ideas happen in the shower).</p>
+
+<p><strong>Problem Statement:</strong>  What is an easy, non stressful way to communicate what we are working on cross coasts.  And for me the most important aspect of that is <strong>what are people struggling with</strong>, and does someone else on our growing team have knowledge to help them.</p>
+
+<p>For example.  I was working to set up flower to monitor celery.  I mentioned that to Marc, and he said, &ldquo;I had a really bad experience with that.  It caused a pretty significant memory loss&rdquo;.  Really good to know.</p>
+
+<p>There a bunch of tools out there, some that we use, and some that we don&rsquo;t, that solve parts of the problem:</p>
+
+<ol>
+<li><a href="https://www.pivotaltracker.com">Pivotal Tracker</a>:  What am I currently working on</li>
+<li><a href="http://www.github.com">GitHub</a>:  What changes have I made to the code base(s)</li>
+<li><a href="https://idonethis.com/">IDoneThis</a>: (we don&rsquo;t use this)  But it is a cool (but IMHO overpriced) tool that you simply email a quick email on what you did today.</li>
+</ol>
+
+
+<p>My idea I am calling <strong>Mailing It In™</strong>.  This is what I want it to do:</p>
+
+<ol>
+<li><p>Everyday you send a <a href="http://daringfireball.net/projects/markdown/syntax">markdown</a> formated email to <a href="&#109;&#x61;&#105;&#x6c;&#x74;&#111;&#58;&#x6d;&#97;&#x69;&#108;&#x69;&#116;&#x69;&#110;&#x40;&#122;&#x65;&#x66;&#114;&#x2e;&#99;&#111;&#109;&#46;">&#109;&#x61;&#105;&#x6c;&#x69;&#x74;&#105;&#110;&#x40;&#x7a;&#x65;&#102;&#x72;&#x2e;&#99;&#x6f;&#x6d;&#x2e;</a>  I need to think about this more, but I think we just need to answer two questions:</p>
+
+<ol>
+<li>What am I struggling with:</li>
+<li>I learned this cool thing:</li>
+</ol>
+</li>
+<li><p>What you are working on will be automatically taken out of pivotal</p></li>
+<li>At Noon every day an digest email will be sent out to the entire team (similar to the daily scrum)</li>
+<li>A weekly summery digest email can also be configured</li>
+<li>All of this content will be posted in  a Jekyl blog hosted internally at ZEFR.  This site will have the following features (most coming for free from <a href="http://jekyllrb.com/">Jekyl</a> or <a href="http://octopress.org">Octopress</a>):
+
+<ol>
+<li>Search</li>
+<li>Be able to see history by team, person, company</li>
+<li>Have <a href="http://disqus.com/">disqus</a> integrated</li>
+</ol>
+</li>
+</ol>
+
+
+<p>Anyways &mdash; just an idea.  Not going to do anything about it besides write this post.  But if someone develops it &mdash; Let me know!!</p>
+]]></content>
+  </entry>
+  
+</feed>
