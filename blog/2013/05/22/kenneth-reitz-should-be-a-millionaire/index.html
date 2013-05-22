@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Deamonize Processes on Ubuntu - tushman.io</title>
+  <title>Kenneth Reitz Should Be A Millionaire - tushman.io</title>
   <meta name="author" content="Jonathan Tushman">
 
   
-  <meta name="description" content="Problem Statement: What is the simplest was to deamonize a serivce (Celeryd)on Ubuntu. I am relatively new to Unix sys admin tasks (I have been &hellip;">
+  <meta name="description" content="or &ldquo;Introducing the Dollar Store&rdquo; tl;dr: Like the apple store, we should I have easy way to pay $1 to use a piece of software. I think &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://jtushman.github.io/blog/2013/05/14/deamonize-processes-on-ubuntu">
+  <link rel="canonical" href="http://jtushman.github.io/blog/2013/05/22/kenneth-reitz-should-be-a-millionaire">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="tushman.io" type="application/atom+xml">
@@ -80,7 +80,7 @@
   
   <header>
     
-      <h1 class="entry-title">Deamonize Processes on Ubuntu</h1>
+      <h1 class="entry-title">Kenneth Reitz Should Be a Millionaire</h1>
     
     
       <p class="meta">
@@ -96,90 +96,67 @@
   
 
 
-<time datetime="2013-05-14T13:07:00-04:00" pubdate data-updated="true">May 14<span>th</span>, 2013</time>
+<time datetime="2013-05-22T07:51:00-04:00" pubdate data-updated="true">May 22<span>nd</span>, 2013</time>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><p><strong>Problem Statement:  What is the simplest was to deamonize a serivce (Celeryd)on Ubuntu.</strong></p>
+<div class="entry-content"><h2>or &ldquo;Introducing the Dollar Store&rdquo;</h2>
 
-<p>I am relatively new to Unix sys admin tasks (I have been relying on <a href="https://www.heroku.com/">heroku</a> to handle all of that for me)  But I ran into a problem where I could not rely on that paradigm.  I thought it was going to be really easy to do.  But it ended up taking me a lot longer then I expected.  Hopefuly this post will help someone in a similar situation.</p>
+<p><strong>tl;dr:  Like the apple store, we should I have easy way to pay $1 to use a piece of software.  I think <a href="https://github.com/">Github</a> should help us do that</strong></p>
 
-<p>There are a handful of unix initialization options:</p>
+<p>I went to a really create Python Meetup last night where Kenneth Reitz (<a href="https://twitter.com/kennethreitz">@kennethreitz</a>) did his <strong>Python for Human&rsquo;s</strong> talk.  Really interesting talk, worth watching (<a href="http://www.youtube.com/watch?v=Y97D8j6CAog">link</a>).</p>
+
+<p>@kennethreitz is, amoung other things, the author of the <a href="http://docs.python-requests.org/en/latest/">requests</a> library for python.  On one of his slides, he mentioned that his open-source requests libary has been downloaded 4MM times.  I that got me thinking …</p>
+
+<blockquote><p>Kennenth Reitz should be a millionaire</p></blockquote>
+
+<p>Now, maybe he is.  But I doubt it. But he should be.  Here&rsquo;s how &hellip;</p>
+
+<p>So I pose a question to you developers out there:</p>
+
+<p><strong>Whould you pay $1 to use the requests library?</strong>  Whould you pay $1 to use Flask? Rails? etc …</p>
+
+<p>I know for me, the answer is <strong>Hell Yes!</strong>  if (and here is the important part) it is really easy, and headache free.</p>
+
+<p>Here is my proposal &hellip;</p>
+
+<h2>GitHub should open the <strong>&ldquo;Dollar Store&rdquo;</strong></h2>
+
+<p>There are a lot of details that need to be worked out.  But here is the general work flow:</p>
 
 <ul>
-<li><a href="http://supervisord.org/">Supervisor</a></li>
-<li><a href="http://upstart.ubuntu.com/">Upstart</a> (/etc/init)</li>
-<li>and <a href="http://en.wikipedia.org/wiki/Init">System V Init</a> (/etc/init.d)</li>
+<li>Kenneth clicks a button on his requests project and says &mdash; &ldquo;Enable <strong>Dollar Store</strong>&rdquo;  (note: that the project can still be downloaded for free as normal)</li>
+<li>I go to my github account, and click &lsquo;support the <strong>Dollar Store</strong>&rsquo;</li>
+<li>Now the first time I pull down a project from gibhub with my ssl_key or what have you, if that project is in the dollar store GitHub charges me a dollar and gives it to that project owner</li>
 </ul>
 
 
-<p>I tried all three, and really the only one where I am not throwing up in my mouth is Upstart.  This should be your default choice if you are running Ubuntu</p>
+<p>Organizaitons as a whole can also support the dollar store.  I can have all of <a href="http://zefr.com">ZEFR</a> support the <strong>Dollar Store</strong>.</p>
 
-<p>Let me jump to the final solution, then I can go into the finer points</p>
+<p>Pretty soon, Kenneth will be a millionaire and will be able to afford the laptop of his dreams.</p>
 
-<h4>1) Create an init script</h4>
+<h2>I know this open a can of worms (Haters gonna hate):</h2>
 
-<pre><code># This goes into /etc/init/celeryd
-# celeryd -runs the celery worker as my virutal env user
-#
-#
-# This task is run on startup to start the celery worker
+<ul>
+<li>How do you allocated funds amoung many commitors?</li>
+<li>Copyright(left) issues (This is probably the biggest hurdle now)  &mdash; But I beleive surmountable</li>
+</ul>
 
-description "runs the celery worker"
-author "jonathan tushman"
 
-start on runlevel [2345]
-stop on runlevel [!2345]
+<p>But I think these are all details.  <strong>Fundimentally there is money out there that <em>wants</em> to go into smart engineers pockets</strong> &mdash; and we should find a way to greese the wheels, and make it easier for that to happen.</p>
 
-# retry if ended unexpectedly
-respawn
+<p>I really think that something like this will be great for innovation.  It will spur more people to contribute to &ldquo;OpenSource&rdquo;</p>
 
-# limit the retries to max 15 times with timeouts of 5 seconds
-respawn limit 15 5
+<p>In the meantime there are some alternatives to support projects like these:</p>
 
-# Time to wait between sending TERM and KILL signals
-kill timeout 20
+<ul>
+<li><a href="https://www.gittip.com/kennethreitz/">Gittip</a> (right know Kenneth makes about $4,000 year for this work)</li>
+<li>And you can also pay for &ldquo;<a href="https://gumroad.com/l/RRZc">enterprise support</a>&rdquo; for $25/year</li>
+</ul>
 
-chdir /home/ubuntu/apps/money
-exec su -c  'FLASK_ENV=production /usr/local/bin/celeryd --loglevel=info --concurrency=1 --logfile=/var/log/worker.log'
-</code></pre>
-
-<h4>F*ck thats it. (I hate how simple this solution is once you figured out how to do it)</h4>
-
-<p>Now you are able to execute the following commands:</p>
-
-<pre><code>&gt; sudo start celeryd
-&gt; sudo restart celeryd
-&gt; sudo stop celeryd
-&gt; sudo status celeryd
-</code></pre>
-
-<p><strong>and</strong> whenever your machine startsup or shutsdown the service will automatically start up and stop respectively.  Thats what the following lines are for:</p>
-
-<pre><code>start on runlevel [2345]
-stop on runlevel [!2345]
-</code></pre>
-
-<p>To see whats going on, these tail commands are useful:</p>
-
-<pre><code>&gt;   tail -f /var/log/money-worker.log -f /var/log/celery/celery.log
-
-&gt;   tail -f /var/log/syslog
-</code></pre>
-
-<h4>The main thing that haunted me, was once again Unix permissions</h4>
-
-<p>(One day, I am sure I am going to say &mdash; man! Unix permissions are awesome)</p>
-
-<p>The most important line in the init script is the exec line:</p>
-
-<pre><code>exec su -c  'FLASK_ENV=production /usr/local/bin/celeryd --loglevel=info --concurrency=1 --logfile=/var/log/worker.log'
-</code></pre>
-
-<p>So what I learned here is that sudo has its own environment variable space.  So even if I set the FLASK_ENV environement varable above in the script, it wouln&rsquo;t be applied.  So you need to use <code>su -c</code> which will execute the given string as super user.  Check out this StackOverflow <a href="http://stackoverflow.com/a/16533951/192791">post</a> for more info.</p>
 </div>
 
 
@@ -202,21 +179,15 @@ stop on runlevel [!2345]
   
 
 
-<time datetime="2013-05-14T13:07:00-04:00" pubdate data-updated="true">May 14<span>th</span>, 2013</time>
+<time datetime="2013-05-22T07:51:00-04:00" pubdate data-updated="true">May 22<span>nd</span>, 2013</time>
       
-
-<span class="categories">
-  
-    <a class='category' href='/blog/categories/celery/'>celery</a>, <a class='category' href='/blog/categories/ec2/'>ec2</a>
-  
-</span>
 
 
     </p>
     
       <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://jtushman.github.io/blog/2013/05/14/deamonize-processes-on-ubuntu/" data-via="tushman" data-counturl="http://jtushman.github.io/blog/2013/05/14/deamonize-processes-on-ubuntu/" >Tweet</a>
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://jtushman.github.io/blog/2013/05/22/kenneth-reitz-should-be-a-millionaire/" data-via="tushman" data-counturl="http://jtushman.github.io/blog/2013/05/22/kenneth-reitz-should-be-a-millionaire/" >Tweet</a>
   
   
   
@@ -225,8 +196,8 @@ stop on runlevel [!2345]
     
     <p class="meta">
       
+        <a class="basic-alignment left" href="/blog/2013/05/17/mailing-it-in/" title="Previous Post: Mailing It In">&laquo; Mailing It In</a>
       
-        <a class="basic-alignment right" href="/blog/2013/05/17/mailing-it-in/" title="Next Post: Mailing It In">Mailing It In &raquo;</a>
       
     </p>
   </footer>
@@ -296,8 +267,8 @@ stop on runlevel [!2345]
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://jtushman.github.io/blog/2013/05/14/deamonize-processes-on-ubuntu/';
-        var disqus_url = 'http://jtushman.github.io/blog/2013/05/14/deamonize-processes-on-ubuntu/';
+        var disqus_identifier = 'http://jtushman.github.io/blog/2013/05/22/kenneth-reitz-should-be-a-millionaire/';
+        var disqus_url = 'http://jtushman.github.io/blog/2013/05/22/kenneth-reitz-should-be-a-millionaire/';
         var disqus_script = 'embed.js';
       
     (function () {
