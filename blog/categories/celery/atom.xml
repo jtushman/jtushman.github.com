@@ -4,7 +4,7 @@
   <title><![CDATA[Category: celery | tushman.io]]></title>
   <link href="http://jtushman.github.io/blog/categories/celery/atom.xml" rel="self"/>
   <link href="http://jtushman.github.io/"/>
-  <updated>2013-05-22T10:34:25-04:00</updated>
+  <updated>2013-05-25T17:16:31-04:00</updated>
   <id>http://jtushman.github.io/</id>
   <author>
     <name><![CDATA[Jonathan Tushman]]></name>
@@ -70,6 +70,11 @@ exec su -c  'FLASK_ENV=production /usr/local/bin/celeryd --loglevel=info --concu
 &gt; sudo restart celeryd
 &gt; sudo stop celeryd
 &gt; sudo status celeryd
+</code></pre>
+
+<p>You can also use the initctl script</p>
+
+<pre><code>&gt; sudo initctl list 
 </code></pre>
 
 <p><strong>and</strong> whenever your machine startsup or shutsdown the service will automatically start up and stop respectively.  Thats what the following lines are for:</p>
