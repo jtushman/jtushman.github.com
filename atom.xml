@@ -4,7 +4,7 @@
   <title><![CDATA[tushman.io]]></title>
   <link href="http://jtushman.github.io/atom.xml" rel="self"/>
   <link href="http://jtushman.github.io/"/>
-  <updated>2013-05-25T17:16:31-04:00</updated>
+  <updated>2013-05-29T19:52:23-04:00</updated>
   <id>http://jtushman.github.io/</id>
   <author>
     <name><![CDATA[Jonathan Tushman]]></name>
@@ -12,6 +12,65 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Order Socks Without Leaving Your tmux Session]]></title>
+    <link href="http://jtushman.github.io/blog/2013/05/29/order-socks-without-leaving-your-tmux-session/"/>
+    <updated>2013-05-29T19:21:00-04:00</updated>
+    <id>http://jtushman.github.io/blog/2013/05/29/order-socks-without-leaving-your-tmux-session</id>
+    <content type="html"><![CDATA[<p>We all know using the mouse is a productivity killer.  So is shopping for esentials like socks and underware.  Here is a solution to both of these problems.</p>
+
+<p>Zappos Labs, just released an awesome new CLI for us developers to keep our eyes on the prize.</p>
+
+<p>To use it is simple (you do need to be running ruby 1.8.7 or greater. Install instructions <a href="http://www.ruby-lang.org/en/downloads/">here</a>).</p>
+
+<pre><code>&gt; gem install zappos_cli
+
+&gt; zappos configure
+</code></pre>
+
+<p><code>zappos configue</code> just created a template preferences file in your home directory (~/.zappos)</p>
+
+<p>Update the preferences file with your zappos credientials and some preferences (you will need to have an account set up online with your shipping and billing preferences).  Typically it looks like this:</p>
+
+<pre><code>[Credentials]
+zappos_username = jonathan
+zappos_password = p@ssw0rd
+
+[Preferences]
+favorite_colors = ['blue', 'black', 'green']
+celebrities_style_that_i_like = ['jack black','zach galifianakis'] 
+</code></pre>
+
+<p>Great!  Now you are all set .  Lets give it a spin …</p>
+
+<pre><code>&gt; zappos order:socks --quantity=4
+</code></pre>
+
+<p>Want to see the status of your order:</p>
+
+<pre><code>&gt; zappos orders:status
+</code></pre>
+
+<p>Want to track your order:</p>
+
+<pre><code>&gt; zappos orders:status --tail
+</code></pre>
+
+<p>I like to keep this open in a tmux pane, and I can at realtime where my socks are</p>
+
+<p>Don&rsquo;t like your socks.  No worries.  Returns are easy:</p>
+
+<pre><code>&gt; zappos returns:new --order=ORDER_NUMBER
+</code></pre>
+
+<p>This will generate a pdf return lable and return instructions ORDER_NUMBER comes from <code>zappos orders:status</code></p>
+
+<p>The zappos_cli is in beta right now, and only supports a few clothing groups.  The order command, along with socks accepts the following:  [&lsquo;socks&rsquo;, &lsquo;boxers&rsquo;, &rsquo;t-shirts&#8217;, &lsquo;jeans&rsquo;, &lsquo;shoes&rsquo;]  But enough to keep us hackers clothed</p>
+
+<p><strong>JUST KIDDING!!!  But this would be sooooooooo awesome</strong>  Make it happen <a href="https://twitter.com/ZapposLabs">@ZapposLabs</a>!!</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Kenneth Reitz Should Be A Millionaire]]></title>
@@ -100,7 +159,7 @@
 <p>My idea I am calling <strong>Mailing It In™</strong>.  This is what I want it to do:</p>
 
 <ol>
-<li><p>Everyday you send a <a href="http://daringfireball.net/projects/markdown/syntax">markdown</a> formated email to <a href="&#109;&#x61;&#x69;&#x6c;&#116;&#111;&#x3a;&#x6d;&#97;&#105;&#x6c;&#105;&#x74;&#x69;&#110;&#64;&#122;&#x65;&#102;&#114;&#x2e;&#x63;&#111;&#x6d;&#46;">&#109;&#97;&#x69;&#x6c;&#x69;&#x74;&#x69;&#110;&#64;&#x7a;&#101;&#x66;&#114;&#x2e;&#x63;&#x6f;&#x6d;&#x2e;</a>  I need to think about this more, but I think we just need to answer two questions:</p>
+<li><p>Everyday you send a <a href="http://daringfireball.net/projects/markdown/syntax">markdown</a> formated email to <a href="&#109;&#x61;&#105;&#x6c;&#x74;&#x6f;&#58;&#x6d;&#x61;&#105;&#108;&#105;&#116;&#x69;&#x6e;&#x40;&#x7a;&#x65;&#102;&#114;&#x2e;&#99;&#111;&#109;&#x2e;">&#109;&#97;&#105;&#x6c;&#x69;&#116;&#105;&#110;&#64;&#x7a;&#101;&#x66;&#x72;&#x2e;&#x63;&#x6f;&#x6d;&#x2e;</a>  I need to think about this more, but I think we just need to answer two questions:</p>
 
 <ol>
 <li>What am I struggling with:</li>
