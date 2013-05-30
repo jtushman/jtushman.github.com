@@ -4,7 +4,7 @@
   <title><![CDATA[tushman.io]]></title>
   <link href="http://jtushman.github.io/atom.xml" rel="self"/>
   <link href="http://jtushman.github.io/"/>
-  <updated>2013-05-30T07:36:43-04:00</updated>
+  <updated>2013-05-30T07:40:46-04:00</updated>
   <id>http://jtushman.github.io/</id>
   <author>
     <name><![CDATA[Jonathan Tushman]]></name>
@@ -14,10 +14,10 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Order Socks Without Leaving Your tmux Session]]></title>
-    <link href="http://jtushman.github.io/blog/2013/05/29/order-socks-without-leaving-your-tmux-session/"/>
+    <title type="html"><![CDATA[Order Socks Without Leaving the Terminal]]></title>
+    <link href="http://jtushman.github.io/blog/2013/05/29/order-socks-without-leaving-the-terminal/"/>
     <updated>2013-05-29T19:21:00-04:00</updated>
-    <id>http://jtushman.github.io/blog/2013/05/29/order-socks-without-leaving-your-tmux-session</id>
+    <id>http://jtushman.github.io/blog/2013/05/29/order-socks-without-leaving-the-terminal</id>
     <content type="html"><![CDATA[<p>We all know using the mouse is a productivity killer.  So is shopping for essentials like socks and underwear.  Here is a solution to both of these problems.</p>
 
 <p>Zappos Labs just released an awesome new CLI for us developers to keep our eyes on the prize.</p>
@@ -179,7 +179,7 @@ celebrities_with_style_that_i_like = ['jack black','zach galifianakis']
 <p>My idea I am calling <strong>Mailing It In™</strong>.  This is what I want it to do:</p>
 
 <ol>
-<li><p>Everyday you send a <a href="http://daringfireball.net/projects/markdown/syntax">markdown</a> formated email to <a href="&#x6d;&#97;&#105;&#108;&#116;&#111;&#58;&#x6d;&#x61;&#105;&#x6c;&#x69;&#116;&#x69;&#x6e;&#64;&#x7a;&#101;&#x66;&#114;&#46;&#x63;&#111;&#x6d;&#x2e;">&#109;&#97;&#x69;&#108;&#x69;&#x74;&#x69;&#x6e;&#64;&#x7a;&#x65;&#102;&#x72;&#x2e;&#x63;&#x6f;&#109;&#46;</a>  I need to think about this more, but I think we just need to answer two questions:</p>
+<li><p>Everyday you send a <a href="http://daringfireball.net/projects/markdown/syntax">markdown</a> formated email to <a href="&#109;&#x61;&#x69;&#x6c;&#116;&#111;&#58;&#109;&#97;&#x69;&#x6c;&#x69;&#x74;&#x69;&#x6e;&#x40;&#x7a;&#101;&#102;&#114;&#x2e;&#x63;&#111;&#109;&#46;">&#x6d;&#97;&#x69;&#x6c;&#x69;&#116;&#x69;&#110;&#64;&#122;&#x65;&#102;&#114;&#x2e;&#99;&#111;&#109;&#x2e;</a>  I need to think about this more, but I think we just need to answer two questions:</p>
 
 <ol>
 <li>What am I struggling with:</li>
