@@ -4,7 +4,7 @@
   <title><![CDATA[tushman.io]]></title>
   <link href="http://jtushman.github.io/atom.xml" rel="self"/>
   <link href="http://jtushman.github.io/"/>
-  <updated>2013-05-29T19:52:23-04:00</updated>
+  <updated>2013-05-29T21:03:13-04:00</updated>
   <id>http://jtushman.github.io/</id>
   <author>
     <name><![CDATA[Jonathan Tushman]]></name>
@@ -45,7 +45,18 @@ celebrities_style_that_i_like = ['jack black','zach galifianakis']
 <p>Great!  Now you are all set .  Lets give it a spin …</p>
 
 <pre><code>&gt; zappos order:socks --quantity=4
+
+       mmm          mmm          mmm          mmm
+  mmm  | |     mmm  | |     mmm  | |     mmm  | |
+  | |  | |     | |  | |     | |  | |     | |  | |
+  | |  \) \    | |  \) \    | |  \) \    | |  \) \
+  \) \  \__)   \) \  \__)   \) \  \__)   \) \  \__)
+   \__)         \__)         \__)         \__)
 </code></pre>
+
+<p>You just ordered some socks! Nice! (<strong>note:</strong> the current version only supports following items: <code>['socks', 'boxers', 't-shirts', 'jeans', 'shoes', 'hoodies']</code>)  Enough to keep us hackers clothed.</p>
+
+<p>Really impressed with the ascii art &mdash; they are sweating the details.</p>
 
 <p>Want to see the status of your order:</p>
 
@@ -66,7 +77,16 @@ celebrities_style_that_i_like = ['jack black','zach galifianakis']
 
 <p>This will generate a pdf return lable and return instructions ORDER_NUMBER comes from <code>zappos orders:status</code></p>
 
-<p>The zappos_cli is in beta right now, and only supports a few clothing groups.  The order command, along with socks accepts the following:  [&lsquo;socks&rsquo;, &lsquo;boxers&rsquo;, &rsquo;t-shirts&#8217;, &lsquo;jeans&rsquo;, &lsquo;shoes&rsquo;]  But enough to keep us hackers clothed</p>
+<p>The zappos_cli is in beta right now.  But I have found it invaluable.  Give it a shot!</p>
+
+<br/>
+
+
+<br/>
+
+
+<br/>
+
 
 <p><strong>JUST KIDDING!!!  But this would be sooooooooo awesome</strong>  Make it happen <a href="https://twitter.com/ZapposLabs">@ZapposLabs</a>!!</p>
 ]]></content>
@@ -159,7 +179,7 @@ celebrities_style_that_i_like = ['jack black','zach galifianakis']
 <p>My idea I am calling <strong>Mailing It In™</strong>.  This is what I want it to do:</p>
 
 <ol>
-<li><p>Everyday you send a <a href="http://daringfireball.net/projects/markdown/syntax">markdown</a> formated email to <a href="&#109;&#x61;&#105;&#x6c;&#x74;&#x6f;&#58;&#x6d;&#x61;&#105;&#108;&#105;&#116;&#x69;&#x6e;&#x40;&#x7a;&#x65;&#102;&#114;&#x2e;&#99;&#111;&#109;&#x2e;">&#109;&#97;&#105;&#x6c;&#x69;&#116;&#105;&#110;&#64;&#x7a;&#101;&#x66;&#x72;&#x2e;&#x63;&#x6f;&#x6d;&#x2e;</a>  I need to think about this more, but I think we just need to answer two questions:</p>
+<li><p>Everyday you send a <a href="http://daringfireball.net/projects/markdown/syntax">markdown</a> formated email to <a href="&#109;&#x61;&#x69;&#x6c;&#x74;&#x6f;&#x3a;&#x6d;&#x61;&#105;&#x6c;&#105;&#116;&#105;&#110;&#x40;&#122;&#x65;&#102;&#114;&#x2e;&#x63;&#111;&#x6d;&#46;">&#x6d;&#97;&#105;&#x6c;&#x69;&#x74;&#x69;&#110;&#x40;&#122;&#101;&#102;&#x72;&#x2e;&#x63;&#111;&#109;&#46;</a>  I need to think about this more, but I think we just need to answer two questions:</p>
 
 <ol>
 <li>What am I struggling with:</li>
