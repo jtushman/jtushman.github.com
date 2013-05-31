@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>A better way to managing indexes with mongoengine - tushman.io</title>
+  <title>A better way to manage indexes with mongoengine - tushman.io</title>
   <meta name="author" content="Jonathan Tushman">
 
   
-  <meta name="description" content="I was unstatisfied with out-of-the-box solution that mongoengine gave me for managing indexes. What they offer is adding some meta inforation to your &hellip;">
+  <meta name="description" content="I was unsatisfied with out-of-the-box solution that mongoengine gave me for managing indexes. What they offer is adding some meta information to your &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://jtushman.github.io/blog/2013/05/31/a-better-way-to-managing-indexes-with-mongoengine">
+  <link rel="canonical" href="http://jtushman.github.io/blog/2013/05/31/a-better-way-to-manage-indexes-with-mongoengine">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="tushman.io" type="application/atom+xml">
@@ -80,7 +80,7 @@
   
   <header>
     
-      <h1 class="entry-title">A Better Way to Managing Indexes With Mongoengine</h1>
+      <h1 class="entry-title">A Better Way to Manage Indexes With Mongoengine</h1>
     
     
       <p class="meta">
@@ -103,11 +103,11 @@
   </header>
 
 
-<div class="entry-content"><p>I was unstatisfied with out-of-the-box solution that <a href="http://mongoengine.org/">mongoengine</a> gave me for managing indexes.  What they offer is adding some meta inforation to your model, and then it litters <code>ensure_indexes</code> when making calls.  There approach is shown <a href="https://mongoengine-odm.readthedocs.org/en/latest/guide/defining-documents.html#indexes">here</a></p>
+<div class="entry-content"><p>I was unsatisfied with out-of-the-box solution that <a href="http://mongoengine.org/">mongoengine</a> gave me for managing indexes.  What they offer is adding some meta information to your model, and then it litters <code>ensure_indexes</code> when making calls.  There approach is shown <a href="https://mongoengine-odm.readthedocs.org/en/latest/guide/defining-documents.html#indexes">here</a></p>
 
-<p>I find that I need more fine grain controll of defining indexes, and more importantly when to kick off there creation.</p>
+<p>I find that I need more finegrained control of defining indexes, and more importantly when to kick off there creation.</p>
 
-<p>So I added a <code>ensure_indexes()</code> method to my manage.py, and then droped down to <code>pymongo</code> to get the controll that I want</p>
+<p>So I added an <code>ensure_indexes()</code> method to my manage.py, and then dropped down to <code>pymongo</code> to get the control that I want</p>
 
 <p>It looks something like this …</p>
 
@@ -173,7 +173,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>While figuring this out the following two docs where useful:</p>
+<p>While figuring this out the following two docs to be useful:</p>
 
 <ul>
 <li><a href="http://api.mongodb.org/python/current/api/pymongo/collection.html#module-pymongo.collection">pymongo-collections</a></li>
@@ -210,7 +210,7 @@
     
       <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://jtushman.github.io/blog/2013/05/31/a-better-way-to-managing-indexes-with-mongoengine/" data-via="tushman" data-counturl="http://jtushman.github.io/blog/2013/05/31/a-better-way-to-managing-indexes-with-mongoengine/" >Tweet</a>
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://jtushman.github.io/blog/2013/05/31/a-better-way-to-manage-indexes-with-mongoengine/" data-via="tushman" data-counturl="http://jtushman.github.io/blog/2013/05/31/a-better-way-to-manage-indexes-with-mongoengine/" >Tweet</a>
   
   
   
@@ -256,7 +256,7 @@
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/blog/2013/05/31/a-better-way-to-managing-indexes-with-mongoengine/">A Better Way to Managing Indexes With Mongoengine</a>
+        <a href="/blog/2013/05/31/a-better-way-to-manage-indexes-with-mongoengine/">A Better Way to Manage Indexes With Mongoengine</a>
       </li>
     
       <li class="post">
@@ -305,8 +305,8 @@
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://jtushman.github.io/blog/2013/05/31/a-better-way-to-managing-indexes-with-mongoengine/';
-        var disqus_url = 'http://jtushman.github.io/blog/2013/05/31/a-better-way-to-managing-indexes-with-mongoengine/';
+        var disqus_identifier = 'http://jtushman.github.io/blog/2013/05/31/a-better-way-to-manage-indexes-with-mongoengine/';
+        var disqus_url = 'http://jtushman.github.io/blog/2013/05/31/a-better-way-to-manage-indexes-with-mongoengine/';
         var disqus_script = 'embed.js';
       
     (function () {

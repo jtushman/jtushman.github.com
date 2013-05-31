@@ -4,7 +4,7 @@
   <title><![CDATA[tushman.io]]></title>
   <link href="http://jtushman.github.io/atom.xml" rel="self"/>
   <link href="http://jtushman.github.io/"/>
-  <updated>2013-05-31T10:07:26-04:00</updated>
+  <updated>2013-05-31T10:19:41-04:00</updated>
   <id>http://jtushman.github.io/</id>
   <author>
     <name><![CDATA[Jonathan Tushman]]></name>
@@ -14,15 +14,15 @@
 
   
   <entry>
-    <title type="html"><![CDATA[A better way to managing indexes with mongoengine]]></title>
-    <link href="http://jtushman.github.io/blog/2013/05/31/a-better-way-to-managing-indexes-with-mongoengine/"/>
+    <title type="html"><![CDATA[A better way to manage indexes with mongoengine]]></title>
+    <link href="http://jtushman.github.io/blog/2013/05/31/a-better-way-to-manage-indexes-with-mongoengine/"/>
     <updated>2013-05-31T09:44:00-04:00</updated>
-    <id>http://jtushman.github.io/blog/2013/05/31/a-better-way-to-managing-indexes-with-mongoengine</id>
-    <content type="html"><![CDATA[<p>I was unstatisfied with out-of-the-box solution that <a href="http://mongoengine.org/">mongoengine</a> gave me for managing indexes.  What they offer is adding some meta inforation to your model, and then it litters <code>ensure_indexes</code> when making calls.  There approach is shown <a href="https://mongoengine-odm.readthedocs.org/en/latest/guide/defining-documents.html#indexes">here</a></p>
+    <id>http://jtushman.github.io/blog/2013/05/31/a-better-way-to-manage-indexes-with-mongoengine</id>
+    <content type="html"><![CDATA[<p>I was unsatisfied with out-of-the-box solution that <a href="http://mongoengine.org/">mongoengine</a> gave me for managing indexes.  What they offer is adding some meta information to your model, and then it litters <code>ensure_indexes</code> when making calls.  There approach is shown <a href="https://mongoengine-odm.readthedocs.org/en/latest/guide/defining-documents.html#indexes">here</a></p>
 
-<p>I find that I need more fine grain controll of defining indexes, and more importantly when to kick off there creation.</p>
+<p>I find that I need more finegrained control of defining indexes, and more importantly when to kick off there creation.</p>
 
-<p>So I added a <code>ensure_indexes()</code> method to my manage.py, and then droped down to <code>pymongo</code> to get the controll that I want</p>
+<p>So I added an <code>ensure_indexes()</code> method to my manage.py, and then dropped down to <code>pymongo</code> to get the control that I want</p>
 
 <p>It looks something like this …</p>
 
@@ -88,7 +88,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>While figuring this out the following two docs where useful:</p>
+<p>While figuring this out the following two docs to be useful:</p>
 
 <ul>
 <li><a href="http://api.mongodb.org/python/current/api/pymongo/collection.html#module-pymongo.collection">pymongo-collections</a></li>
@@ -264,7 +264,7 @@ celebrities_with_style_that_i_like = ['jack black','zach galifianakis']
 <p>My idea I am calling <strong>Mailing It In™</strong>.  This is what I want it to do:</p>
 
 <ol>
-<li><p>Everyday you send a <a href="http://daringfireball.net/projects/markdown/syntax">markdown</a> formated email to <a href="&#x6d;&#x61;&#105;&#x6c;&#116;&#x6f;&#x3a;&#109;&#x61;&#x69;&#108;&#105;&#x74;&#x69;&#110;&#64;&#122;&#101;&#x66;&#x72;&#46;&#x63;&#111;&#109;&#x2e;">&#109;&#97;&#x69;&#x6c;&#105;&#116;&#105;&#110;&#64;&#122;&#101;&#x66;&#x72;&#x2e;&#99;&#x6f;&#x6d;&#x2e;</a>  I need to think about this more, but I think we just need to answer two questions:</p>
+<li><p>Everyday you send a <a href="http://daringfireball.net/projects/markdown/syntax">markdown</a> formated email to <a href="&#x6d;&#97;&#x69;&#108;&#116;&#x6f;&#x3a;&#x6d;&#97;&#x69;&#x6c;&#x69;&#x74;&#x69;&#x6e;&#x40;&#x7a;&#x65;&#102;&#114;&#x2e;&#x63;&#x6f;&#109;&#x2e;">&#x6d;&#x61;&#105;&#x6c;&#105;&#x74;&#105;&#110;&#64;&#x7a;&#101;&#x66;&#114;&#x2e;&#99;&#x6f;&#109;&#x2e;</a>  I need to think about this more, but I think we just need to answer two questions:</p>
 
 <ol>
 <li>What am I struggling with:</li>
