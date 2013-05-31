@@ -9,7 +9,7 @@
   <meta name="author" content="Jonathan Tushman">
 
   
-  <meta name="description" content="We all know using the mouse is a productivity killer. So is shopping for essentials like socks and underwear. Here is a solution to both of these &hellip;">
+  <meta name="description" content="I was unstatisfied with out-of-the-box solution that mongoengine gave me for managing indexes. What they offer is adding some meta inforation to your &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,118 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/05/31/a-better-way-to-managing-indexes-with-mongoengine/">A Better Way to Managing Indexes With Mongoengine</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-05-31T09:44:00-04:00" pubdate data-updated="true">May 31<span>st</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I was unstatisfied with out-of-the-box solution that <a href="http://mongoengine.org/">mongoengine</a> gave me for managing indexes.  What they offer is adding some meta inforation to your model, and then it litters <code>ensure_indexes</code> when making calls.  There approach is shown <a href="https://mongoengine-odm.readthedocs.org/en/latest/guide/defining-documents.html#indexes">here</a></p>
+
+<p>I find that I need more fine grain controll of defining indexes, and more importantly when to kick off there creation.</p>
+
+<p>So I added a <code>ensure_indexes()</code> method to my manage.py, and then droped down to <code>pymongo</code> to get the controll that I want</p>
+
+<p>It looks something like this …</p>
+
+<figure class='code'><figcaption><span>manage.py </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">from</span> <span class="nn">pymongo</span> <span class="kn">import</span> <span class="n">ASCENDING</span><span class="p">,</span> <span class="n">DESCENDING</span>
+</span><span class='line'><span class="kn">from</span> <span class="nn">mongoengine.connection</span> <span class="kn">import</span> <span class="n">get_db</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">database</span>
+</span><span class='line'>
+</span><span class='line'><span class="nd">@manager.command</span>
+</span><span class='line'><span class="k">def</span> <span class="nf">ensure_indexes</span><span class="p">():</span>
+</span><span class='line'>    <span class="n">database</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+</span><span class='line'>    <span class="n">db</span> <span class="o">=</span> <span class="n">get_db</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">vt_collection</span> <span class="o">=</span> <span class="n">db</span><span class="p">[</span><span class="s">&#39;video_test&#39;</span><span class="p">]</span>
+</span><span class='line'>    <span class="n">vt_collection</span><span class="o">.</span><span class="n">ensure_index</span><span class="p">([(</span><span class="s">&#39;video_batch&#39;</span><span class="p">,</span> <span class="n">ASCENDING</span><span class="p">),</span> <span class="p">(</span><span class="s">&#39;video_total_views&#39;</span><span class="p">,</span> <span class="n">DESCENDING</span><span class="p">)],</span> <span class="n">background</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">vt_collection</span><span class="o">.</span><span class="n">ensure_index</span><span class="p">([(</span><span class="s">&#39;video_batch&#39;</span><span class="p">,</span> <span class="n">ASCENDING</span><span class="p">),</span> <span class="p">(</span><span class="s">&#39;video_name&#39;</span><span class="p">,</span> <span class="n">ASCENDING</span><span class="p">)],</span> <span class="n">background</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># show index info:</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">for</span> <span class="n">collection_name</span> <span class="ow">in</span> <span class="n">db</span><span class="o">.</span><span class="n">collection_names</span><span class="p">():</span>
+</span><span class='line'>        <span class="k">print</span> <span class="s">&quot;Collection: [{}]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">collection_name</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">col</span> <span class="o">=</span> <span class="n">db</span><span class="p">[</span><span class="n">collection_name</span><span class="p">]</span>
+</span><span class='line'>        <span class="k">print</span> <span class="n">col</span><span class="o">.</span><span class="n">index_information</span><span class="p">()</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I like using mongoengine&rsquo;s <code>get_db()</code> method to get a handle on a pymongo database object, it centralizes the connection logic which I keep in my <code>database.py</code> file, which for completeness is here:</p>
+
+<figure class='code'><figcaption><span>database.py </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">from</span> <span class="nn">settings</span> <span class="kn">import</span> <span class="o">*</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">mongoengine</span>
+</span><span class='line'>  
+</span><span class='line'><span class="k">def</span> <span class="nf">connect</span><span class="p">():</span>
+</span><span class='line'>    <span class="n">mongoengine</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">MONGO_DATABASE_NAME</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">MONGO_HOST</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">MONGO_PORT</span><span class="p">,</span>
+</span><span class='line'>                        <span class="n">username</span><span class="o">=</span><span class="n">MONGO_USERNAME</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">MONGO_PASSWORD</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>While figuring this out the following two docs where useful:</p>
+
+<ul>
+<li><a href="http://api.mongodb.org/python/current/api/pymongo/collection.html#module-pymongo.collection">pymongo-collections</a></li>
+<li><a href="http://api.mongodb.org/python/current/api/pymongo/database.html#module-pymongo.database">pymongo-database</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -321,7 +433,7 @@ celebrities_with_style_that_i_like = ['jack black','zach galifianakis']
 <p>My idea I am calling <strong>Mailing It In™</strong>.  This is what I want it to do:</p>
 
 <ol>
-<li><p>Everyday you send a <a href="http://daringfireball.net/projects/markdown/syntax">markdown</a> formated email to <a href="&#109;&#x61;&#x69;&#x6c;&#116;&#111;&#58;&#109;&#97;&#x69;&#x6c;&#x69;&#x74;&#x69;&#x6e;&#x40;&#x7a;&#101;&#102;&#114;&#x2e;&#x63;&#111;&#109;&#46;">&#x6d;&#97;&#x69;&#x6c;&#x69;&#116;&#x69;&#110;&#64;&#122;&#x65;&#102;&#114;&#x2e;&#99;&#111;&#109;&#x2e;</a>  I need to think about this more, but I think we just need to answer two questions:</p>
+<li><p>Everyday you send a <a href="http://daringfireball.net/projects/markdown/syntax">markdown</a> formated email to <a href="&#x6d;&#x61;&#105;&#x6c;&#116;&#x6f;&#x3a;&#109;&#x61;&#x69;&#108;&#105;&#x74;&#x69;&#110;&#64;&#122;&#101;&#x66;&#x72;&#46;&#x63;&#111;&#109;&#x2e;">&#109;&#97;&#x69;&#x6c;&#105;&#116;&#105;&#110;&#64;&#122;&#101;&#x66;&#x72;&#x2e;&#99;&#x6f;&#x6d;&#x2e;</a>  I need to think about this more, but I think we just need to answer two questions:</p>
 
 <ol>
 <li>What am I struggling with:</li>
@@ -493,6 +605,10 @@ stop on runlevel [!2345]
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/05/31/a-better-way-to-managing-indexes-with-mongoengine/">A Better Way to Managing Indexes With Mongoengine</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2013/05/29/order-socks-without-leaving-the-terminal/">Order Socks Without Leaving the Terminal</a>

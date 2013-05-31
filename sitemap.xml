@@ -21,12 +21,18 @@
         <lastmod>2013-05-30T07:39:01-04:00</lastmod>
     </url>
     <url>
+        <loc>
+            http://jtushman.github.io/blog/2013/05/31/a-better-way-to-managing-indexes-with-mongoengine/
+        </loc>
+        <lastmod>2013-05-31T10:07:25-04:00</lastmod>
+    </url>
+    <url>
         <loc>http://jtushman.github.io/blog/archives/</loc>
-        <lastmod>2013-05-30T07:39:01-04:00</lastmod>
+        <lastmod>2013-05-31T10:07:25-04:00</lastmod>
     </url>
     <url>
         <loc>http://jtushman.github.io/</loc>
-        <lastmod>2013-05-30T07:39:01-04:00</lastmod>
+        <lastmod>2013-05-31T10:07:25-04:00</lastmod>
     </url>
     <url>
         <loc>http://jtushman.github.io/robots.txt</loc>
