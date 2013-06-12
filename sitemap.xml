@@ -27,12 +27,18 @@
         <lastmod>2013-05-31T10:19:04-04:00</lastmod>
     </url>
     <url>
+        <loc>
+            http://jtushman.github.io/blog/2013/06/12/first-impressions-with-flask-and-elastic-beanstalk/
+        </loc>
+        <lastmod>2013-06-12T10:40:17-04:00</lastmod>
+    </url>
+    <url>
         <loc>http://jtushman.github.io/blog/archives/</loc>
-        <lastmod>2013-05-31T10:19:04-04:00</lastmod>
+        <lastmod>2013-06-12T10:40:17-04:00</lastmod>
     </url>
     <url>
         <loc>http://jtushman.github.io/</loc>
-        <lastmod>2013-05-31T10:19:04-04:00</lastmod>
+        <lastmod>2013-06-12T10:40:17-04:00</lastmod>
     </url>
     <url>
         <loc>http://jtushman.github.io/robots.txt</loc>

@@ -1,0 +1,424 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>First impressions with Flask and Elastic Beanstalk - tushman.io</title>
+  <meta name="author" content="Jonathan Tushman">
+
+  
+  <meta name="description" content="All in all it was pretty simple to get up my flask app up and running on Elastic Beanstalk. A ran into a couple of gotchas, and wanted to share them &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://jtushman.github.io/blog/2013/06/12/first-impressions-with-flask-and-elastic-beanstalk">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="tushman.io" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-41121782-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">tushman.io</a></h1>
+  
+    <h2>The musings of an insecure technologist</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:jtushman.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">First Impressions With Flask and Elastic Beanstalk</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-06-12T10:16:00-04:00" pubdate data-updated="true">Jun 12<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>All in all it was pretty simple to get up my flask app up and running on Elastic Beanstalk.  A ran into a couple of gotchas, and wanted to share them to save others some time:</p>
+
+<p>I relied heavily on two tutorials to get going:</p>
+
+<ol>
+<li><a href="http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create_deploy_Python_flask.html">Deploying a Flask Application to AWS Elastic Beanstalk</a></li>
+<li><a href="http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create_deploy_Python_custom_container.html">Customizing your python container</a></li>
+</ol>
+
+
+<h4>Three main gotchas where (see below for how to get solve / work around):</h4>
+
+<ol>
+<li><a href="#1">As of June 2013, <strong>EB only supports python 2.6</strong> (2.6.8 to be specific)</a></li>
+<li><a href="#2">Make sure your container is configured to point to your static files</a></li>
+<li><a href="#4">Make sure your Flask app is named application</a></li>
+</ol>
+
+
+<h4>Somethings that I am impressed with (again only been playing with this a day):</h4>
+
+<ol>
+<li>Fundamentally, pretty easy to get up and going</li>
+<li>Autoscaling seems to be pretty slick</li>
+<li>Besides the python for the web server, the instances are highly configurable (<a href="http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/customize-containers-ec2.html">docs</a>)
+
+<ol>
+<li>in particular I like the configurable services that you can attach to each instance</li>
+</ol>
+</li>
+</ol>
+
+
+<h4>Things that I am currently struggling with (but again its only been a day) are:</h4>
+
+<ol>
+<li>Can not specify python version for their WSGI</li>
+<li>Not much of a community (or at least I can&rsquo;t find the community) around EB.  And so …
+
+<ol>
+<li>Forums and StackOverflow are not manned by Amazon employees, and in general does not seem to have much of an active community</li>
+<li>Documentation is pretty poor</li>
+<li>No documented patterns or best practices</li>
+</ol>
+</li>
+<li>Logging is not great (<a href="#3">more below</a>)</li>
+<li>No console concept (eb run python &mdash;> and get the interactive console)</li>
+</ol>
+
+
+<p><a id="1"></a></p>
+
+<h2>Currently Beanstalk only supports python 2.6</h2>
+
+<ul>
+<li><p>For now the only real option is to make sure your web app runs on 2.6.  I do not think thats critical, and I am sure in time they will upgrade to 2.7 and gasp maybe 3.0.  But if you need to run a higher version &mdash; you will need to look to another solution (ec2 or heroku).</p></li>
+<li><p>To get your localenv to run 2.6, make a virtualenv like so &hellip;</p>
+
+<pre><code>  virtualenv -p /usr/bin/python2.6 your_project_name
+</code></pre></li>
+<li><p>And you will need to keep another session open with 2.7 or greater to work with the <code>eb</code> cli (this still makes be laugh)</p></li>
+</ul>
+
+
+<p><a id="2"></a></p>
+
+<h2>Configure your container to point to you static files:</h2>
+
+<p>If you do not do this, all of your css, javascript and all your other static goodness will bot be served.</p>
+
+<ol>
+<li>Create a <code>.ebextensions</code> folder in your project root</li>
+<li>Create a [project_name].config file in that .ebextensions folder</li>
+<li><p>Mine looks like the following:</p>
+
+<pre><code> option_settings:
+   "aws:elasticbeanstalk:container:python:staticfiles":
+     "/static/": "static/"    
+</code></pre></li>
+</ol>
+
+
+<p>You can read more about configuration <a href="http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/customize-containers-ec2.html">here</a></p>
+
+<p><a id="4"></a></p>
+
+<h2>Make sure your flask app (or another WSGI app is named application)</h2>
+
+<p>EB WSGI looks for an <code>application</code> object inside an <code>application.py</code> file in your project root.  Mine looks like:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
+</span><span class='line'><span class="n">application</span> <span class="o">=</span> <span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="nd">@app.route</span><span class="p">(</span><span class="s">&quot;/&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="k">def</span> <span class="nf">hello</span><span class="p">():</span>
+</span><span class='line'>    <span class="k">return</span> <span class="s">&quot;Hello World!&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+</span><span class='line'>    <span class="n">application</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Other tips</h2>
+
+<h3>Using brew to install the eb cli</h3>
+
+<ul>
+<li><p>If you are on a mac, you can use brew to install the elastic beanstalk cli (ironically you need to have python 2.7 or 3.0 installed on your machine)</p>
+
+<pre><code>  brew install aws-elasticbeanstalk
+</code></pre></li>
+</ul>
+
+
+<p><a id="3"></a></p>
+
+<h3>To Check out the logs</h3>
+
+<p>You have a couple of options to check out the logs:</p>
+
+<ol>
+<li>using the CLI, <code>eb logs</code></li>
+<li>going to the web console, navigate to logs, and hit &lsquo;Snapshot logs&rsquo; (<a href="http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features.loggingS3.title.html">docs</a>)</li>
+</ol>
+
+
+<p>I found the that formatting of <code>eb logs</code> in the console to be pretty unreadable.  The code is found <a href="http://aws.amazon.com/code/6752709412171743">here</a> (couldn&rsquo;t find it on github).  If I find I rely on this a lot I will probably rewrite this.  I think the main issue is two fold:</p>
+
+<ol>
+<li>They probably are giving us too much info.  They provide us separate logs from the following sources:
+
+<ol>
+<li>/opt/python/log/httpd.out</li>
+<li>/var/log/httpd/error_log</li>
+<li>/var/log/cfn-hup.log</li>
+<li>/opt/python/log/supervisord.log</li>
+<li>/var/log/eb-tools.log</li>
+<li>/var/log/httpd/access_log</li>
+<li>/var/log/eb-cfn-init-call.log</li>
+<li>/var/log/eb-publish-logs.log</li>
+<li>/var/log/cfn-init.log</li>
+<li> /var/log/eb-cfn-init.log</li>
+</ol>
+</li>
+<li><p>And I think they are simply running <code>tail -n</code> on each each of these files. So you get the last n rows for each file, presented separately.  What I <em>really</em> want to know is what <em>just</em> happened or even better &mdash; what is happening right now (tailing).  AND to have all of these logs files interlaced and prefaced by its source.  Something like:</p>
+
+<pre><code> [timestamp] [source=error_log] message 1
+ [timestamp] [source=error_log] message 2
+ [timestamp] [source=access_log] message 3
+</code></pre></li>
+</ol>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Jonathan Tushman</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-06-12T10:16:00-04:00" pubdate data-updated="true">Jun 12<span>th</span>, 2013</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://jtushman.github.io/blog/2013/06/12/first-impressions-with-flask-and-elastic-beanstalk/" data-via="tushman" data-counturl="http://jtushman.github.io/blog/2013/06/12/first-impressions-with-flask-and-elastic-beanstalk/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/05/31/a-better-way-to-manage-indexes-with-mongoengine/" title="Previous Post: A better way to manage indexes with mongoengine">&laquo; A better way to manage indexes with mongoengine</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section xmlns="http://www.w3.org/1999/html">
+  <h1>About Me</h1>
+    <ul>
+        <li>I'm <a href="http://tushman.com" target="_blank">Jonathan Tushman</a>        </li>
+        <li>I am a pragmatic technologist (<a href="http://tushman.com/resume" target="_blank">bio</a>)        </li>
+        <li>I work at <a href="http://www.zefr.com" target="_blank">ZEFR</a>                            </li>
+        <li>... and we're <a href="http://careers.stackoverflow.com/company/zefr">hiring</a></li>
+        <li>I love to build <a href="http://tushman.com/resume" target="_blank">things</a>              </li>
+        <li>I like <a href="http://tushman.com/music" target="_blank">music</a> and playing board games </li>
+        <li>I read the <a href="http://www.economist.com" target="_blank">Economist</a>                 </li>
+        <li>Follow me if you like <a href="http://www.twitter.com/tushman" target="_blank">@tushman</a> </li>
+    </ul>
+
+
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/06/12/first-impressions-with-flask-and-elastic-beanstalk/">First Impressions With Flask and Elastic Beanstalk</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/05/31/a-better-way-to-manage-indexes-with-mongoengine/">A Better Way to Manage Indexes With Mongoengine</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/05/29/order-socks-without-leaving-the-terminal/">Order Socks Without Leaving the Terminal</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/05/22/kenneth-reitz-should-be-a-millionaire/">Kenneth Reitz Should Be a Millionaire</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/05/17/mailing-it-in/">Mailing It In</a>
+      </li>
+    
+  </ul>
+</section>
+<section>
+    <h1>Twitter</h1>
+    <a class="twitter-timeline" href="https://twitter.com/tushman" data-widget-id="338399291280326658">Tweets by @tushman</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+</section>
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Jonathan Tushman -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'jtushmanblog';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://jtushman.github.io/blog/2013/06/12/first-impressions-with-flask-and-elastic-beanstalk/';
+        var disqus_url = 'http://jtushman.github.io/blog/2013/06/12/first-impressions-with-flask-and-elastic-beanstalk/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
