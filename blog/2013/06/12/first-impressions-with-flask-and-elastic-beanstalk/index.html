@@ -238,7 +238,7 @@
 </ol>
 
 
-<p>I found the that formatting of <code>eb logs</code> in the console to be pretty unreadable.  The code is found <a href="http://aws.amazon.com/code/6752709412171743">here</a> (couldn&rsquo;t find it on github).  If I find I rely on this a lot I will probably rewrite this.  I think the main issue is two fold:</p>
+<p>I found the that formatting of <code>eb logs</code> in the console to be pretty unreadable.  The code is found <a href="http://aws.amazon.com/code/6752709412171743">here</a> (couldn&rsquo;t find it on github).  If I find I rely on this a lot I will probably rewrite this.  I think the main issue is three fold:</p>
 
 <ol>
 <li>They probably are giving us too much info.  They provide us separate logs from the following sources:
@@ -256,6 +256,7 @@
 <li> /var/log/eb-cfn-init.log</li>
 </ol>
 </li>
+<li>Each log is presented in a different format (I know why thats the case &mdash; but still)</li>
 <li><p>And I think they are simply running <code>tail -n</code> on each each of these files. So you get the last n rows for each file, presented separately.  What I <em>really</em> want to know is what <em>just</em> happened or even better &mdash; what is happening right now (tailing).  AND to have all of these logs files interlaced and prefaced by its source.  Something like:</p>
 
 <pre><code> [timestamp] [source=error_log] message 1

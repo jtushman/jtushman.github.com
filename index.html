@@ -241,7 +241,7 @@
 </ol>
 
 
-<p>I found the that formatting of <code>eb logs</code> in the console to be pretty unreadable.  The code is found <a href="http://aws.amazon.com/code/6752709412171743">here</a> (couldn&rsquo;t find it on github).  If I find I rely on this a lot I will probably rewrite this.  I think the main issue is two fold:</p>
+<p>I found the that formatting of <code>eb logs</code> in the console to be pretty unreadable.  The code is found <a href="http://aws.amazon.com/code/6752709412171743">here</a> (couldn&rsquo;t find it on github).  If I find I rely on this a lot I will probably rewrite this.  I think the main issue is three fold:</p>
 
 <ol>
 <li>They probably are giving us too much info.  They provide us separate logs from the following sources:
@@ -259,6 +259,7 @@
 <li> /var/log/eb-cfn-init.log</li>
 </ol>
 </li>
+<li>Each log is presented in a different format (I know why thats the case &mdash; but still)</li>
 <li><p>And I think they are simply running <code>tail -n</code> on each each of these files. So you get the last n rows for each file, presented separately.  What I <em>really</em> want to know is what <em>just</em> happened or even better &mdash; what is happening right now (tailing).  AND to have all of these logs files interlaced and prefaced by its source.  Something like:</p>
 
 <pre><code> [timestamp] [source=error_log] message 1
@@ -629,7 +630,7 @@ celebrities_with_style_that_i_like = ['jack black','zach galifianakis']
 <p>My idea I am calling <strong>Mailing It In™</strong>.  This is what I want it to do:</p>
 
 <ol>
-<li><p>Everyday you send a <a href="http://daringfireball.net/projects/markdown/syntax">markdown</a> formated email to <a href="&#109;&#97;&#105;&#x6c;&#x74;&#x6f;&#58;&#x6d;&#97;&#x69;&#x6c;&#x69;&#116;&#105;&#110;&#x40;&#122;&#101;&#102;&#114;&#x2e;&#99;&#x6f;&#109;&#x2e;">&#109;&#97;&#x69;&#108;&#x69;&#x74;&#105;&#x6e;&#64;&#x7a;&#x65;&#x66;&#x72;&#46;&#99;&#111;&#x6d;&#x2e;</a>  I need to think about this more, but I think we just need to answer two questions:</p>
+<li><p>Everyday you send a <a href="http://daringfireball.net/projects/markdown/syntax">markdown</a> formated email to <a href="&#x6d;&#x61;&#x69;&#x6c;&#x74;&#111;&#x3a;&#109;&#97;&#105;&#x6c;&#x69;&#116;&#x69;&#110;&#x40;&#x7a;&#x65;&#x66;&#114;&#46;&#99;&#x6f;&#x6d;&#46;">&#109;&#97;&#x69;&#108;&#x69;&#116;&#x69;&#110;&#x40;&#x7a;&#x65;&#x66;&#114;&#46;&#x63;&#111;&#x6d;&#46;</a>  I need to think about this more, but I think we just need to answer two questions:</p>
 
 <ol>
 <li>What am I struggling with:</li>
