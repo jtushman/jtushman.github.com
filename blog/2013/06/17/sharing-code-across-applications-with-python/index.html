@@ -9,7 +9,7 @@
   <meta name="author" content="Jonathan Tushman">
 
   
-  <meta name="description" content="Problem Statement We have libraries that we need to share across multiple applications. Using Git submodules, makes me cry &mdash; there has to be a &hellip;">
+  <meta name="description" content="tl;dr: Use pip, git(hub) and tags to share packages privately amongst your team Problem Statement We have libraries that we need to share across &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -103,7 +103,9 @@
   </header>
 
 
-<div class="entry-content"><p><em>Problem Statement</em>  We have libraries that we need to share across multiple applications.  Using Git submodules, makes me cry &mdash; there has to be a better way (and there is)</p>
+<div class="entry-content"><h3>tl;dr:  Use pip, git(hub) and tags to share packages privately amongst your team</h3>
+
+<p><strong>Problem Statement</strong>  We have libraries that we need to share across multiple applications.  Using Git submodules, makes me cry &mdash; there has to be a better way (and there is)</p>
 
 <p>I am going to break this up into three sections:</p>
 
@@ -193,7 +195,7 @@
 
 <p>Okay, now things get a bit more interesting.  You have a key component that is used in multiple codes bases.  What is the best way to share that.  But we need to, a la Gandalf: &ldquo;Keep it secret, keep it safe&rdquo;</p>
 
-<iframe width="560" height="315" src="http://www.youtube.com/embed/_YhpauKGgQ4" frameborder="0" allowfullscreen></iframe>
+<iframe width="100%" height="315" src="http://www.youtube.com/embed/_YhpauKGgQ4" frameborder="0" allowfullscreen></iframe>
 
 
 <p>Our Requirements:</p>
@@ -213,46 +215,7 @@
 
 <ul>
 <li>Create a private git repo (I am using github)</li>
-<li>Make you package, just like we did before.  For this example I will share piece of code that I use to inspect into dictionaries. <a href="https://github.com/jtushman/dict_digger">here is the project</a> (note: its public to share with you guys &mdash; but it the real use case it MUST be private.)</li>
-</ul>
-
-
-<figure class='code'><figcaption><span>dict_digger/__init__.py</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="c"># Core Imports</span>
-</span><span class='line'><span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'><span class="k">def</span> <span class="nf">dig</span><span class="p">(</span><span class="nb">hash</span><span class="p">,</span><span class="o">*</span><span class="n">keys</span><span class="p">):</span>
-</span><span class='line'>    <span class="sd">&quot;&quot;&quot;</span>
-</span><span class='line'><span class="sd">    digs into an dict, if anything along the way is None, then simply return None</span>
-</span><span class='line'><span class="sd">    &quot;&quot;&quot;</span>
-</span><span class='line'>    <span class="n">end_of_chain</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="nb">hash</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
-</span><span class='line'>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">end_of_chain</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">end_of_chain</span><span class="p">:</span>
-</span><span class='line'>            <span class="n">end_of_chain</span> <span class="o">=</span> <span class="n">end_of_chain</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-</span><span class='line'>        <span class="k">else</span><span class="p">:</span>
-</span><span class='line'>            <span class="k">return</span> <span class="bp">None</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">return</span> <span class="n">end_of_chain</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
+<li><p>Make you package, just like we did before.  For this example I will share piece of code that I use to inspect into dictionaries. <a href="https://github.com/jtushman/dict_digger">here is the project</a> (note: its public to share with you guys &mdash; but it the real use case it MUST be private.)</p></li>
 <li><p>push to github.  It needs to have all the same trappings of a python package you would push to PyPi</p></li>
 <li><p>When working with git and pip, you need to go through an additional step of explicitly tagging your versions</p></li>
 </ul>
@@ -319,6 +282,10 @@
 </li>
 </ul>
 
+
+<p>Note:  As an alternative you can host your own secure <a href="https://pypi.python.org/pypi/pypiserver">PyPi server</a>.</p>
+
+<p>What I really like about the GitHub approach is ( a ) all of the ACL heavy lift is handled by GitHub, and ( b ) they are responsible for keeping their server up.</p>
 
 <p>Cool &mdash; this is working for me.  Love to hear others thoughts and successful approaches.</p>
 
