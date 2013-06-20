@@ -4,7 +4,7 @@
   <title><![CDATA[tushman.io]]></title>
   <link href="http://jtushman.github.io/atom.xml" rel="self"/>
   <link href="http://jtushman.github.io/"/>
-  <updated>2013-06-19T21:55:11-04:00</updated>
+  <updated>2013-06-19T22:10:01-04:00</updated>
   <id>http://jtushman.github.io/</id>
   <author>
     <name><![CDATA[Jonathan Tushman]]></name>
@@ -47,7 +47,9 @@
 
 <p>Just as important, is the timing of the feedback.  Don&rsquo;t wait until your quarterly review.  If you have a way that a colleague could run a meeting better &mdash; tell her right afterwards.  Try to build a culture of real-time feedback.</p>
 
-<p>And just because this is a engineer blog &hellip;</p>
+<p>Now, this is not a silver bullet.  I have also heard this approach called a &ldquo;sh*t sandwich&rdquo;.  And if it is used too much &mdash; or without sincerity, it will not be effective.  But, I think its a good arrow to put into your feedback quiver.</p>
+
+<p>And just because this is a engineering blog &hellip;</p>
 
 <figure class='code'><figcaption><span>feedback.py</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -726,7 +728,7 @@ celebrities_with_style_that_i_like = ['jack black','zach galifianakis']
 <p>My idea I am calling <strong>Mailing It In™</strong>.  This is what I want it to do:</p>
 
 <ol>
-<li><p>Everyday you send a <a href="http://daringfireball.net/projects/markdown/syntax">markdown</a> formated email to <a href="&#109;&#97;&#105;&#x6c;&#x74;&#111;&#x3a;&#x6d;&#97;&#105;&#108;&#105;&#116;&#105;&#x6e;&#x40;&#x7a;&#x65;&#102;&#114;&#46;&#x63;&#x6f;&#x6d;&#46;">&#x6d;&#x61;&#105;&#x6c;&#105;&#116;&#x69;&#110;&#64;&#x7a;&#101;&#102;&#114;&#x2e;&#x63;&#x6f;&#x6d;&#x2e;</a>  I need to think about this more, but I think we just need to answer two questions:</p>
+<li><p>Everyday you send a <a href="http://daringfireball.net/projects/markdown/syntax">markdown</a> formated email to <a href="&#x6d;&#97;&#105;&#x6c;&#x74;&#x6f;&#x3a;&#x6d;&#97;&#105;&#x6c;&#105;&#x74;&#x69;&#x6e;&#x40;&#x7a;&#101;&#x66;&#114;&#x2e;&#99;&#x6f;&#x6d;&#46;">&#x6d;&#x61;&#105;&#x6c;&#x69;&#x74;&#105;&#110;&#x40;&#x7a;&#x65;&#102;&#x72;&#x2e;&#99;&#x6f;&#109;&#46;</a>  I need to think about this more, but I think we just need to answer two questions:</p>
 
 <ol>
 <li>What am I struggling with:</li>
