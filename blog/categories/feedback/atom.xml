@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: feedback | tushman.io]]></title>
+  <link href="http://jtushman.github.io/blog/categories/feedback/atom.xml" rel="self"/>
+  <link href="http://jtushman.github.io/"/>
+  <updated>2013-08-15T10:46:32-04:00</updated>
+  <id>http://jtushman.github.io/</id>
+  <author>
+    <name><![CDATA[Jonathan Tushman]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[How to Give Constructive Feedback To An Engineer]]></title>
+    <link href="http://jtushman.github.io/blog/2013/06/19/how-to-give-constructive_feedback-to-an-engineer/"/>
+    <updated>2013-06-19T21:02:00-04:00</updated>
+    <id>http://jtushman.github.io/blog/2013/06/19/how-to-give-constructive_feedback-to-an-engineer</id>
+    <content type="html"><![CDATA[<p>(I&rsquo;ll give you a hint &mdash; it&rsquo;s not down-voting, or one-liner emails)</p>
+
+<p><strong>tl;dr:  Preface your constructive feedback with a compliment.  And end the conversations with additional positive feedback.  Make the negative feedback precise and timely</strong></p>
+
+<p>First, here is my FAVORITE clip of a boss giving his employee feedback</p>
+
+<blockquote><p>Everything you&rsquo;re doing is bad, I want you to know this</p></blockquote>
+
+<iframe width="100%" height="400" src="http://www.youtube.com/embed/ncGHiVKJh0Y" frameborder="0" allowfullscreen></iframe>
+
+
+<p><strong>We engineers, for whatever reason are a sensitive bunch.</strong>  We are internally programmed to strive to get the acceptance of others.  Whether its gaining cread on StackOverflow, Getting up voted on Reddit, or more frequently, trying to impress your boss and peers.</p>
+
+<p>We can take it as fact that giving and receiving feedback is a Good Thing.</p>
+
+<p>But if it is not presented well, it can have some unnecessary consequences.  What we want to happen is have the person receiving the feedback, process it and hopefully take it to heart.</p>
+
+<p>What we do not want to happen is to make the receiver get defensive or feel bad.</p>
+
+<p>What works for me (and for others) is to <strong>wrap the constructive feedback with positive feedback</strong>.  For example:</p>
+
+<blockquote><p>Jonathan, you clearly have been putting a lot of work into your blog.  It has some really great ideas in here.  I particularly liked your article about buying socks.</p>
+
+<p>But, everything you are writing about has been written about already.  Have you seen this <a href="http://www.nytimes.com/2013/04/06/your-money/how-to-give-effective-feedback-both-positive-and-negative.html?pagewanted=all&amp;_r=0">New York Times Article</a> about giving feedback &mdash; its pretty solid?  I recommend doing a bit more research before posting</p>
+
+<p>I do really enjoy your posts, and I look forward to reading more!</p></blockquote>
+
+<p>Just as important, is the timing of the feedback.  Don&rsquo;t wait until your quarterly review.  If you have a way that a colleague could run a meeting better &mdash; tell her right afterwards.  Try to build a culture of real-time feedback.</p>
+
+<p>Now, this is not a silver bullet.  I have also heard this approach called a &ldquo;sh*t sandwich&rdquo;.  And if it is used too much &mdash; or without sincerity, it will not be effective.  But, I think its a good arrow to put into your feedback quiver.</p>
+
+<p>And just because this is a engineering blog &hellip;</p>
+
+<p>```python feedback.py
+from random import choice</p>
+
+<p>beginning_affirmation = [</p>
+
+<pre><code>"I like what you are doing here",
+"Nice use of a context manager, you should share that with the rest of the team",
+"I can not believe how much you have accomplished already"
+</code></pre>
+
+<p>]</p>
+
+<p>ending_affirmation = [</p>
+
+<pre><code>"Dude, I am pumped the direction this is heading",
+"Really good work",
+"Hey, lets grab lunch",
+</code></pre>
+
+<p>]</p>
+
+<p>def constructive_feedback(feedback):</p>
+
+<pre><code>return "{} but, {}. {}".format(choice(beginning_affirmation),feedback,choice(ending_affirmation))
+</code></pre>
+
+<h1>and so …</h1>
+
+<p>print constructive_feedback(&ldquo;More cowbell&rdquo;)</p>
+
+<h1>yields: &lsquo;Nice use of a context manager, you should share that with the rest of the team but, More cowbell. Hey, lets grab lunch&rsquo;</h1>
+
+<p>```</p>
+
+<p>And dare I ask ….  feedback?</p>
+]]></content>
+  </entry>
+  
+</feed>

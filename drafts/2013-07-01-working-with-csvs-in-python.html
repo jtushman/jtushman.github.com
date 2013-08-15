@@ -5,11 +5,17 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Order Socks Without Leaving the Terminal - tushman.io</title>
+  <title>Working with CSVs in Python - tushman.io</title>
   <meta name="author" content="Jonathan Tushman">
 
   
-  <meta name="description" content="We all know using the mouse is a productivity killer. So is shopping for essentials like socks and underwear. Here is a solution to both of these &hellip;">
+  <meta name="description" content="I have googled this like 8 times in the last 8 months, and never satisfied with my results: 1
+2
+3
+4
+5
+import csv
+with open(&#39;data/searches.csv&#39 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +24,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://jtushman.github.io/blog/2013/05/29/order-socks-without-leaving-the-terminal">
+  <link rel="canonical" href="http://jtushman.github.io/drafts/2013-07-01-working-with-csvs-in-python.html">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="tushman.io" type="application/atom+xml">
@@ -80,7 +86,7 @@
   
   <header>
     
-      <h1 class="entry-title">Order Socks Without Leaving the Terminal</h1>
+      <h1 class="entry-title">Working With CSVs in Python</h1>
     
     
       <p class="meta">
@@ -96,84 +102,27 @@
   
 
 
-<time datetime="2013-05-29T19:21:00-04:00" pubdate data-updated="true">May 29<span>th</span>, 2013</time>
+<time datetime="2013-07-01T09:49:00-04:00" pubdate data-updated="true">Jul 1<span>st</span>, 2013</time>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><p>We all know using the mouse is a productivity killer.  So is shopping for essentials like socks and underwear.  Here is a solution to both of these problems.</p>
+<div class="entry-content"><p>I have googled this like 8 times in the last 8 months, and never satisfied with my results:</p>
 
-<p>Zappos Labs just released an awesome new CLI for us developers to keep our eyes on the prize.</p>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">import</span> <span class="nn">csv</span>
+</span><span class='line'><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">&#39;data/searches.csv&#39;</span><span class="p">,</span><span class="s">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+</span><span class='line'>    <span class="n">csv_reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">csvfile</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">csv_reader</span><span class="p">:</span>
+</span><span class='line'>        <span class="k">print</span> <span class="n">row</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<p>To use it is simple (you do need to be running ruby 1.8.7 or greater. Install instructions <a href="http://www.ruby-lang.org/en/downloads/">here</a>).</p>
-
-<pre><code>&gt; gem install zappos_cli
-
-&gt; zappos configure
-</code></pre>
-
-<p><code>zappos configure</code> just created a template preferences file in your home directory (~/.zappos)</p>
-
-<p>Update the preferences file with your zappos credientials and some preferences (you will need to have an account set up online with your shipping and billing preferences).  Typically it looks like this:</p>
-
-<pre><code>[Credentials]
-zappos_username = jonathan
-zappos_password = p@ssw0rd
-
-[Preferences]
-favorite_colors = ['blue', 'black', 'green']
-celebrities_with_style_that_i_like = ['jack black','zach galifianakis'] 
-</code></pre>
-
-<p>Great!  Now you are all set .  Let&rsquo;s give it a spin …</p>
-
-<pre><code>&gt; zappos order:socks --quantity=4
-
-       mmm          mmm          mmm          mmm
-  mmm  | |     mmm  | |     mmm  | |     mmm  | |
-  | |  | |     | |  | |     | |  | |     | |  | |
-  | |  \) \    | |  \) \    | |  \) \    | |  \) \
-  \) \  \__)   \) \  \__)   \) \  \__)   \) \  \__)
-   \__)         \__)         \__)         \__)
-</code></pre>
-
-<p>You just ordered some socks! Nice! (<strong>note:</strong> the current version only supports following items: <code>['socks', 'boxers', 't-shirts', 'jeans', 'shoes', 'hoodies']</code>  Enough to keep us hackers clothed.)</p>
-
-<p>Really impressed with the ascii art &mdash; they are sweating the details.</p>
-
-<p>Want to see the status of your order:</p>
-
-<pre><code>&gt; zappos orders:status
-</code></pre>
-
-<p>Want to track your order:</p>
-
-<pre><code>&gt; zappos orders:status --tail
-</code></pre>
-
-<p>I like to keep this open in a tmux pane, and I can realtime see where my socks are.</p>
-
-<p>Don&rsquo;t like your socks.  No worries.  Returns are easy:</p>
-
-<pre><code>&gt; zappos returns:new --order=ORDER_NUMBER
-</code></pre>
-
-<p>This will generate a pdf return label and return instructions. note: ORDER_NUMBER comes from running <code>zappos orders:status</code></p>
-
-<p>The zappos_cli is in beta right now.  But I have found it invaluable.  Give it a shot!</p>
-
-<br/>
-
-
-<br/>
-
-
-<br/>
-
-
-<p><strong>JUST KIDDING!!!  But this would be sooooooooo awesome</strong>  Make it happen <a href="https://twitter.com/ZapposLabs">@ZapposLabs</a>!!</p>
 </div>
 
 
@@ -196,7 +145,7 @@ celebrities_with_style_that_i_like = ['jack black','zach galifianakis']
   
 
 
-<time datetime="2013-05-29T19:21:00-04:00" pubdate data-updated="true">May 29<span>th</span>, 2013</time>
+<time datetime="2013-07-01T09:49:00-04:00" pubdate data-updated="true">Jul 1<span>st</span>, 2013</time>
       
 
 
@@ -204,7 +153,7 @@ celebrities_with_style_that_i_like = ['jack black','zach galifianakis']
     
       <div class="sharing">
   
-  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://jtushman.github.io/blog/2013/05/29/order-socks-without-leaving-the-terminal/" data-via="tushman" data-counturl="http://jtushman.github.io/blog/2013/05/29/order-socks-without-leaving-the-terminal/" >Tweet</a>
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://jtushman.github.io/drafts/2013-07-01-working-with-csvs-in-python.html" data-via="tushman" data-counturl="http://jtushman.github.io/drafts/2013-07-01-working-with-csvs-in-python.html" >Tweet</a>
   
   
   
@@ -213,10 +162,6 @@ celebrities_with_style_that_i_like = ['jack black','zach galifianakis']
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2013/05/22/kenneth-reitz-should-be-a-millionaire/" title="Previous Post: Kenneth Reitz Should Be A Millionaire">&laquo; Kenneth Reitz Should Be A Millionaire</a>
-      
-      
-        <a class="basic-alignment right" href="/blog/2013/05/31/a-better-way-to-manage-indexes-with-mongoengine/" title="Next Post: A better way to manage indexes with mongoengine">A better way to manage indexes with mongoengine &raquo;</a>
       
     </p>
   </footer>
@@ -301,8 +246,8 @@ celebrities_with_style_that_i_like = ['jack black','zach galifianakis']
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://jtushman.github.io/blog/2013/05/29/order-socks-without-leaving-the-terminal/';
-        var disqus_url = 'http://jtushman.github.io/blog/2013/05/29/order-socks-without-leaving-the-terminal/';
+        var disqus_identifier = 'http://jtushman.github.io/drafts/2013-07-01-working-with-csvs-in-python.html';
+        var disqus_url = 'http://jtushman.github.io/drafts/2013-07-01-working-with-csvs-in-python.html';
         var disqus_script = 'embed.js';
       
     (function () {

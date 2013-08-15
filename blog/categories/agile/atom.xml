@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: agile | tushman.io]]></title>
+  <link href="http://jtushman.github.io/blog/categories/agile/atom.xml" rel="self"/>
+  <link href="http://jtushman.github.io/"/>
+  <updated>2013-08-15T10:46:32-04:00</updated>
+  <id>http://jtushman.github.io/</id>
+  <author>
+    <name><![CDATA[Jonathan Tushman]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Introducing pivotal_tools]]></title>
+    <link href="http://jtushman.github.io/blog/2013/08/15/introducing-pivotal-tools/"/>
+    <updated>2013-08-15T08:56:00-04:00</updated>
+    <id>http://jtushman.github.io/blog/2013/08/15/introducing-pivotal-tools</id>
+    <content type="html"><![CDATA[<p>At ZEFR we are using Pivotal Tracker to help us with our Agile workflow.  Its a great tool, but we created a couple of command-line utilities that help us with our process.  We have found these to be real time-savers and helped up tighten up our process.</p>
+
+<p>We have collected these utils into a python package <a href="https://github.com/jtushman/pivotal_tools">pivotal_tools</a>.  The 3 most useful utilities for us are:</p>
+
+<ul>
+<li><code>pivotal_tools scrum</code> : helps facilitate and visualize our daily scrum meetings</li>
+<li><code>pivotal_tools planning</code>: (aka <code>pivotal_tools poker</code>) : helps facilitate our weekly estimation sessions</li>
+<li><code>pivtoal_tools changelog</code>: generates a changelog for all of delivered storeies</li>
+</ul>
+
+
+<p>To install:</p>
+
+<p>``` bash Install
+pip install pivotal_tools</p>
+
+<p>```</p>
+
+<p>If you are a screencast person &mdash; have a watch (5min), alternatively there are screenshots and descriptions below the fold:</p>
+
+<iframe width="100%" height="400" src="http://jtushman.github.io//www.youtube.com/embed/Pzsxssc30uE" frameborder="0" allowfullscreen></iframe>
+
+
+<hr />
+
+<h2>Sample Project</h2>
+
+<p>Lets say you have project like the following:</p>
+
+<p><img class="center" src="/images/pivotal_tracker.png"></p>
+
+<h2><code>pivotal_tools show_stories</code></h2>
+
+<p>Lists the top 20 stories.  Useful if you are looking for what story to pick up next</p>
+
+<p><img class="center" src="/images/show_stories.png"></p>
+
+<h2><code>pivotal_tools poker</code></h2>
+
+<p>also can be run with <code>pivotal_tools planning</code>.  Iterates over your unestimated features, giving you a minimalist view of the feature.  Prompting the team for an estimate.</p>
+
+<p><img class="center" src="/images/poker.png" title="&lsquo;pivotal tracker&rsquo; &lsquo;pivotal tracker&rsquo;" ></p>
+
+<h2><code>pivotal_tools scrum</code></h2>
+
+<p>We use this tool for our daily scrum.  Simply shows, by team member, what they are working on.</p>
+
+<p><img class="center" src="/images/scrum.png"></p>
+
+<h2><code>pivotal_tools changelog</code></h2>
+
+<p>During our release process, we use this to generate a change log, which we can share with our business owners what has changed.  We also use this during our scrum, to see what has been delivered in the current iteration</p>
+
+<p><img class="center" src="/images/changelog.png"></p>
+
+<h2>Feedback</h2>
+
+<p>Hopefully this will be a useful utility for others.  Feel free to fork and comment.  The repo is on github <a href="https://github.com/jtushman/pivotal_tools">(here)</a></p>
+]]></content>
+  </entry>
+  
+</feed>

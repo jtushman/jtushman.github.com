@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: open source | tushman.io]]></title>
+  <link href="http://jtushman.github.io/blog/categories/open-source/atom.xml" rel="self"/>
+  <link href="http://jtushman.github.io/"/>
+  <updated>2013-08-15T10:46:32-04:00</updated>
+  <id>http://jtushman.github.io/</id>
+  <author>
+    <name><![CDATA[Jonathan Tushman]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Kenneth Reitz Should Be A Millionaire]]></title>
+    <link href="http://jtushman.github.io/blog/2013/05/22/kenneth-reitz-should-be-a-millionaire/"/>
+    <updated>2013-05-22T07:51:00-04:00</updated>
+    <id>http://jtushman.github.io/blog/2013/05/22/kenneth-reitz-should-be-a-millionaire</id>
+    <content type="html"><![CDATA[<h2>or &ldquo;Introducing the Dollar Store&rdquo;</h2>
+
+<p><strong>tl;dr:  Like the apple store, we should have an easy way to pay $1 to use a piece of software.  I think <a href="https://github.com/">Github</a> should help us do that</strong></p>
+
+<p>I went to a really greate Python Meetup last night where Kenneth Reitz (<a href="https://twitter.com/kennethreitz">@kennethreitz</a>) did his <strong>Python for Human&rsquo;s</strong> talk.  Really interesting talk, worth watching (<a href="http://www.youtube.com/watch?v=Y97D8j6CAog">link</a>).</p>
+
+<p>@kennethreitz is, among other things, the author of the <a href="http://docs.python-requests.org/en/latest/">requests</a> library for python.  On one of his slides, he mentioned that his open-source requests libary has been downloaded 4MM times.  I that got me thinking …</p>
+
+<blockquote><p>Kennenth Reitz should be a millionaire</p></blockquote>
+
+<p>Now, maybe he is.  But I doubt it. But he should be.  Here&rsquo;s how &hellip;</p>
+
+<p>So I pose a question to you developers out there:</p>
+
+<p><strong>Whould you pay $1 to use the requests library?</strong>  Whould you pay $1 to use Flask? Rails? etc …</p>
+
+<p>I know for me, the answer is <strong>Hell Yes!</strong>  if (and here is the important part) it is really easy, and headache free.</p>
+
+<p>Here is my proposal &hellip;</p>
+
+<h2>GitHub should open the <strong>&ldquo;Dollar Store&rdquo;</strong></h2>
+
+<p>There are a lot of details that need to be worked out.  But here is the general work flow:</p>
+
+<ul>
+<li>Kenneth clicks a button on his requests project and says &mdash; &ldquo;Enable <strong>Dollar Store</strong>&rdquo;  (note: that the project can still be downloaded for free as normal)</li>
+<li>I go to my github account, and click &lsquo;support the <strong>Dollar Store</strong>&rsquo;</li>
+<li>Now the first time I pull down a project from gibhub with my ssl_key or what have you, if that project is in the dollar store GitHub charges me a dollar and gives it to that project owner</li>
+</ul>
+
+
+<p>Organizations as a whole can also support the dollar store.  I can have all of <a href="http://zefr.com">ZEFR</a> support the <strong>Dollar Store</strong>.</p>
+
+<p>Pretty soon, Kenneth will be a millionaire and will be able to afford the laptop of his dreams.</p>
+
+<h2>I know this open a can of worms (Haters gonna hate):</h2>
+
+<ul>
+<li>How do you allocated funds among many commitors?</li>
+<li>Copyright(left) issues (This is probably the biggest hurdle now)  &mdash; But I believe surmountable</li>
+</ul>
+
+
+<p>But I think these are all details.  <strong>Fundamentally there is money out there that <em>wants</em> to go into smart engineers pockets</strong> &mdash; and we should find a way to greese the wheels, and make it easier for that to happen.</p>
+
+<p>I really think that something like this will be great for innovation.  It will spur more people to contribute to &ldquo;OpenSource&rdquo;</p>
+
+<p>In the meantime there are some alternatives to support projects like these:</p>
+
+<ul>
+<li><a href="https://www.gittip.com/kennethreitz/">Gittip</a> (right know Kenneth makes about $4,000 year for this work)</li>
+<li>And you can also pay for &ldquo;<a href="https://gumroad.com/l/RRZc">enterprise support</a>&rdquo; for $25/year</li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>

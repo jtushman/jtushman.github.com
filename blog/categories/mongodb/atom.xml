@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: mongodb | tushman.io]]></title>
+  <link href="http://jtushman.github.io/blog/categories/mongodb/atom.xml" rel="self"/>
+  <link href="http://jtushman.github.io/"/>
+  <updated>2013-08-15T10:46:32-04:00</updated>
+  <id>http://jtushman.github.io/</id>
+  <author>
+    <name><![CDATA[Jonathan Tushman]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[A better way to manage indexes with mongoengine]]></title>
+    <link href="http://jtushman.github.io/blog/2013/05/31/a-better-way-to-manage-indexes-with-mongoengine/"/>
+    <updated>2013-05-31T09:44:00-04:00</updated>
+    <id>http://jtushman.github.io/blog/2013/05/31/a-better-way-to-manage-indexes-with-mongoengine</id>
+    <content type="html"><![CDATA[<p>I was unsatisfied with out-of-the-box solution that <a href="http://mongoengine.org/">mongoengine</a> gave me for managing indexes.  What they offer is adding some meta information to your model, and then it litters <code>ensure_indexes</code> when making calls.  There approach is shown <a href="https://mongoengine-odm.readthedocs.org/en/latest/guide/defining-documents.html#indexes">here</a></p>
+
+<p>I find that I need more finegrained control of defining indexes, and more importantly when to kick off there creation.</p>
+
+<p>So I added an <code>ensure_indexes()</code> method to my manage.py, and then dropped down to <code>pymongo</code> to get the control that I want</p>
+
+<p>It looks something like this …</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>manage.py </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">from</span> <span class="nn">pymongo</span> <span class="kn">import</span> <span class="n">ASCENDING</span><span class="p">,</span> <span class="n">DESCENDING</span>
+</span><span class='line'><span class="kn">from</span> <span class="nn">mongoengine.connection</span> <span class="kn">import</span> <span class="n">get_db</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">database</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="nd">@manager.command</span>
+</span><span class='line'><span class="k">def</span> <span class="nf">ensure_indexes</span><span class="p">():</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">database</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+</span><span class='line'><span class="n">db</span> <span class="o">=</span> <span class="n">get_db</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">vt_collection</span> <span class="o">=</span> <span class="n">db</span><span class="p">[</span><span class="s">&#39;video_test&#39;</span><span class="p">]</span>
+</span><span class='line'><span class="n">vt_collection</span><span class="o">.</span><span class="n">ensure_index</span><span class="p">([(</span><span class="s">&#39;video_batch&#39;</span><span class="p">,</span> <span class="n">ASCENDING</span><span class="p">),</span> <span class="p">(</span><span class="s">&#39;video_total_views&#39;</span><span class="p">,</span> <span class="n">DESCENDING</span><span class="p">)],</span> <span class="n">background</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</span><span class='line'><span class="n">vt_collection</span><span class="o">.</span><span class="n">ensure_index</span><span class="p">([(</span><span class="s">&#39;video_batch&#39;</span><span class="p">,</span> <span class="n">ASCENDING</span><span class="p">),</span> <span class="p">(</span><span class="s">&#39;video_name&#39;</span><span class="p">,</span> <span class="n">ASCENDING</span><span class="p">)],</span> <span class="n">background</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c"># show index info:</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">for</span> <span class="n">collection_name</span> <span class="ow">in</span> <span class="n">db</span><span class="o">.</span><span class="n">collection_names</span><span class="p">():</span>
+</span><span class='line'>    <span class="k">print</span> <span class="s">&quot;Collection: [{}]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">collection_name</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">col</span> <span class="o">=</span> <span class="n">db</span><span class="p">[</span><span class="n">collection_name</span><span class="p">]</span>
+</span><span class='line'>    <span class="k">print</span> <span class="n">col</span><span class="o">.</span><span class="n">index_information</span><span class="p">()</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>I like using mongoengine&rsquo;s <code>get_db()</code> method to get a handle on a pymongo database object, it centralizes the connection logic which I keep in my <code>database.py</code> file, which for completeness is here:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>database.py </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">from</span> <span class="nn">settings</span> <span class="kn">import</span> <span class="o">*</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">mongoengine</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="k">def</span> <span class="nf">connect</span><span class="p">():</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">mongoengine</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">MONGO_DATABASE_NAME</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">MONGO_HOST</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">MONGO_PORT</span><span class="p">,</span>
+</span><span class='line'>                    <span class="n">username</span><span class="o">=</span><span class="n">MONGO_USERNAME</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">MONGO_PASSWORD</span><span class="p">)</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>While figuring this out the following two docs to be useful:</p>
+
+<ul>
+<li><a href="http://api.mongodb.org/python/current/api/pymongo/collection.html#module-pymongo.collection">pymongo-collections</a></li>
+<li><a href="http://api.mongodb.org/python/current/api/pymongo/database.html#module-pymongo.database">pymongo-database</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>

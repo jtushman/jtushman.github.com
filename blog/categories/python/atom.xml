@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: python | tushman.io]]></title>
+  <link href="http://jtushman.github.io/blog/categories/python/atom.xml" rel="self"/>
+  <link href="http://jtushman.github.io/"/>
+  <updated>2013-08-15T10:46:32-04:00</updated>
+  <id>http://jtushman.github.io/</id>
+  <author>
+    <name><![CDATA[Jonathan Tushman]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Sharing Code Across Applications with Python]]></title>
+    <link href="http://jtushman.github.io/blog/2013/06/17/sharing-code-across-applications-with-python/"/>
+    <updated>2013-06-17T12:20:00-04:00</updated>
+    <id>http://jtushman.github.io/blog/2013/06/17/sharing-code-across-applications-with-python</id>
+    <content type="html"><![CDATA[<h3>tl;dr:  Use pip, git(hub) and tags to share packages privately amongst your team</h3>
+
+<p><strong>Problem Statement</strong>  We have libraries that we need to share across multiple applications.  Using Git submodules, makes me cry &mdash; there has to be a better way (and there is)</p>
+
+<p>I am going to break this up into three sections:</p>
+
+<ul>
+<li><a href="#1">Packaging Python</a> (this needs to happen regardless of how you share)</li>
+<li><a href="#2">Sharing Publicly</a> (with the world via PyPi)</li>
+<li><a href="#3">Sharing Privately</a> (within your organization, with pip and git)</li>
+</ul>
+
+
+<p><a id="1"></a></p>
+
+<h2>Packaging Python</h2>
+
+<p>This section needs to happen regardless if you share in the public domain or privately</p>
+
+<p>Python (our beloved language with bells and whistles) has <a href="https://pypi.python.org/pypi/setuptools/0.7.2"><code>setuptools</code></a> built in that we can use to package our utility.</p>
+
+<p>I really do not having anything to say that hasn&rsquo;t been said before.  I found this tutorial to be excellent:</p>
+
+<blockquote><p><a href="http://www.scotttorborg.com/python-packaging/minimal.html">http://www.scotttorborg.com/python-packaging/minimal.html</a></p></blockquote>
+
+<p>But the gist of it is:</p>
+
+<ol>
+<li>create a <code>setup.py</code> (to define whats to be shared using <code>setuptools</code>)</li>
+<li>Gotsta have README.rst (sharing code with documenting it is useless)</li>
+<li>Test it locally</li>
+<li>Use <a href="http://semver.org/">Semantic Versioning</a> (or you are a bad person)</li>
+</ol>
+
+
+<p><a id="2"></a></p>
+
+<h2>Sharing in the public domain</h2>
+
+<p>Okay, you wrote an amazing utility and want to share it with the world.  I really was blown away how easy it was to do this with thanks to PyPi (Python Package Index) (aka the Cheeseshop)</p>
+
+<p>For this example, I wrote a package called <code>human_dates</code>  That takes some of the syntax sugar from the ruby and rails world and brings it over to python land.</p>
+
+<p>You can find the code <a href="https://github.com/jtushman/human_dates">here</a></p>
+
+<p>And you will see the light if you continue reading the <a href="http://www.scotttorborg.com/python-packaging/minimal.html">packaging tutorial from the first section</a></p>
+
+<p>Once you have you package tested locally, its as simple as:</p>
+
+<p><code>bash
+$ python setup.py register
+$ python setup.py sdist upload
+</code></p>
+
+<p>And now anyone can do the following:</p>
+
+<p><code>bash
+$ pip install human_dates
+</code></p>
+
+<p>And then in a python console, you can:</p>
+
+<p>```python</p>
+
+<p>from human_dates import time_ago_in_words, beginning_of_day</p>
+
+<p>print time_ago_in_words()</p>
+
+<h1>prints &ldquo;just now&rdquo;</h1>
+
+<p>print time_ago_in_words(beginning_of_day())</p>
+
+<h1>prints 8 hours ago</h1>
+
+<p>```</p>
+
+<p>AWESOME!  I really enjoyed this experience.  <strong>I found the overhead very light for creating reusable components.</strong></p>
+
+<p>Also &mdash; if this still sounds like to much work for you &mdash; the <em>least</em> you can do is just write and share a <a href="https://gist.github.com/">gist</a> of your snippet.</p>
+
+<p><a id="3"></a></p>
+
+<h2>Sharing in the private domain (within your company)</h2>
+
+<p>Okay, now things get a bit more interesting.  You have a key component that is used in multiple code bases.  What is the best way to share that.  But we need to, a la Gandalf: &ldquo;Keep it secret, keep it safe&rdquo;</p>
+
+<iframe width="100%" height="315" src="http://www.youtube.com/embed/_YhpauKGgQ4" frameborder="0" allowfullscreen></iframe>
+
+
+<p>Our Requirements:</p>
+
+<ul>
+<li>The sharing should be done via pip, and the requirements.txt file</li>
+<li>I do not want to set up my own pypi server</li>
+<li>It needs to be secure within our organization</li>
+<li>But, needs to be deployable to 3rd party PaaS providers like heroku or elastic beanstalk</li>
+</ul>
+
+
+<br/>
+
+
+<p>To accomplish this, I am using pip&rsquo;s ability to interact with git over ssh.  That and git tagging.  Here are the steps that I took &hellip;</p>
+
+<ul>
+<li>Create a private git repo (I am using github)</li>
+<li><p>Make your package, just like we did before.  For this example I will share piece of code that I use to inspect into dictionaries. <a href="https://github.com/jtushman/dict_digger">here is the project</a> (note: its public to share with you guys &mdash; but it the real use case it MUST be private.)</p></li>
+<li><p>push to github.  It needs to have all the same trappings of a python package you would push to PyPi</p></li>
+<li><p>When working with git and pip, you need to go through an additional step of explicitly tagging your versions</p></li>
+</ul>
+
+
+<p><code>bash
+git tag -a v0.1.0 -m 'version 0.1.0 initial version'
+git push --tags
+</code></p>
+
+<ul>
+<li>For YOU to install the most current version from HEAD, we can now do the following:</li>
+</ul>
+
+
+<p><code>bash
+pip install git+ssh://git@github.com/jtushman/dict_digger.git
+</code></p>
+
+<ul>
+<li>For YOU to install the a <strong>specific</strong> version, we can now do the following:</li>
+</ul>
+
+
+<p><code>bash
+pip install git+ssh://git@github.com/jtushman/dict_digger.git@v0.1.0
+</code></p>
+
+<p>&mdash; or &mdash;</p>
+
+<p>in your requirements.txt file</p>
+
+<p><code>text requirements.txt
+requests==1.2.2
+git+ssh://git@github.com/jtushman/dict_digger.git@v0.1.0
+</code></p>
+
+<p><strong>At this point, your colleagues and deployment machines WILL NOT be able to access this package</strong></p>
+
+<p>Time to provision them &hellip;</p>
+
+<ul>
+<li><p>For your colleagues to access this library:</p>
+
+<ol>
+<li> First they will need to have access to your github repository.  So make sure you have added her/them as collaborators.  Best handled on the github website</li>
+<li> They will need to turn on ssh agent forwarding.  Following instructions (<a href="https://help.github.com/articles/using-ssh-agent-forwarding">here</a>)</li>
+</ol>
+</li>
+<li><p>For your deployment machines to access the library.  You will need to follow the following two steps:</p>
+
+<ol>
+<li> Create a <a href="https://help.github.com/articles/managing-deploy-keys#machine-users">Machine User</a></li>
+<li> Add the ssh keys to your deploy machine.  If you are using heroku.  Its as simple as <a href="https://devcenter.heroku.com/articles/keys#adding-keys-to-heroku">this</a></li>
+</ol>
+</li>
+</ul>
+
+
+<p>Note:  As an alternative you can host your own secure <a href="https://pypi.python.org/pypi/pypiserver">PyPi server</a>.</p>
+
+<p>What I really like about the GitHub approach is ( a ) all of the ACL heavy lift is handled by GitHub, and ( b ) they are responsible for keeping their server up.</p>
+
+<p>Cool &mdash; this is working for me.  Love to hear others thoughts and successful approaches.</p>
+
+<hr />
+
+<p>Other interesting articles while researching this &hellip;</p>
+
+<ul>
+<li><a href="http://lucumr.pocoo.org/2012/6/22/hate-hate-hate-everywhere/">Angry Armin on Packaging</a></li>
+<li><a href="http://blog.mozilla.org/webdev/2013/01/11/switching-to-pip-for-python-deployments/">Mozilla on moving from submodules to pip</a></li>
+<li><a href="https://github.com/kennethreitz/requests/blob/master/setup.py">When in doubt do what Kenneth does</a>
+<a href="https://jamiecurle.co.uk/blog/my-first-experience-adding-package-pypi/">Another nice article (with impressive formatting)</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>
