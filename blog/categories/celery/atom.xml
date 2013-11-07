@@ -4,7 +4,7 @@
   <title><![CDATA[Category: celery | tushman.io]]></title>
   <link href="http://jtushman.github.io/blog/categories/celery/atom.xml" rel="self"/>
   <link href="http://jtushman.github.io/"/>
-  <updated>2013-10-10T21:44:32-04:00</updated>
+  <updated>2013-11-06T18:30:35-08:00</updated>
   <id>http://jtushman.github.io/</id>
   <author>
     <name><![CDATA[Jonathan Tushman]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[Deamonize Processes on Ubuntu]]></title>
     <link href="http://jtushman.github.io/blog/2013/05/14/deamonize-processes-on-ubuntu/"/>
-    <updated>2013-05-14T13:07:00-04:00</updated>
+    <updated>2013-05-14T13:07:00-07:00</updated>
     <id>http://jtushman.github.io/blog/2013/05/14/deamonize-processes-on-ubuntu</id>
     <content type="html"><![CDATA[<p><strong>Problem Statement:  What is the simplest was to deamonize a serivce (Celeryd)on Ubuntu.</strong></p>
 

@@ -4,7 +4,7 @@
   <title><![CDATA[tushman.io]]></title>
   <link href="http://jtushman.github.io/atom.xml" rel="self"/>
   <link href="http://jtushman.github.io/"/>
-  <updated>2013-10-10T21:44:32-04:00</updated>
+  <updated>2013-11-06T18:30:35-08:00</updated>
   <id>http://jtushman.github.io/</id>
   <author>
     <name><![CDATA[Jonathan Tushman]]></name>
@@ -14,9 +14,113 @@
 
   
   <entry>
+    <title type="html"><![CDATA[Dict Digger]]></title>
+    <link href="http://jtushman.github.io/blog/2013/11/06/dict-digger/"/>
+    <updated>2013-11-06T18:18:00-08:00</updated>
+    <id>http://jtushman.github.io/blog/2013/11/06/dict-digger</id>
+    <content type="html"><![CDATA[<p>In the age or SaaS, and working with 3rd part APIs developers often have to navigate a complex object (arrays of hashes of arrays or hashes) (I am looking at you Adwords API)</p>
+
+<p>I wanted a nice way to avoid doing None checks and does this key exist over and over again.</p>
+
+<p>So I made a (very) simple utility to help with it <a href="https://github.com/jtushman/dict_digger"><em>dict_digger</em></a></p>
+
+<p>And works like this …</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>pip install dict_digger
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">import</span> <span class="nn">dict_digger</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">h</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>    <span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="p">{</span>
+</span><span class='line'>         <span class="s">&#39;b&#39;</span><span class="p">:</span> <span class="s">&#39;tuna&#39;</span><span class="p">,</span>
+</span><span class='line'>         <span class="s">&#39;c&#39;</span><span class="p">:</span> <span class="s">&#39;fish&#39;</span>
+</span><span class='line'>     <span class="p">},</span>
+</span><span class='line'>     <span class="s">&#39;b&#39;</span><span class="p">:</span> <span class="p">{}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">result</span> <span class="o">=</span> <span class="n">dict_digger</span><span class="o">.</span><span class="n">dig</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="s">&#39;a&#39;</span><span class="p">,</span><span class="s">&#39;b&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="k">print</span> <span class="n">result</span>  <span class="c"># prints &#39;tuna&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">result</span> <span class="o">=</span> <span class="n">dict_digger</span><span class="o">.</span><span class="n">dig</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="s">&#39;c&#39;</span><span class="p">,</span><span class="s">&#39;a&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="k">print</span> <span class="n">result</span> <span class="c"># prints None</span>
+</span><span class='line'><span class="c"># Important!!  Does not through an error, just returns None</span>
+</span><span class='line'>
+</span><span class='line'><span class="c">#but if you like</span>
+</span><span class='line'><span class="n">result</span> <span class="o">=</span> <span class="n">dict_digger</span><span class="o">.</span><span class="n">dig</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="s">&#39;c&#39;</span><span class="p">,</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="n">fail</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</span><span class='line'><span class="c"># raises a KeyError</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># also support complex objects so ...</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">complex</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>    <span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="p">{</span>
+</span><span class='line'>         <span class="p">[</span><span class="s">&#39;tuna&#39;</span><span class="p">,</span><span class="s">&#39;fish&#39;</span><span class="p">]</span>
+</span><span class='line'>     <span class="p">},</span>
+</span><span class='line'>     <span class="s">&#39;b&#39;</span><span class="p">:</span> <span class="p">{}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">result</span> <span class="o">=</span> <span class="n">dict_digger</span><span class="o">.</span><span class="n">dig</span><span class="p">(</span><span class="nb">complex</span><span class="p">,</span> <span class="s">&#39;a&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+</span><span class='line'><span class="k">print</span> <span class="n">result</span> <span class="c">#prints tuna</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>Alternatively you do the following</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="k">try</span><span class="p">:</span>
+</span><span class='line'>    <span class="n">result</span> <span class="o">=</span> <span class="n">h</span><span class="p">[</span><span class="s">&#39;c&#39;</span><span class="p">][</span><span class="s">&#39;a&#39;</span><span class="p">]</span>
+</span><span class='line'><span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+</span><span class='line'>    <span class="n">result</span> <span class="o">=</span> <span class="bp">None</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Find it on github <a href="https://github.com/jtushman/dict_digger">here</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
     <title type="html"><![CDATA[Shuffling Team Seating]]></title>
     <link href="http://jtushman.github.io/blog/2013/10/10/shuffling-team-seating/"/>
-    <updated>2013-10-10T21:29:00-04:00</updated>
+    <updated>2013-10-10T21:29:00-07:00</updated>
     <id>http://jtushman.github.io/blog/2013/10/10/shuffling-team-seating</id>
     <content type="html"><![CDATA[<p>I think it is good to shuffle the team around.  Helps with cross-pollination, and keeps the team area neat.  Here is the function that we use to randomize our team making sure that you do not sit next to someone you are already sitting next to.</p>
 
@@ -143,7 +247,7 @@
   <entry>
     <title type="html"><![CDATA[Introducing pivotal_tools]]></title>
     <link href="http://jtushman.github.io/blog/2013/08/15/introducing-pivotal-tools/"/>
-    <updated>2013-08-15T08:56:00-04:00</updated>
+    <updated>2013-08-15T08:56:00-07:00</updated>
     <id>http://jtushman.github.io/blog/2013/08/15/introducing-pivotal-tools</id>
     <content type="html"><![CDATA[<p>At ZEFR we are using Pivotal Tracker to help us with our Agile workflow.  Its a great tool, but we created a couple of command-line utilities that help us with our process.  We have found these to be real time-savers and helped up tighten up our process.</p>
 
@@ -210,7 +314,7 @@
   <entry>
     <title type="html"><![CDATA[How to Give Constructive Feedback To An Engineer]]></title>
     <link href="http://jtushman.github.io/blog/2013/06/19/how-to-give-constructive_feedback-to-an-engineer/"/>
-    <updated>2013-06-19T21:02:00-04:00</updated>
+    <updated>2013-06-19T21:02:00-07:00</updated>
     <id>http://jtushman.github.io/blog/2013/06/19/how-to-give-constructive_feedback-to-an-engineer</id>
     <content type="html"><![CDATA[<p>(I&rsquo;ll give you a hint &mdash; it&rsquo;s not down-voting, or one-liner emails)</p>
 
@@ -299,7 +403,7 @@
   <entry>
     <title type="html"><![CDATA[Sharing Code Across Applications with Python]]></title>
     <link href="http://jtushman.github.io/blog/2013/06/17/sharing-code-across-applications-with-python/"/>
-    <updated>2013-06-17T12:20:00-04:00</updated>
+    <updated>2013-06-17T12:20:00-07:00</updated>
     <id>http://jtushman.github.io/blog/2013/06/17/sharing-code-across-applications-with-python</id>
     <content type="html"><![CDATA[<h3>tl;dr:  Use pip, git(hub) and tags to share packages privately amongst your team</h3>
 
@@ -504,7 +608,7 @@
   <entry>
     <title type="html"><![CDATA[First impressions with Flask and Elastic Beanstalk]]></title>
     <link href="http://jtushman.github.io/blog/2013/06/12/first-impressions-with-flask-and-elastic-beanstalk/"/>
-    <updated>2013-06-12T10:16:00-04:00</updated>
+    <updated>2013-06-12T10:16:00-07:00</updated>
     <id>http://jtushman.github.io/blog/2013/06/12/first-impressions-with-flask-and-elastic-beanstalk</id>
     <content type="html"><![CDATA[<p>All in all it was pretty simple to get my flask app up and running on Elastic Beanstalk.  I ran into a couple of gotchas, and wanted to share them to save others some time.</p>
 
@@ -674,7 +778,7 @@
   <entry>
     <title type="html"><![CDATA[A better way to manage indexes with mongoengine]]></title>
     <link href="http://jtushman.github.io/blog/2013/05/31/a-better-way-to-manage-indexes-with-mongoengine/"/>
-    <updated>2013-05-31T09:44:00-04:00</updated>
+    <updated>2013-05-31T09:44:00-07:00</updated>
     <id>http://jtushman.github.io/blog/2013/05/31/a-better-way-to-manage-indexes-with-mongoengine</id>
     <content type="html"><![CDATA[<p>I was unsatisfied with out-of-the-box solution that <a href="http://mongoengine.org/">mongoengine</a> gave me for managing indexes.  What they offer is adding some meta information to your model, and then it litters <code>ensure_indexes</code> when making calls.  There approach is shown <a href="https://mongoengine-odm.readthedocs.org/en/latest/guide/defining-documents.html#indexes">here</a></p>
 
@@ -759,7 +863,7 @@
   <entry>
     <title type="html"><![CDATA[Order Socks Without Leaving the Terminal]]></title>
     <link href="http://jtushman.github.io/blog/2013/05/29/order-socks-without-leaving-the-terminal/"/>
-    <updated>2013-05-29T19:21:00-04:00</updated>
+    <updated>2013-05-29T19:21:00-07:00</updated>
     <id>http://jtushman.github.io/blog/2013/05/29/order-socks-without-leaving-the-terminal</id>
     <content type="html"><![CDATA[<p>We all know using the mouse is a productivity killer.  So is shopping for essentials like socks and underwear.  Here is a solution to both of these problems.</p>
 
@@ -838,7 +942,7 @@ celebrities_with_style_that_i_like = ['jack black','zach galifianakis']
   <entry>
     <title type="html"><![CDATA[Kenneth Reitz Should Be A Millionaire]]></title>
     <link href="http://jtushman.github.io/blog/2013/05/22/kenneth-reitz-should-be-a-millionaire/"/>
-    <updated>2013-05-22T07:51:00-04:00</updated>
+    <updated>2013-05-22T07:51:00-07:00</updated>
     <id>http://jtushman.github.io/blog/2013/05/22/kenneth-reitz-should-be-a-millionaire</id>
     <content type="html"><![CDATA[<h2>or &ldquo;Introducing the Dollar Store&rdquo;</h2>
 
@@ -900,7 +1004,7 @@ celebrities_with_style_that_i_like = ['jack black','zach galifianakis']
   <entry>
     <title type="html"><![CDATA[Mailing It In]]></title>
     <link href="http://jtushman.github.io/blog/2013/05/17/mailing-it-in/"/>
-    <updated>2013-05-17T12:10:00-04:00</updated>
+    <updated>2013-05-17T12:10:00-07:00</updated>
     <id>http://jtushman.github.io/blog/2013/05/17/mailing-it-in</id>
     <content type="html"><![CDATA[<p>File this under, something I want, but not going to build &hellip;</p>
 
@@ -922,7 +1026,7 @@ celebrities_with_style_that_i_like = ['jack black','zach galifianakis']
 <p>My idea I am calling <strong>Mailing It In™</strong>.  This is what I want it to do:</p>
 
 <ol>
-<li><p>Everyday you send a <a href="http://daringfireball.net/projects/markdown/syntax">markdown</a> formated email to <a href="&#109;&#97;&#105;&#108;&#x74;&#111;&#x3a;&#x6d;&#97;&#105;&#x6c;&#105;&#116;&#x69;&#110;&#64;&#x7a;&#101;&#102;&#114;&#x2e;&#99;&#x6f;&#x6d;&#46;">&#x6d;&#x61;&#x69;&#x6c;&#x69;&#116;&#x69;&#x6e;&#64;&#122;&#x65;&#102;&#x72;&#46;&#x63;&#x6f;&#x6d;&#x2e;</a>  I need to think about this more, but I think we just need to answer two questions:</p>
+<li><p>Everyday you send a <a href="http://daringfireball.net/projects/markdown/syntax">markdown</a> formated email to <a href="&#x6d;&#97;&#105;&#x6c;&#116;&#x6f;&#x3a;&#x6d;&#97;&#x69;&#x6c;&#105;&#x74;&#x69;&#x6e;&#64;&#122;&#x65;&#102;&#114;&#46;&#x63;&#x6f;&#x6d;&#46;">&#x6d;&#97;&#105;&#108;&#x69;&#116;&#105;&#x6e;&#64;&#x7a;&#101;&#x66;&#114;&#x2e;&#x63;&#x6f;&#109;&#46;</a>  I need to think about this more, but I think we just need to answer two questions:</p>
 
 <ol>
 <li>What am I struggling with:</li>
@@ -950,7 +1054,7 @@ celebrities_with_style_that_i_like = ['jack black','zach galifianakis']
   <entry>
     <title type="html"><![CDATA[Deamonize Processes on Ubuntu]]></title>
     <link href="http://jtushman.github.io/blog/2013/05/14/deamonize-processes-on-ubuntu/"/>
-    <updated>2013-05-14T13:07:00-04:00</updated>
+    <updated>2013-05-14T13:07:00-07:00</updated>
     <id>http://jtushman.github.io/blog/2013/05/14/deamonize-processes-on-ubuntu</id>
     <content type="html"><![CDATA[<p><strong>Problem Statement:  What is the simplest was to deamonize a serivce (Celeryd)on Ubuntu.</strong></p>
 
