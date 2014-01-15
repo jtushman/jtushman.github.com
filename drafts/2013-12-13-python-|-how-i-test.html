@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Category: celery - tushman.io</title>
+  <title>Python | How I Test - tushman.io</title>
   <meta name="author" content="Jonathan Tushman">
 
   
-  <meta name="description" content="Category: celery">
+  <meta name="description" content="Before starting working with Python a year ago, I was primarily using Ruby, and became a big fan of Behavior Driven Development with the excellent &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://jtushman.github.ioblog/categories/celery">
+  <link rel="canonical" href="http://jtushman.github.io/drafts/2013-12-13-python-|-how-i-test.html">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="tushman.io" type="application/atom+xml">
@@ -76,36 +76,130 @@
   <div id="main">
     <div id="content">
       <div>
-<article role="article">
+<article class="hentry" role="article">
   
   <header>
-    <h1 class="entry-title">Category: Celery</h1>
+    
+      <h1 class="entry-title">Python | How I Test</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-13T11:06:00-05:00" pubdate data-updated="true">Dec 13<span>th</span>, 2013</time>
+        
+      </p>
     
   </header>
-  
-  <div id="blog-archives" class="category">
 
 
+<div class="entry-content"><p>Before starting working with Python a year ago, I was primarily using Ruby, and became a big fan of Behavior Driven Development with the excellent <a href="http://cukes.info">Cucumber</a>.  Cucumber and similar tools leverage a testing domain specific language called Gherkin to define behavior in human (read: Product Manager) readable plan text</p>
 
-  
-  <h2>2013</h2>
+<p><img src="http://cukes.info/images/feature.png" alt="image" /></p>
 
-<article>
-  
-<h1><a href="/blog/2013/05/14/deamonize-processes-on-ubuntu/">Deamonize Processes on Ubuntu</a></h1>
-<time datetime="2013-05-14T13:07:00-04:00" pubdate><span class='month'>May</span> <span class='day'>14</span> <span class='year'>2013</span></time>
+<p>Testing is much more of an art then a science, but in my two plus years in working with in BDD I have come up with some best practices that you may find useful.</p>
 
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/celery/'>celery</a>, <a class='category' href='/blog/categories/ec2/'>ec2</a></span>
-</footer>
+<p>After moving to python I looked for a cucumber equivalent port and found the package <a href="http://lettuce.it/">lettuce</a>  which has worked great for me &mdash; but I had to do some customization to get to work my testing philosophy.</p>
+
+<ol>
+<li>Each Scenario should not have any effect on any other scenario</li>
+<li>Scenario Steps should have access to state from previous Steps</li>
+<li>Do not rely on advanced regex for step matching</li>
+<li>I am using <a href="http://flask.pocoo.org/">Flask</a> so, I need to do some magic to get the server running during my tests</li>
+<li>Last, I like to see how much code coverage I have, so have also configured coverage.py into our testing</li>
+</ol>
 
 
-</article>
+<p>When working with lettuce, most configuration happens in your <code>terrain.py</code> file.  In the rest of this post I will show the snip its to implement each of these best practices.</p>
+
+<p>To implement most of these practices we leverage lettuce&rsquo;s <a href="http://lettuce.it/reference/terrain.html#hooks">hooks</a>.</p>
+
+<ol>
+<li>Each Scenario should not have any effect on any other scenario</li>
+</ol>
+
+
+<p>So the gherkin format breaks up each scenario into three parts &lsquo;Given&rsquo;, &lsquo;When&rsquo;, and &lsquo;Then&rsquo;.</p>
+
+<p><strong>Given</strong> Build up the datastore to established state
+<strong>When</strong>  The meat of the test
+<strong>Then</strong>  Your assertions</p>
+
+<p>In the Given steps I use factories to build up the objects necessary for the test.  In ruby land I used <a href="https://github.com/thoughtbot/factory_girl">factory_girl</a>, and in python land I now use, you guessed it, <a href="https://github.com/dnerdy/factory_boy">factory_boy</a></p>
+
+<p>I am using mongo, and my clean_database function looks like this.  But you should adapt this method to your datastore of choice.  In ruby land there is a gem called <a href="https://github.com/bmabey/database_cleaner">database_cleaner</a> that you can look to for inspiration.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="nd">@before.each_scenario</span>
+</span><span class='line'><span class="k">def</span> <span class="nf">clean_database</span><span class="p">():</span>
+</span><span class='line'>  <span class="n">db</span> <span class="o">=</span> <span class="n">get_db</span><span class="p">()</span>
+</span><span class='line'>  <span class="n">db</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">drop_database</span><span class="p">(</span><span class="n">DATABASE_NAME</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
 
 </div>
 
+
+  <footer>
+    <p class="meta">
+      
   
+
+<span class="byline author vcard">Posted by <span class="fn">Jonathan Tushman</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-13T11:06:00-05:00" pubdate data-updated="true">Dec 13<span>th</span>, 2013</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://jtushman.github.io/drafts/2013-12-13-python-|-how-i-test.html" data-via="tushman" data-counturl="http://jtushman.github.io/drafts/2013-12-13-python-|-how-i-test.html" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+      
+    </p>
+  </footer>
 </article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
 
 </div>
 
@@ -179,7 +273,10 @@
       var disqus_shortname = 'jtushmanblog';
       
         
-        var disqus_script = 'count.js';
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://jtushman.github.io/drafts/2013-12-13-python-|-how-i-test.html';
+        var disqus_url = 'http://jtushman.github.io/drafts/2013-12-13-python-|-how-i-test.html';
+        var disqus_script = 'embed.js';
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;

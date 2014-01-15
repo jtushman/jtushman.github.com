@@ -4,7 +4,7 @@
   <title><![CDATA[Category: python | tushman.io]]></title>
   <link href="http://jtushman.github.io/blog/categories/python/atom.xml" rel="self"/>
   <link href="http://jtushman.github.io/"/>
-  <updated>2013-11-06T18:30:35-08:00</updated>
+  <updated>2014-01-14T22:37:41-05:00</updated>
   <id>http://jtushman.github.io/</id>
   <author>
     <name><![CDATA[Jonathan Tushman]]></name>
@@ -14,9 +14,276 @@
 
   
   <entry>
+    <title type="html"><![CDATA[Python | Multiprocessing and Interrupts]]></title>
+    <link href="http://jtushman.github.io/blog/2014/01/14/python-%7C-multiprocessing-and-interrupts/"/>
+    <updated>2014-01-14T22:21:00-05:00</updated>
+    <id>http://jtushman.github.io/blog/2014/01/14/python-|-multiprocessing-and-interrupts</id>
+    <content type="html"><![CDATA[<h3><strong>tl;dr:</strong> If handling interrupts is important, use a SyncManger (not multiprocessing.Manager) to handle shared state</h3>
+
+<p>I just hit the learning curve pretty hard with python&rsquo;s <a href="http://docs.python.org/2/library/multiprocessing.html">multiprocessing</a> &mdash; but I came through it and wanted to share my learnings.</p>
+
+<h2>Preliminary Thoughts</h2>
+
+<p>The bulk of this post is going to be around using the multiprocess library, but a few preliminary thoughts:</p>
+
+<h4>Multiprocessing and Threading is hard (especially in python):</h4>
+
+<p>Its starts off all hunky-dory &mdash; but trust me, factor in time to hit the wall … hard.</p>
+
+<h4>pstree is your friend.</h4>
+
+<p>Stop what you are doing, and pick your favorite package manager and install <code>pstree</code>: (for me: <code>brew install pstree</code>)</p>
+
+<p>Its super-useful for dealing with sub-processes, and see what is going on.</p>
+
+<p>In particular <code>pstree -s &lt;string&gt;</code> which searches your branches containing processes that contain the string in the command line.  So much better than <code>ps</code></p>
+
+<p>Output looks like this:</p>
+
+<p>```bash
+➜  pstree -s python
+&ndash;+= 00001 root /sbin/launchd
+ -+= 00221 jtushman /sbin/launchd
+   -+= 00446 jtushman /Applications/iTerm.app/Contents/MacOS/iTerm -psn_0_188462</p>
+
+<pre><code> \-+= 07770 root login -fp jtushman
+   \-+= 07771 jtushman -zsh
+     \-+= 46662 jtushman python multi3.py
+       |--- 46663 jtushman python multi3.py
+       |--- 46664 jtushman python multi3.py
+       |--- 46665 jtushman python multi3.py
+       |--- 46666 jtushman python multi3.py
+       \--- 46667 jtushman python multi3.py
+</code></pre>
+
+<p>```</p>
+
+<h4>Know your options</h4>
+
+<p>There are more then one paralyzation framework / paradigms out there for python.  Make sure you pick the right one for you before you dive-in.  To name a few:</p>
+
+<ul>
+<li><a href="http://docs.python.org/2/library/threading.html">python threading</a></li>
+<li><a href="http://www.gevent.org///">greenlets and gevent</a></li>
+<li><a href="http://www.celeryproject.org/">celery</a></li>
+</ul>
+
+
+<p><strong>Important</strong>: Unless you are a ninja &mdash; do not mix paradigms.  For example if you are using the multiprocessing library &mdash; do not use threading.locals</p>
+
+<h2>The Main Story</h2>
+
+<h3>Axiom One:  All child processes get SIG-INT</h3>
+
+<p><strong>Note:</strong> I will use SIG_INT, Keyboard Interrupt, and Ctr-C interchangablely</p>
+
+<p>Consider the following:</p>
+
+<p>```python
+from multiprocessing import Process, Manager
+from time import sleep</p>
+
+<p>def f(process_number):</p>
+
+<pre><code>try:
+    print "starting thread: ", process_number
+    while True:
+        print process_number
+        sleep(3)
+except KeyboardInterrupt:
+    print "Keyboard interupt in process: ", process_number
+finally:
+    print "cleaning up thread", process_number
+</code></pre>
+
+<p>if <strong>name</strong> == &lsquo;<strong>main</strong>&rsquo;:</p>
+
+<pre><code>processes = []
+
+manager = Manager()
+
+for i in xrange(4):
+    p = Process(target=f, args=(i,))
+    p.start()
+    processes.append(p)
+
+try:
+    for process in processes:
+        process.join()
+except KeyboardInterrupt:
+    print "Keyboard interrupt in main"
+finally:
+    print "Cleaning up Main"
+</code></pre>
+
+<p>```
+The abbreviated output you get is as follows:</p>
+
+<p><code>bash
+^C
+Keyboard interupt in process:  3
+Keyboard interupt in process:  0
+Keyboard interupt in process:  2
+cleaning up thread 3
+cleaning up thread 0
+cleaning up thread 2
+Keyboard interupt in process:  1
+cleaning up thread 1
+Keyboard interupt in main
+Cleaning up Main
+</code></p>
+
+<p>The main take aways are:</p>
+
+<ul>
+<li>Keyboard interrupt gets send to each sub process and main execution</li>
+<li>the order in which the run is non-determanistic</li>
+</ul>
+
+
+<h3>Axiom Two:  Beware multiprocessing.Manager (time to share memory between processes)</h3>
+
+<p>If it is possible in your stack to rely on a database, such as redis for keeping track of shared state &mdash; I recommend it.  But if you need a pure python solution read on:</p>
+
+<p><a href="http://docs.python.org/2/library/multiprocessing.html#managers">multiprocessing.Manager</a> bill themselves as:</p>
+
+<blockquote><p>Managers provide a way to create data which can be shared between different processes.  <strong>A manager object controls a server process</strong> which manages shared objects. Other processes can access the shared objects by using proxies.</p></blockquote>
+
+<p>The key take away there is that the Manager actually kicks off a server process to manage state.  Its like it is firing up your own little (not battle tested) private database.  And if you Ctr-C your python process the manager will get the signal and shut it self down causing all sorts of weirdness.</p>
+
+<p>Consider the following:</p>
+
+<p>```python
+from multiprocessing import Process, Manager
+from time import sleep</p>
+
+<p>def f(process_number, shared_array):</p>
+
+<pre><code>try:
+    print "starting thread: ", process_number
+    while True:
+        shared_array.append(process_number)
+        sleep(3)
+except KeyboardInterrupt:
+    print "Keyboard interupt in process: ", process_number
+finally:
+    print "cleaning up thread", process_number
+</code></pre>
+
+<p>if <strong>name</strong> == &lsquo;<strong>main</strong>&rsquo;:</p>
+
+<pre><code>processes = []
+
+manager = Manager()
+shared_array = manager.list()
+
+for i in xrange(4):
+    p = Process(target=f, args=(i, shared_array))
+    p.start()
+    processes.append(p)
+
+try:
+    for process in processes:
+        process.join()
+except KeyboardInterrupt:
+    print "Keyboard interrupt in main"
+
+for item in shared_array:
+    # raises "socket.error: [Errno 2] No such file or directory"
+    print item
+</code></pre>
+
+<p>```</p>
+
+<p>Try running that and interrupting it was a Ctr-C, you will get a weird error:</p>
+
+<p>You will get a <code>socket.error: [Errno 2] No such file or directory</code> when trying to access the shared_array.  And thats because the Manager process has been interrupted.</p>
+
+<p><strong>There is a solution!</strong></p>
+
+<h3>Axiom Two:  Explicitly use multiprocessing.manangers.SyncManger to share state</h3>
+
+<p>and use the signals library to have the SyncManager ignore the interrupt signal (SIG_INT)</p>
+
+<p>Consider the following code:</p>
+
+<p>``` python
+from multiprocessing import Process
+from multiprocessing.managers import SyncManager
+import signal
+from time import sleep</p>
+
+<h1>initializer for SyncManager</h1>
+
+<p>def mgr_init():</p>
+
+<pre><code>signal.signal(signal.SIGINT, signal.SIG_IGN)
+print 'initialized manager'
+</code></pre>
+
+<p>def f(process_number, shared_array):</p>
+
+<pre><code>try:
+    print "starting thread: ", process_number
+    while True:
+        shared_array.append(process_number)
+        sleep(3)
+except KeyboardInterrupt:
+    print "Keyboard interrupt in process: ", process_number
+finally:
+    print "cleaning up thread", process_number
+</code></pre>
+
+<p>if <strong>name</strong> == &lsquo;<strong>main</strong>&rsquo;:</p>
+
+<pre><code>processes = []
+
+# now using SyncManager vs a Manager
+manager = SyncManager()
+# explicitly starting the manager, and telling it to ignore the interrupt signal
+manager.start(mgr_init)
+try:
+    shared_array = manager.list()
+
+    for i in xrange(4):
+        p = Process(target=f, args=(i, shared_array))
+        p.start()
+        processes.append(p)
+
+    try:
+        for process in processes:
+            process.join()
+    except KeyboardInterrupt:
+        print "Keyboard interrupt in main"
+
+    for item in shared_array:
+        # we still have access to it!  Yay!
+        print item
+finally:
+    # to be safe -- explicitly shutting down the manager
+    manager.shutdown()
+</code></pre>
+
+<p>```</p>
+
+<p>Main take aways here are:</p>
+
+<ul>
+<li>Explicitly using and starting a SyncManager (instead of Manager)</li>
+<li>on its initialization having it ignore the interrupt</li>
+</ul>
+
+
+<p>I will do a future post on gracefully shutting down child threads (once I figure that out ;&ndash;)</p>
+
+<p>Thanks to @armsteady, who showed me the like on StackOverflow (<a href="http://stackoverflow.com/a/21106459/192791">link</a>)</p>
+]]></content>
+  </entry>
+  
+  <entry>
     <title type="html"><![CDATA[Sharing Code Across Applications with Python]]></title>
     <link href="http://jtushman.github.io/blog/2013/06/17/sharing-code-across-applications-with-python/"/>
-    <updated>2013-06-17T12:20:00-07:00</updated>
+    <updated>2013-06-17T12:20:00-04:00</updated>
     <id>http://jtushman.github.io/blog/2013/06/17/sharing-code-across-applications-with-python</id>
     <content type="html"><![CDATA[<h3>tl;dr:  Use pip, git(hub) and tags to share packages privately amongst your team</h3>
 

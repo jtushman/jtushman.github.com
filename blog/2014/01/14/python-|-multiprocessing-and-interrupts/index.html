@@ -1,0 +1,650 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Python | Multiprocessing and Interrupts - tushman.io</title>
+  <meta name="author" content="Jonathan Tushman">
+
+  
+  <meta name="description" content="tl;dr: If handling interrupts is important, use a SyncManger (not multiprocessing.Manager) to handle shared state I just hit the learning curve &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://jtushman.github.io/blog/2014/01/14/python-%7C-multiprocessing-and-interrupts">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="tushman.io" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-41121782-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">tushman.io</a></h1>
+  
+    <h2>The musings of an insecure technologist</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:jtushman.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Python | Multiprocessing and Interrupts</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-14T22:21:00-05:00" pubdate data-updated="true">Jan 14<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h3><strong>tl;dr:</strong> If handling interrupts is important, use a SyncManger (not multiprocessing.Manager) to handle shared state</h3>
+
+<p>I just hit the learning curve pretty hard with python&rsquo;s <a href="http://docs.python.org/2/library/multiprocessing.html">multiprocessing</a> &mdash; but I came through it and wanted to share my learnings.</p>
+
+<h2>Preliminary Thoughts</h2>
+
+<p>The bulk of this post is going to be around using the multiprocess library, but a few preliminary thoughts:</p>
+
+<h4>Multiprocessing and Threading is hard (especially in python):</h4>
+
+<p>Its starts off all hunky-dory &mdash; but trust me, factor in time to hit the wall … hard.</p>
+
+<h4>pstree is your friend.</h4>
+
+<p>Stop what you are doing, and pick your favorite package manager and install <code>pstree</code>: (for me: <code>brew install pstree</code>)</p>
+
+<p>Its super-useful for dealing with sub-processes, and see what is going on.</p>
+
+<p>In particular <code>pstree -s &lt;string&gt;</code> which searches your branches containing processes that contain the string in the command line.  So much better than <code>ps</code></p>
+
+<p>Output looks like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>➜  pstree -s python
+</span><span class='line'>-+<span class="o">=</span> 00001 root /sbin/launchd
+</span><span class='line'> <span class="se">\-</span>+<span class="o">=</span> 00221 jtushman /sbin/launchd
+</span><span class='line'>   <span class="se">\-</span>+<span class="o">=</span> 00446 jtushman /Applications/iTerm.app/Contents/MacOS/iTerm -psn_0_188462
+</span><span class='line'>     <span class="se">\-</span>+<span class="o">=</span> 07770 root login -fp jtushman
+</span><span class='line'>       <span class="se">\-</span>+<span class="o">=</span> 07771 jtushman -zsh
+</span><span class='line'>         <span class="se">\-</span>+<span class="o">=</span> 46662 jtushman python multi3.py
+</span><span class='line'>           |--- 46663 jtushman python multi3.py
+</span><span class='line'>           |--- 46664 jtushman python multi3.py
+</span><span class='line'>           |--- 46665 jtushman python multi3.py
+</span><span class='line'>           |--- 46666 jtushman python multi3.py
+</span><span class='line'>           <span class="se">\-</span>-- 46667 jtushman python multi3.py
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Know your options</h4>
+
+<p>There are more then one paralyzation framework / paradigms out there for python.  Make sure you pick the right one for you before you dive-in.  To name a few:</p>
+
+<ul>
+<li><a href="http://docs.python.org/2/library/threading.html">python threading</a></li>
+<li><a href="http://www.gevent.org///">greenlets and gevent</a></li>
+<li><a href="http://www.celeryproject.org/">celery</a></li>
+</ul>
+
+
+<p><strong>Important</strong>: Unless you are a ninja &mdash; do not mix paradigms.  For example if you are using the multiprocessing library &mdash; do not use threading.locals</p>
+
+<h2>The Main Story</h2>
+
+<h3>Axiom One:  All child processes get SIG-INT</h3>
+
+<p><strong>Note:</strong> I will use SIG_INT, Keyboard Interrupt, and Ctr-C interchangablely</p>
+
+<p>Consider the following:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Process</span><span class="p">,</span> <span class="n">Manager</span>
+</span><span class='line'><span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">sleep</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">process_number</span><span class="p">):</span>
+</span><span class='line'>    <span class="k">try</span><span class="p">:</span>
+</span><span class='line'>        <span class="k">print</span> <span class="s">&quot;starting thread: &quot;</span><span class="p">,</span> <span class="n">process_number</span>
+</span><span class='line'>        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+</span><span class='line'>            <span class="k">print</span> <span class="n">process_number</span>
+</span><span class='line'>            <span class="n">sleep</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+</span><span class='line'>        <span class="k">print</span> <span class="s">&quot;Keyboard interupt in process: &quot;</span><span class="p">,</span> <span class="n">process_number</span>
+</span><span class='line'>    <span class="k">finally</span><span class="p">:</span>
+</span><span class='line'>        <span class="k">print</span> <span class="s">&quot;cleaning up thread&quot;</span><span class="p">,</span> <span class="n">process_number</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">processes</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">manager</span> <span class="o">=</span> <span class="n">Manager</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+</span><span class='line'>        <span class="n">p</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">i</span><span class="p">,))</span>
+</span><span class='line'>        <span class="n">p</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</span><span class='line'>        <span class="n">processes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">try</span><span class="p">:</span>
+</span><span class='line'>        <span class="k">for</span> <span class="n">process</span> <span class="ow">in</span> <span class="n">processes</span><span class="p">:</span>
+</span><span class='line'>            <span class="n">process</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+</span><span class='line'>    <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+</span><span class='line'>        <span class="k">print</span> <span class="s">&quot;Keyboard interrupt in main&quot;</span>
+</span><span class='line'>    <span class="k">finally</span><span class="p">:</span>
+</span><span class='line'>        <span class="k">print</span> <span class="s">&quot;Cleaning up Main&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The abbreviated output you get is as follows:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>^C
+</span><span class='line'>Keyboard interupt in process:  3
+</span><span class='line'>Keyboard interupt in process:  0
+</span><span class='line'>Keyboard interupt in process:  2
+</span><span class='line'>cleaning up thread 3
+</span><span class='line'>cleaning up thread 0
+</span><span class='line'>cleaning up thread 2
+</span><span class='line'>Keyboard interupt in process:  1
+</span><span class='line'>cleaning up thread 1
+</span><span class='line'>Keyboard interupt in main
+</span><span class='line'>Cleaning up Main
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The main take aways are:</p>
+
+<ul>
+<li>Keyboard interrupt gets send to each sub process and main execution</li>
+<li>the order in which the run is non-determanistic</li>
+</ul>
+
+
+<h3>Axiom Two:  Beware multiprocessing.Manager (time to share memory between processes)</h3>
+
+<p>If it is possible in your stack to rely on a database, such as redis for keeping track of shared state &mdash; I recommend it.  But if you need a pure python solution read on:</p>
+
+<p><a href="http://docs.python.org/2/library/multiprocessing.html#managers">multiprocessing.Manager</a> bill themselves as:</p>
+
+<blockquote><p>Managers provide a way to create data which can be shared between different processes.  <strong>A manager object controls a server process</strong> which manages shared objects. Other processes can access the shared objects by using proxies.</p></blockquote>
+
+<p>The key take away there is that the Manager actually kicks off a server process to manage state.  Its like it is firing up your own little (not battle tested) private database.  And if you Ctr-C your python process the manager will get the signal and shut it self down causing all sorts of weirdness.</p>
+
+<p>Consider the following:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Process</span><span class="p">,</span> <span class="n">Manager</span>
+</span><span class='line'><span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">sleep</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">process_number</span><span class="p">,</span> <span class="n">shared_array</span><span class="p">):</span>
+</span><span class='line'>    <span class="k">try</span><span class="p">:</span>
+</span><span class='line'>        <span class="k">print</span> <span class="s">&quot;starting thread: &quot;</span><span class="p">,</span> <span class="n">process_number</span>
+</span><span class='line'>        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+</span><span class='line'>            <span class="n">shared_array</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">process_number</span><span class="p">)</span>
+</span><span class='line'>            <span class="n">sleep</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+</span><span class='line'>        <span class="k">print</span> <span class="s">&quot;Keyboard interupt in process: &quot;</span><span class="p">,</span> <span class="n">process_number</span>
+</span><span class='line'>    <span class="k">finally</span><span class="p">:</span>
+</span><span class='line'>        <span class="k">print</span> <span class="s">&quot;cleaning up thread&quot;</span><span class="p">,</span> <span class="n">process_number</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">processes</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">manager</span> <span class="o">=</span> <span class="n">Manager</span><span class="p">()</span>
+</span><span class='line'>    <span class="n">shared_array</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+</span><span class='line'>        <span class="n">p</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">shared_array</span><span class="p">))</span>
+</span><span class='line'>        <span class="n">p</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</span><span class='line'>        <span class="n">processes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">try</span><span class="p">:</span>
+</span><span class='line'>        <span class="k">for</span> <span class="n">process</span> <span class="ow">in</span> <span class="n">processes</span><span class="p">:</span>
+</span><span class='line'>            <span class="n">process</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+</span><span class='line'>    <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+</span><span class='line'>        <span class="k">print</span> <span class="s">&quot;Keyboard interrupt in main&quot;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">shared_array</span><span class="p">:</span>
+</span><span class='line'>        <span class="c"># raises &quot;socket.error: [Errno 2] No such file or directory&quot;</span>
+</span><span class='line'>        <span class="k">print</span> <span class="n">item</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Try running that and interrupting it was a Ctr-C, you will get a weird error:</p>
+
+<p>You will get a <code>socket.error: [Errno 2] No such file or directory</code> when trying to access the shared_array.  And thats because the Manager process has been interrupted.</p>
+
+<p><strong>There is a solution!</strong></p>
+
+<h3>Axiom Two:  Explicitly use multiprocessing.manangers.SyncManger to share state</h3>
+
+<p>and use the signals library to have the SyncManager ignore the interrupt signal (SIG_INT)</p>
+
+<p>Consider the following code:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Process</span>
+</span><span class='line'><span class="kn">from</span> <span class="nn">multiprocessing.managers</span> <span class="kn">import</span> <span class="n">SyncManager</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">signal</span>
+</span><span class='line'><span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">sleep</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># initializer for SyncManager</span>
+</span><span class='line'><span class="k">def</span> <span class="nf">mgr_init</span><span class="p">():</span>
+</span><span class='line'>    <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">SIG_IGN</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">print</span> <span class="s">&#39;initialized manager&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">process_number</span><span class="p">,</span> <span class="n">shared_array</span><span class="p">):</span>
+</span><span class='line'>    <span class="k">try</span><span class="p">:</span>
+</span><span class='line'>        <span class="k">print</span> <span class="s">&quot;starting thread: &quot;</span><span class="p">,</span> <span class="n">process_number</span>
+</span><span class='line'>        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+</span><span class='line'>            <span class="n">shared_array</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">process_number</span><span class="p">)</span>
+</span><span class='line'>            <span class="n">sleep</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+</span><span class='line'>        <span class="k">print</span> <span class="s">&quot;Keyboard interrupt in process: &quot;</span><span class="p">,</span> <span class="n">process_number</span>
+</span><span class='line'>    <span class="k">finally</span><span class="p">:</span>
+</span><span class='line'>        <span class="k">print</span> <span class="s">&quot;cleaning up thread&quot;</span><span class="p">,</span> <span class="n">process_number</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">processes</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c"># now using SyncManager vs a Manager</span>
+</span><span class='line'>    <span class="n">manager</span> <span class="o">=</span> <span class="n">SyncManager</span><span class="p">()</span>
+</span><span class='line'>    <span class="c"># explicitly starting the manager, and telling it to ignore the interrupt signal</span>
+</span><span class='line'>    <span class="n">manager</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="n">mgr_init</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">try</span><span class="p">:</span>
+</span><span class='line'>        <span class="n">shared_array</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+</span><span class='line'>            <span class="n">p</span> <span class="o">=</span> <span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">shared_array</span><span class="p">))</span>
+</span><span class='line'>            <span class="n">p</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</span><span class='line'>            <span class="n">processes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">try</span><span class="p">:</span>
+</span><span class='line'>            <span class="k">for</span> <span class="n">process</span> <span class="ow">in</span> <span class="n">processes</span><span class="p">:</span>
+</span><span class='line'>                <span class="n">process</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+</span><span class='line'>        <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+</span><span class='line'>            <span class="k">print</span> <span class="s">&quot;Keyboard interrupt in main&quot;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">shared_array</span><span class="p">:</span>
+</span><span class='line'>            <span class="c"># we still have access to it!  Yay!</span>
+</span><span class='line'>            <span class="k">print</span> <span class="n">item</span>
+</span><span class='line'>    <span class="k">finally</span><span class="p">:</span>
+</span><span class='line'>      <span class="c"># to be safe -- explicitly shutting down the manager</span>
+</span><span class='line'>        <span class="n">manager</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Main take aways here are:</p>
+
+<ul>
+<li>Explicitly using and starting a SyncManager (instead of Manager)</li>
+<li>on its initialization having it ignore the interrupt</li>
+</ul>
+
+
+<p>I will do a future post on gracefully shutting down child threads (once I figure that out ;&ndash;)</p>
+
+<p>Thanks to @armsteady, who showed me the like on StackOverflow (<a href="http://stackoverflow.com/a/21106459/192791">link</a>)</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Jonathan Tushman</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-14T22:21:00-05:00" pubdate data-updated="true">Jan 14<span>th</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/python/'>python</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://jtushman.github.io/blog/2014/01/14/python-%7C-multiprocessing-and-interrupts/" data-via="tushman" data-counturl="http://jtushman.github.io/blog/2014/01/14/python-%7C-multiprocessing-and-interrupts/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/11/06/dict-digger/" title="Previous Post: Dict Digger">&laquo; Dict Digger</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section xmlns="http://www.w3.org/1999/html">
+  <h1>About Me</h1>
+    <ul>
+        <li>I'm <a href="http://tushman.com" target="_blank">Jonathan Tushman</a>        </li>
+        <li>I am a pragmatic technologist (<a href="http://tushman.com/resume" target="_blank">bio</a>)        </li>
+        <li>I work at <a href="http://www.zefr.com" target="_blank">ZEFR</a>                            </li>
+        <li>... and we're <a href="http://careers.stackoverflow.com/company/zefr">hiring</a></li>
+        <li>I love to build <a href="http://tushman.com/resume" target="_blank">things</a>              </li>
+        <li>I like <a href="http://tushman.com/music" target="_blank">music</a> and playing board games </li>
+        <li>I read the <a href="http://www.economist.com" target="_blank">Economist</a>                 </li>
+        <li>Follow me if you like <a href="http://www.twitter.com/tushman" target="_blank">@tushman</a> </li>
+    </ul>
+
+
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/01/14/python-%7C-multiprocessing-and-interrupts/">Python | Multiprocessing and Interrupts</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/11/06/dict-digger/">Dict Digger</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/10/10/shuffling-team-seating/">Shuffling Team Seating</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/08/15/introducing-pivotal-tools/">Introducing Pivotal_tools</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/06/19/how-to-give-constructive_feedback-to-an-engineer/">How to Give Constructive Feedback to an Engineer</a>
+      </li>
+    
+  </ul>
+</section>
+<section>
+    <h1>Twitter</h1>
+    <a class="twitter-timeline" href="https://twitter.com/tushman" data-widget-id="338399291280326658">Tweets by @tushman</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+</section>
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Jonathan Tushman -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'jtushmanblog';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://jtushman.github.io/blog/2014/01/14/python-%7C-multiprocessing-and-interrupts/';
+        var disqus_url = 'http://jtushman.github.io/blog/2014/01/14/python-%7C-multiprocessing-and-interrupts/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

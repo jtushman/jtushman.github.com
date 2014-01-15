@@ -4,7 +4,7 @@
   <title><![CDATA[Category: packaging | tushman.io]]></title>
   <link href="http://jtushman.github.io/blog/categories/packaging/atom.xml" rel="self"/>
   <link href="http://jtushman.github.io/"/>
-  <updated>2013-11-06T18:30:35-08:00</updated>
+  <updated>2014-01-14T22:37:41-05:00</updated>
   <id>http://jtushman.github.io/</id>
   <author>
     <name><![CDATA[Jonathan Tushman]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[Sharing Code Across Applications with Python]]></title>
     <link href="http://jtushman.github.io/blog/2013/06/17/sharing-code-across-applications-with-python/"/>
-    <updated>2013-06-17T12:20:00-07:00</updated>
+    <updated>2013-06-17T12:20:00-04:00</updated>
     <id>http://jtushman.github.io/blog/2013/06/17/sharing-code-across-applications-with-python</id>
     <content type="html"><![CDATA[<h3>tl;dr:  Use pip, git(hub) and tags to share packages privately amongst your team</h3>
 
