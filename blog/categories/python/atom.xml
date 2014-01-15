@@ -4,7 +4,7 @@
   <title><![CDATA[Category: python | tushman.io]]></title>
   <link href="http://jtushman.github.io/blog/categories/python/atom.xml" rel="self"/>
   <link href="http://jtushman.github.io/"/>
-  <updated>2014-01-14T22:37:41-05:00</updated>
+  <updated>2014-01-15T09:14:48-05:00</updated>
   <id>http://jtushman.github.io/</id>
   <author>
     <name><![CDATA[Jonathan Tushman]]></name>
@@ -18,7 +18,7 @@
     <link href="http://jtushman.github.io/blog/2014/01/14/python-%7C-multiprocessing-and-interrupts/"/>
     <updated>2014-01-14T22:21:00-05:00</updated>
     <id>http://jtushman.github.io/blog/2014/01/14/python-|-multiprocessing-and-interrupts</id>
-    <content type="html"><![CDATA[<h3><strong>tl;dr:</strong> If handling interrupts is important, use a SyncManger (not multiprocessing.Manager) to handle shared state</h3>
+    <content type="html"><![CDATA[<h3><strong>tl;dr:</strong> If handling interrupts is important, use a SyncManager (not multiprocessing.Manager) to handle shared state</h3>
 
 <p>I just hit the learning curve pretty hard with python&rsquo;s <a href="http://docs.python.org/2/library/multiprocessing.html">multiprocessing</a> &mdash; but I came through it and wanted to share my learnings.</p>
 
@@ -75,7 +75,7 @@
 
 <h3>Axiom One:  All child processes get SIG-INT</h3>
 
-<p><strong>Note:</strong> I will use SIG_INT, Keyboard Interrupt, and Ctr-C interchangablely</p>
+<p><strong>Note:</strong> I will use SIG_INT, Keyboard Interrupt, and Ctr-C interchangeably</p>
 
 <p>Consider the following:</p>
 
@@ -91,7 +91,7 @@ from time import sleep</p>
         print process_number
         sleep(3)
 except KeyboardInterrupt:
-    print "Keyboard interupt in process: ", process_number
+    print "Keyboard interrupt in process: ", process_number
 finally:
     print "cleaning up thread", process_number
 </code></pre>
@@ -121,15 +121,15 @@ The abbreviated output you get is as follows:</p>
 
 <p><code>bash
 ^C
-Keyboard interupt in process:  3
-Keyboard interupt in process:  0
-Keyboard interupt in process:  2
+Keyboard interrupt in process:  3
+Keyboard interrupt in process:  0
+Keyboard interrupt in process:  2
 cleaning up thread 3
 cleaning up thread 0
 cleaning up thread 2
-Keyboard interupt in process:  1
+Keyboard interrupt in process:  1
 cleaning up thread 1
-Keyboard interupt in main
+Keyboard interrupt in main
 Cleaning up Main
 </code></p>
 
@@ -165,7 +165,7 @@ from time import sleep</p>
         shared_array.append(process_number)
         sleep(3)
 except KeyboardInterrupt:
-    print "Keyboard interupt in process: ", process_number
+    print "Keyboard interrupt in process: ", process_number
 finally:
     print "cleaning up thread", process_number
 </code></pre>
@@ -201,7 +201,7 @@ for item in shared_array:
 
 <p><strong>There is a solution!</strong></p>
 
-<h3>Axiom Two:  Explicitly use multiprocessing.manangers.SyncManger to share state</h3>
+<h3>Axiom Two:  Explicitly use multiprocessing.manangers.SyncManager to share state</h3>
 
 <p>and use the signals library to have the SyncManager ignore the interrupt signal (SIG_INT)</p>
 

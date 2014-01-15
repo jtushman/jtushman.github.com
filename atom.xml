@@ -4,7 +4,7 @@
   <title><![CDATA[tushman.io]]></title>
   <link href="http://jtushman.github.io/atom.xml" rel="self"/>
   <link href="http://jtushman.github.io/"/>
-  <updated>2014-01-14T22:37:41-05:00</updated>
+  <updated>2014-01-15T09:14:48-05:00</updated>
   <id>http://jtushman.github.io/</id>
   <author>
     <name><![CDATA[Jonathan Tushman]]></name>
@@ -18,7 +18,7 @@
     <link href="http://jtushman.github.io/blog/2014/01/14/python-%7C-multiprocessing-and-interrupts/"/>
     <updated>2014-01-14T22:21:00-05:00</updated>
     <id>http://jtushman.github.io/blog/2014/01/14/python-|-multiprocessing-and-interrupts</id>
-    <content type="html"><![CDATA[<h3><strong>tl;dr:</strong> If handling interrupts is important, use a SyncManger (not multiprocessing.Manager) to handle shared state</h3>
+    <content type="html"><![CDATA[<h3><strong>tl;dr:</strong> If handling interrupts is important, use a SyncManager (not multiprocessing.Manager) to handle shared state</h3>
 
 <p>I just hit the learning curve pretty hard with python&rsquo;s <a href="http://docs.python.org/2/library/multiprocessing.html">multiprocessing</a> &mdash; but I came through it and wanted to share my learnings.</p>
 
@@ -84,7 +84,7 @@
 
 <h3>Axiom One:  All child processes get SIG-INT</h3>
 
-<p><strong>Note:</strong> I will use SIG_INT, Keyboard Interrupt, and Ctr-C interchangablely</p>
+<p><strong>Note:</strong> I will use SIG_INT, Keyboard Interrupt, and Ctr-C interchangeably</p>
 
 <p>Consider the following:</p>
 
@@ -130,7 +130,7 @@
 </span><span class='line'>            <span class="k">print</span> <span class="n">process_number</span>
 </span><span class='line'>            <span class="n">sleep</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
 </span><span class='line'>    <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
-</span><span class='line'>        <span class="k">print</span> <span class="s">&quot;Keyboard interupt in process: &quot;</span><span class="p">,</span> <span class="n">process_number</span>
+</span><span class='line'>        <span class="k">print</span> <span class="s">&quot;Keyboard interrupt in process: &quot;</span><span class="p">,</span> <span class="n">process_number</span>
 </span><span class='line'>    <span class="k">finally</span><span class="p">:</span>
 </span><span class='line'>        <span class="k">print</span> <span class="s">&quot;cleaning up thread&quot;</span><span class="p">,</span> <span class="n">process_number</span>
 </span><span class='line'>
@@ -169,15 +169,15 @@
 <span class='line-number'>10</span>
 <span class='line-number'>11</span>
 </pre></td><td class='code'><pre><code class='bash'><span class='line'>^C
-</span><span class='line'>Keyboard interupt in process:  3
-</span><span class='line'>Keyboard interupt in process:  0
-</span><span class='line'>Keyboard interupt in process:  2
+</span><span class='line'>Keyboard interrupt in process:  3
+</span><span class='line'>Keyboard interrupt in process:  0
+</span><span class='line'>Keyboard interrupt in process:  2
 </span><span class='line'>cleaning up thread 3
 </span><span class='line'>cleaning up thread 0
 </span><span class='line'>cleaning up thread 2
-</span><span class='line'>Keyboard interupt in process:  1
+</span><span class='line'>Keyboard interrupt in process:  1
 </span><span class='line'>cleaning up thread 1
-</span><span class='line'>Keyboard interupt in main
+</span><span class='line'>Keyboard interrupt in main
 </span><span class='line'>Cleaning up Main
 </span></code></pre></td></tr></table></div></figure>
 
@@ -247,7 +247,7 @@
 </span><span class='line'>            <span class="n">shared_array</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">process_number</span><span class="p">)</span>
 </span><span class='line'>            <span class="n">sleep</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
 </span><span class='line'>    <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
-</span><span class='line'>        <span class="k">print</span> <span class="s">&quot;Keyboard interupt in process: &quot;</span><span class="p">,</span> <span class="n">process_number</span>
+</span><span class='line'>        <span class="k">print</span> <span class="s">&quot;Keyboard interrupt in process: &quot;</span><span class="p">,</span> <span class="n">process_number</span>
 </span><span class='line'>    <span class="k">finally</span><span class="p">:</span>
 </span><span class='line'>        <span class="k">print</span> <span class="s">&quot;cleaning up thread&quot;</span><span class="p">,</span> <span class="n">process_number</span>
 </span><span class='line'>
@@ -281,7 +281,7 @@
 
 <p><strong>There is a solution!</strong></p>
 
-<h3>Axiom Two:  Explicitly use multiprocessing.manangers.SyncManger to share state</h3>
+<h3>Axiom Two:  Explicitly use multiprocessing.manangers.SyncManager to share state</h3>
 
 <p>and use the signals library to have the SyncManager ignore the interrupt signal (SIG_INT)</p>
 
@@ -1415,7 +1415,7 @@ celebrities_with_style_that_i_like = ['jack black','zach galifianakis']
 <p>My idea I am calling <strong>Mailing It In™</strong>.  This is what I want it to do:</p>
 
 <ol>
-<li><p>Everyday you send a <a href="http://daringfireball.net/projects/markdown/syntax">markdown</a> formated email to <a href="&#109;&#97;&#105;&#108;&#x74;&#x6f;&#58;&#109;&#x61;&#105;&#x6c;&#105;&#116;&#105;&#110;&#x40;&#122;&#101;&#x66;&#114;&#x2e;&#x63;&#111;&#x6d;&#46;">&#109;&#x61;&#105;&#x6c;&#x69;&#116;&#105;&#110;&#64;&#122;&#x65;&#x66;&#114;&#x2e;&#99;&#111;&#x6d;&#46;</a>  I need to think about this more, but I think we just need to answer two questions:</p>
+<li><p>Everyday you send a <a href="http://daringfireball.net/projects/markdown/syntax">markdown</a> formated email to <a href="&#x6d;&#x61;&#105;&#x6c;&#116;&#x6f;&#58;&#x6d;&#x61;&#x69;&#x6c;&#105;&#116;&#x69;&#x6e;&#x40;&#122;&#101;&#x66;&#x72;&#x2e;&#99;&#x6f;&#109;&#x2e;">&#x6d;&#x61;&#x69;&#x6c;&#105;&#116;&#105;&#x6e;&#64;&#x7a;&#x65;&#x66;&#114;&#x2e;&#x63;&#x6f;&#109;&#x2e;</a>  I need to think about this more, but I think we just need to answer two questions:</p>
 
 <ol>
 <li>What am I struggling with:</li>
