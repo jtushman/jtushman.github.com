@@ -4,7 +4,7 @@
   <title><![CDATA[tushman.io]]></title>
   <link href="http://jtushman.github.io/atom.xml" rel="self"/>
   <link href="http://jtushman.github.io/"/>
-  <updated>2014-01-15T09:14:48-05:00</updated>
+  <updated>2014-01-24T15:28:40-05:00</updated>
   <id>http://jtushman.github.io/</id>
   <author>
     <name><![CDATA[Jonathan Tushman]]></name>
@@ -12,6 +12,117 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Parallelize your lettuce tests to win friends and influence others]]></title>
+    <link href="http://jtushman.github.io/blog/2014/01/24/parallelize-your-lettuce-tests-to-win-friends-and-influence-others/"/>
+    <updated>2014-01-24T15:23:00-05:00</updated>
+    <id>http://jtushman.github.io/blog/2014/01/24/parallelize-your-lettuce-tests-to-win-friends-and-influence-others</id>
+    <content type="html"><![CDATA[<p><strong>tl;dr:</strong>  I forked the lettuce package to use multiprocessing, tests run more then 4x faster on my MBP</p>
+
+<p>I am a fan of Gabriel Falcão&rsquo;s <a href="http://lettuce.it/">lettuce</a> Behavior-Driven Development (BDD) tool.  We have been using it on my team for 6+ months now.  Recently our test suite completion time has crossed the 10 minute line, which had a bunch of negative effects, as you can imagine:</p>
+
+<ul>
+<li>people writing less tests</li>
+<li>people running the test suite less frequently</li>
+<li>people spending more time watching a test suite run, then coding, …</li>
+</ul>
+
+
+<p>We all are using relatively modern MBP with 4 cores, and we might as well make the most of them.  Here is my fork of lettuce that allows you to take advantage of all of your cores:</p>
+
+<p><a href="https://github.com/jtushman/lettuce">https://github.com/jtushman/lettuce</a></p>
+
+<p>I have made two main modifications:</p>
+
+<ul>
+<li>I created a ParallelRunner (I have left the main runner alone), which kicks of threads to pull the scenarios off a queue</li>
+<li>After each run I store the run times of each test in a <code>.scenarios</code> file, so in subsequent runs I can sort them longest to shortest</li>
+</ul>
+
+
+<p>My test suite used to take 12 minutes, now its takes 2 minutes &mdash; REJOICE!</p>
+
+<h2>Usage</h2>
+
+<p><code>lettuce tests -p 4 -v 2</code></p>
+
+<p><strong>-p:</strong> stands for parallel.  You can set it to how many processes you like, I find that the number of cores should be your default</p>
+
+<p><strong>-v</strong> is the same verbosity parameter, but I recommend setting it to 2 when using parallelization, otherwise the steps will interlace and not make to much sense</p>
+
+<p>in your <code>terrain.py</code> file, there are two new callbacks:</p>
+
+<p><code>@before.batch</code> and <code>@after.batch</code></p>
+
+<p>which you should use to set up and tear down each process.  I use main to fire up flask, selenium and mongo.  Also note that I set a port_number attribute on world which you can use set up processes specific servers.  For example:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="nd">@before.batch</span>
+</span><span class='line'><span class="k">def</span> <span class="nf">batch_setup</span><span class="p">():</span>
+</span><span class='line'>    <span class="n">settings</span><span class="o">.</span><span class="n">MONGO_DATABASE_NAME</span> <span class="o">=</span> <span class="s">&#39;testing__{}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">world</span><span class="o">.</span><span class="n">port_number</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">mongoengine</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">MONGO_DATABASE_NAME</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">MONGO_HOST</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">MONGO_PORT</span><span class="p">,</span>
+</span><span class='line'>                        <span class="n">username</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">MONGO_USERNAME</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">MONGO_PASSWORD</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">clear_database</span><span class="p">()</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Cavets</h2>
+
+<p>For this to work <strong>all of your tests need to be isolated</strong>, they can not depend on each other (which I think is best practice anyways).  This means in your tests you <strong>should not use</strong> world <strong>at all</strong></p>
+
+<p>I rely on factories (<a href="https://factoryboy.readthedocs.org/en/latest/">factory_boy</a>) to build up my database during my &ldquo;Given&rdquo; steps, and then I delete the entire database after each scenario</p>
+
+<p>One think that I do with my tests is create a <code>scenario</code> state.  So in my terrain file I have the following</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="k">class</span> <span class="nc">ScenarioState</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span> <span class="k">pass</span>
+</span><span class='line'>
+</span><span class='line'><span class="nd">@before.each_scenario</span>
+</span><span class='line'><span class="k">def</span> <span class="nf">setup_senario</span><span class="p">(</span><span class="n">senario</span><span class="p">):</span>
+</span><span class='line'>    <span class="n">world</span><span class="o">.</span><span class="n">scenario</span> <span class="o">=</span> <span class="n">ScenarioState</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">scenario</span><span class="p">():</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">world</span><span class="o">.</span><span class="n">scenario</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And I use this all the time in my steps to refer to state from previous steps</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="nd">@step</span><span class="p">(</span><span class="s">u&#39;Given a user exists with one account&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="k">def</span> <span class="nf">given_a_user_exists</span><span class="p">(</span><span class="n">step</span><span class="p">):</span>
+</span><span class='line'>    <span class="n">scenario</span><span class="o">.</span><span class="n">current_user</span> <span class="o">=</span> <span class="n">UserFactory</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'><span class="nd">@step</span><span class="p">(</span><span class="s">u&#39;And the user has a dog&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="k">def</span> <span class="nf">user_has_a_dog</span><span class="p">(</span><span class="n">step</span><span class="p">):</span>
+</span><span class='line'>    <span class="n">scenario</span><span class="o">.</span><span class="n">current_user</span><span class="o">.</span><span class="n">dog</span> <span class="o">=</span> <span class="n">DogFactory</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+</span><span class='line'>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Hope you guys find this useful!</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Python | Multiprocessing and Interrupts]]></title>
@@ -1415,7 +1526,7 @@ celebrities_with_style_that_i_like = ['jack black','zach galifianakis']
 <p>My idea I am calling <strong>Mailing It In™</strong>.  This is what I want it to do:</p>
 
 <ol>
-<li><p>Everyday you send a <a href="http://daringfireball.net/projects/markdown/syntax">markdown</a> formated email to <a href="&#x6d;&#x61;&#105;&#x6c;&#116;&#x6f;&#58;&#x6d;&#x61;&#x69;&#x6c;&#105;&#116;&#x69;&#x6e;&#x40;&#122;&#101;&#x66;&#x72;&#x2e;&#99;&#x6f;&#109;&#x2e;">&#x6d;&#x61;&#x69;&#x6c;&#105;&#116;&#105;&#x6e;&#64;&#x7a;&#x65;&#x66;&#114;&#x2e;&#x63;&#x6f;&#109;&#x2e;</a>  I need to think about this more, but I think we just need to answer two questions:</p>
+<li><p>Everyday you send a <a href="http://daringfireball.net/projects/markdown/syntax">markdown</a> formated email to <a href="&#x6d;&#97;&#105;&#108;&#x74;&#111;&#x3a;&#x6d;&#97;&#x69;&#x6c;&#105;&#x74;&#x69;&#110;&#x40;&#x7a;&#101;&#102;&#114;&#46;&#x63;&#111;&#109;&#x2e;">&#x6d;&#x61;&#105;&#x6c;&#105;&#116;&#105;&#x6e;&#x40;&#122;&#101;&#x66;&#x72;&#46;&#99;&#111;&#x6d;&#46;</a>  I need to think about this more, but I think we just need to answer two questions:</p>
 
 <ol>
 <li>What am I struggling with:</li>

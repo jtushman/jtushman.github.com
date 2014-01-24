@@ -9,7 +9,7 @@
   <meta name="author" content="Jonathan Tushman">
 
   
-  <meta name="description" content="tl;dr: If handling interrupts is important, use a SyncManager (not multiprocessing.Manager) to handle shared state I just hit the learning curve &hellip;">
+  <meta name="description" content="tl;dr: I forked the lettuce package to use multiprocessing, tests run more then 4x faster on my MBP I am a fan of Gabriel Falcão&rsquo;s lettuce &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,144 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/01/24/parallelize-your-lettuce-tests-to-win-friends-and-influence-others/">Parallelize Your Lettuce Tests to Win Friends and Influence Others</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-24T15:23:00-05:00" pubdate data-updated="true">Jan 24<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><strong>tl;dr:</strong>  I forked the lettuce package to use multiprocessing, tests run more then 4x faster on my MBP</p>
+
+<p>I am a fan of Gabriel Falcão&rsquo;s <a href="http://lettuce.it/">lettuce</a> Behavior-Driven Development (BDD) tool.  We have been using it on my team for 6+ months now.  Recently our test suite completion time has crossed the 10 minute line, which had a bunch of negative effects, as you can imagine:</p>
+
+<ul>
+<li>people writing less tests</li>
+<li>people running the test suite less frequently</li>
+<li>people spending more time watching a test suite run, then coding, …</li>
+</ul>
+
+
+<p>We all are using relatively modern MBP with 4 cores, and we might as well make the most of them.  Here is my fork of lettuce that allows you to take advantage of all of your cores:</p>
+
+<p><a href="https://github.com/jtushman/lettuce">https://github.com/jtushman/lettuce</a></p>
+
+<p>I have made two main modifications:</p>
+
+<ul>
+<li>I created a ParallelRunner (I have left the main runner alone), which kicks of threads to pull the scenarios off a queue</li>
+<li>After each run I store the run times of each test in a <code>.scenarios</code> file, so in subsequent runs I can sort them longest to shortest</li>
+</ul>
+
+
+<p>My test suite used to take 12 minutes, now its takes 2 minutes &mdash; REJOICE!</p>
+
+<h2>Usage</h2>
+
+<p><code>lettuce tests -p 4 -v 2</code></p>
+
+<p><strong>-p:</strong> stands for parallel.  You can set it to how many processes you like, I find that the number of cores should be your default</p>
+
+<p><strong>-v</strong> is the same verbosity parameter, but I recommend setting it to 2 when using parallelization, otherwise the steps will interlace and not make to much sense</p>
+
+<p>in your <code>terrain.py</code> file, there are two new callbacks:</p>
+
+<p><code>@before.batch</code> and <code>@after.batch</code></p>
+
+<p>which you should use to set up and tear down each process.  I use main to fire up flask, selenium and mongo.  Also note that I set a port_number attribute on world which you can use set up processes specific servers.  For example:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="nd">@before.batch</span>
+</span><span class='line'><span class="k">def</span> <span class="nf">batch_setup</span><span class="p">():</span>
+</span><span class='line'>    <span class="n">settings</span><span class="o">.</span><span class="n">MONGO_DATABASE_NAME</span> <span class="o">=</span> <span class="s">&#39;testing__{}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">world</span><span class="o">.</span><span class="n">port_number</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">mongoengine</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">MONGO_DATABASE_NAME</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">MONGO_HOST</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">MONGO_PORT</span><span class="p">,</span>
+</span><span class='line'>                        <span class="n">username</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">MONGO_USERNAME</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">MONGO_PASSWORD</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">clear_database</span><span class="p">()</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Cavets</h2>
+
+<p>For this to work <strong>all of your tests need to be isolated</strong>, they can not depend on each other (which I think is best practice anyways).  This means in your tests you <strong>should not use</strong> world <strong>at all</strong></p>
+
+<p>I rely on factories (<a href="https://factoryboy.readthedocs.org/en/latest/">factory_boy</a>) to build up my database during my &ldquo;Given&rdquo; steps, and then I delete the entire database after each scenario</p>
+
+<p>One think that I do with my tests is create a <code>scenario</code> state.  So in my terrain file I have the following</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="k">class</span> <span class="nc">ScenarioState</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span> <span class="k">pass</span>
+</span><span class='line'>
+</span><span class='line'><span class="nd">@before.each_scenario</span>
+</span><span class='line'><span class="k">def</span> <span class="nf">setup_senario</span><span class="p">(</span><span class="n">senario</span><span class="p">):</span>
+</span><span class='line'>    <span class="n">world</span><span class="o">.</span><span class="n">scenario</span> <span class="o">=</span> <span class="n">ScenarioState</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">scenario</span><span class="p">():</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">world</span><span class="o">.</span><span class="n">scenario</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And I use this all the time in my steps to refer to state from previous steps</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="nd">@step</span><span class="p">(</span><span class="s">u&#39;Given a user exists with one account&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="k">def</span> <span class="nf">given_a_user_exists</span><span class="p">(</span><span class="n">step</span><span class="p">):</span>
+</span><span class='line'>    <span class="n">scenario</span><span class="o">.</span><span class="n">current_user</span> <span class="o">=</span> <span class="n">UserFactory</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'><span class="nd">@step</span><span class="p">(</span><span class="s">u&#39;And the user has a dog&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="k">def</span> <span class="nf">user_has_a_dog</span><span class="p">(</span><span class="n">step</span><span class="p">):</span>
+</span><span class='line'>    <span class="n">scenario</span><span class="o">.</span><span class="n">current_user</span><span class="o">.</span><span class="n">dog</span> <span class="o">=</span> <span class="n">DogFactory</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+</span><span class='line'>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Hope you guys find this useful!</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1636,95 +1774,6 @@ celebrities_with_style_that_i_like = ['jack black','zach galifianakis']
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/05/22/kenneth-reitz-should-be-a-millionaire/">Kenneth Reitz Should Be a Millionaire</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-05-22T07:51:00-04:00" pubdate data-updated="true">May 22<span>nd</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h2>or &ldquo;Introducing the Dollar Store&rdquo;</h2>
-
-<p><strong>tl;dr:  Like the apple store, we should have an easy way to pay $1 to use a piece of software.  I think <a href="https://github.com/">Github</a> should help us do that</strong></p>
-
-<p>I went to a really greate Python Meetup last night where Kenneth Reitz (<a href="https://twitter.com/kennethreitz">@kennethreitz</a>) did his <strong>Python for Human&rsquo;s</strong> talk.  Really interesting talk, worth watching (<a href="http://www.youtube.com/watch?v=Y97D8j6CAog">link</a>).</p>
-
-<p>@kennethreitz is, among other things, the author of the <a href="http://docs.python-requests.org/en/latest/">requests</a> library for python.  On one of his slides, he mentioned that his open-source requests libary has been downloaded 4MM times.  I that got me thinking …</p>
-
-<blockquote><p>Kennenth Reitz should be a millionaire</p></blockquote>
-
-<p>Now, maybe he is.  But I doubt it. But he should be.  Here&rsquo;s how &hellip;</p>
-
-<p>So I pose a question to you developers out there:</p>
-
-<p><strong>Whould you pay $1 to use the requests library?</strong>  Whould you pay $1 to use Flask? Rails? etc …</p>
-
-<p>I know for me, the answer is <strong>Hell Yes!</strong>  if (and here is the important part) it is really easy, and headache free.</p>
-
-<p>Here is my proposal &hellip;</p>
-
-<h2>GitHub should open the <strong>&ldquo;Dollar Store&rdquo;</strong></h2>
-
-<p>There are a lot of details that need to be worked out.  But here is the general work flow:</p>
-
-<ul>
-<li>Kenneth clicks a button on his requests project and says &mdash; &ldquo;Enable <strong>Dollar Store</strong>&rdquo;  (note: that the project can still be downloaded for free as normal)</li>
-<li>I go to my github account, and click &lsquo;support the <strong>Dollar Store</strong>&rsquo;</li>
-<li>Now the first time I pull down a project from gibhub with my ssl_key or what have you, if that project is in the dollar store GitHub charges me a dollar and gives it to that project owner</li>
-</ul>
-
-
-<p>Organizations as a whole can also support the dollar store.  I can have all of <a href="http://zefr.com">ZEFR</a> support the <strong>Dollar Store</strong>.</p>
-
-<p>Pretty soon, Kenneth will be a millionaire and will be able to afford the laptop of his dreams.</p>
-
-<h2>I know this open a can of worms (Haters gonna hate):</h2>
-
-<ul>
-<li>How do you allocated funds among many commitors?</li>
-<li>Copyright(left) issues (This is probably the biggest hurdle now)  &mdash; But I believe surmountable</li>
-</ul>
-
-
-<p>But I think these are all details.  <strong>Fundamentally there is money out there that <em>wants</em> to go into smart engineers pockets</strong> &mdash; and we should find a way to greese the wheels, and make it easier for that to happen.</p>
-
-<p>I really think that something like this will be great for innovation.  It will spur more people to contribute to &ldquo;OpenSource&rdquo;</p>
-
-<p>In the meantime there are some alternatives to support projects like these:</p>
-
-<ul>
-<li><a href="https://www.gittip.com/kennethreitz/">Gittip</a> (right know Kenneth makes about $4,000 year for this work)</li>
-<li>And you can also pay for &ldquo;<a href="https://gumroad.com/l/RRZc">enterprise support</a>&rdquo; for $25/year</li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -1755,6 +1804,10 @@ celebrities_with_style_that_i_like = ['jack black','zach galifianakis']
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/01/24/parallelize-your-lettuce-tests-to-win-friends-and-influence-others/">Parallelize Your Lettuce Tests to Win Friends and Influence Others</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/01/14/python-%7C-multiprocessing-and-interrupts/">Python | Multiprocessing and Interrupts</a>
       </li>
     
@@ -1768,10 +1821,6 @@ celebrities_with_style_that_i_like = ['jack black','zach galifianakis']
     
       <li class="post">
         <a href="/blog/2013/08/15/introducing-pivotal-tools/">Introducing Pivotal_tools</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/06/19/how-to-give-constructive_feedback-to-an-engineer/">How to Give Constructive Feedback to an Engineer</a>
       </li>
     
   </ul>
