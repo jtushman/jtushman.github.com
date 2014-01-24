@@ -4,7 +4,7 @@
   <title><![CDATA[Category: lettuce, | tushman.io]]></title>
   <link href="http://jtushman.github.io/blog/categories/lettuce/atom.xml" rel="self"/>
   <link href="http://jtushman.github.io/"/>
-  <updated>2014-01-24T15:39:14-05:00</updated>
+  <updated>2014-01-24T15:41:21-05:00</updated>
   <id>http://jtushman.github.io/</id>
   <author>
     <name><![CDATA[Jonathan Tushman]]></name>
@@ -36,7 +36,7 @@
 <p>I have made two main modifications (You will find the lion share of my modifications in this <a href="https://github.com/jtushman/lettuce/blob/master/lettuce/__init__.py">file</a>):</p>
 
 <ul>
-<li>I created a ParallelRunner (I have left the main runner alone), which kicks of threads to pull the scenarios off a queue</li>
+<li>I created a ParallelRunner (I have left the main runner alone), which kicks off processes to pull the scenarios off a queue</li>
 <li>After each run I store the run times of each test in a <code>.scenarios</code> file, so in subsequent runs I can sort them longest to shortest</li>
 </ul>
 
