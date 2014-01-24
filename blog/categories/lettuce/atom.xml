@@ -4,7 +4,7 @@
   <title><![CDATA[Category: lettuce, | tushman.io]]></title>
   <link href="http://jtushman.github.io/blog/categories/lettuce/atom.xml" rel="self"/>
   <link href="http://jtushman.github.io/"/>
-  <updated>2014-01-24T15:31:14-05:00</updated>
+  <updated>2014-01-24T15:39:14-05:00</updated>
   <id>http://jtushman.github.io/</id>
   <author>
     <name><![CDATA[Jonathan Tushman]]></name>
@@ -69,13 +69,11 @@ clear_database()
 
 <p>```</p>
 
-<h2>Cavets</h2>
+<h2>Caveats</h2>
 
-<p>For this to work <strong>all of your tests need to be isolated</strong>, they can not depend on each other (which I think is best practice anyways).  This means in your tests you <strong>should not use</strong> world <strong>at all</strong></p>
+<p>For this to work <strong>all of your tests need to be isolated</strong>, they can not depend on each other (which I think is best practice anyways).  This means in your tests you <strong>should not use</strong> world <strong>at all</strong>  Use <em>scenario</em> instead:</p>
 
-<p>I rely on factories (<a href="https://factoryboy.readthedocs.org/en/latest/">factory_boy</a>) to build up my database during my &ldquo;Given&rdquo; steps, and then I delete the entire database after each scenario</p>
-
-<p>One think that I do with my tests is create a <code>scenario</code> state.  So in my terrain file I have the following</p>
+<p>To do this, in your <code>terrain</code> file add the following:</p>
 
 <p>```
 class ScenarioState(object): pass</p>
