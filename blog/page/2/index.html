@@ -9,7 +9,7 @@
   <meta name="author" content="Jonathan Tushman">
 
   
-  <meta name="description" content="or &ldquo;Introducing the Dollar Store&rdquo; tl;dr: Like the apple store, we should have an easy way to pay $1 to use a piece of software. I think &hellip;">
+  <meta name="description" content="We all know using the mouse is a productivity killer. So is shopping for essentials like socks and underwear. Here is a solution to both of these &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -83,6 +83,112 @@
       
   <header>
     
+      <h1 class="entry-title"><a href="/blog/2013/05/29/order-socks-without-leaving-the-terminal/">Order Socks Without Leaving the Terminal</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-05-29T19:21:00-07:00" pubdate data-updated="true">May 29<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>We all know using the mouse is a productivity killer.  So is shopping for essentials like socks and underwear.  Here is a solution to both of these problems.</p>
+
+<p>Zappos Labs just released an awesome new CLI for us developers to keep our eyes on the prize.</p>
+
+<p>To use it is simple (you do need to be running ruby 1.8.7 or greater. Install instructions <a href="http://www.ruby-lang.org/en/downloads/">here</a>).</p>
+
+<pre><code>&gt; gem install zappos_cli
+
+&gt; zappos configure
+</code></pre>
+
+<p><code>zappos configure</code> just created a template preferences file in your home directory (~/.zappos)</p>
+
+<p>Update the preferences file with your zappos credientials and some preferences (you will need to have an account set up online with your shipping and billing preferences).  Typically it looks like this:</p>
+
+<pre><code>[Credentials]
+zappos_username = jonathan
+zappos_password = p@ssw0rd
+
+[Preferences]
+favorite_colors = ['blue', 'black', 'green']
+celebrities_with_style_that_i_like = ['jack black','zach galifianakis'] 
+</code></pre>
+
+<p>Great!  Now you are all set .  Let&rsquo;s give it a spin …</p>
+
+<pre><code>&gt; zappos order:socks --quantity=4
+
+       mmm          mmm          mmm          mmm
+  mmm  | |     mmm  | |     mmm  | |     mmm  | |
+  | |  | |     | |  | |     | |  | |     | |  | |
+  | |  \) \    | |  \) \    | |  \) \    | |  \) \
+  \) \  \__)   \) \  \__)   \) \  \__)   \) \  \__)
+   \__)         \__)         \__)         \__)
+</code></pre>
+
+<p>You just ordered some socks! Nice! (<strong>note:</strong> the current version only supports following items: <code>['socks', 'boxers', 't-shirts', 'jeans', 'shoes', 'hoodies']</code>  Enough to keep us hackers clothed.)</p>
+
+<p>Really impressed with the ascii art &mdash; they are sweating the details.</p>
+
+<p>Want to see the status of your order:</p>
+
+<pre><code>&gt; zappos orders:status
+</code></pre>
+
+<p>Want to track your order:</p>
+
+<pre><code>&gt; zappos orders:status --tail
+</code></pre>
+
+<p>I like to keep this open in a tmux pane, and I can realtime see where my socks are.</p>
+
+<p>Don&rsquo;t like your socks.  No worries.  Returns are easy:</p>
+
+<pre><code>&gt; zappos returns:new --order=ORDER_NUMBER
+</code></pre>
+
+<p>This will generate a pdf return label and return instructions. note: ORDER_NUMBER comes from running <code>zappos orders:status</code></p>
+
+<p>The zappos_cli is in beta right now.  But I have found it invaluable.  Give it a shot!</p>
+
+<br/>
+
+
+<br/>
+
+
+<br/>
+
+
+<p><strong>JUST KIDDING!!!  But this would be sooooooooo awesome</strong>  Make it happen <a href="https://twitter.com/ZapposLabs">@ZapposLabs</a>!!</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
       <h1 class="entry-title"><a href="/blog/2013/05/22/kenneth-reitz-should-be-a-millionaire/">Kenneth Reitz Should Be a Millionaire</a></h1>
     
     
@@ -99,7 +205,7 @@
   
 
 
-<time datetime="2013-05-22T07:51:00-04:00" pubdate data-updated="true">May 22<span>nd</span>, 2013</time>
+<time datetime="2013-05-22T07:51:00-07:00" pubdate data-updated="true">May 22<span>nd</span>, 2013</time>
         
       </p>
     
@@ -188,7 +294,7 @@
   
 
 
-<time datetime="2013-05-17T12:10:00-04:00" pubdate data-updated="true">May 17<span>th</span>, 2013</time>
+<time datetime="2013-05-17T12:10:00-07:00" pubdate data-updated="true">May 17<span>th</span>, 2013</time>
         
       </p>
     
@@ -215,7 +321,7 @@
 <p>My idea I am calling <strong>Mailing It In™</strong>.  This is what I want it to do:</p>
 
 <ol>
-<li><p>Everyday you send a <a href="http://daringfireball.net/projects/markdown/syntax">markdown</a> formated email to <a href="&#x6d;&#x61;&#105;&#108;&#116;&#111;&#x3a;&#109;&#97;&#105;&#x6c;&#105;&#116;&#x69;&#x6e;&#64;&#x7a;&#101;&#x66;&#x72;&#x2e;&#x63;&#x6f;&#109;&#x2e;">&#x6d;&#x61;&#x69;&#108;&#105;&#x74;&#x69;&#x6e;&#64;&#x7a;&#x65;&#102;&#114;&#x2e;&#x63;&#x6f;&#109;&#x2e;</a>  I need to think about this more, but I think we just need to answer two questions:</p>
+<li><p>Everyday you send a <a href="http://daringfireball.net/projects/markdown/syntax">markdown</a> formated email to <a href="&#109;&#x61;&#x69;&#108;&#116;&#x6f;&#58;&#109;&#x61;&#105;&#x6c;&#105;&#116;&#105;&#x6e;&#64;&#122;&#x65;&#102;&#x72;&#46;&#99;&#x6f;&#109;&#46;">&#x6d;&#x61;&#x69;&#108;&#105;&#x74;&#105;&#x6e;&#64;&#122;&#x65;&#x66;&#x72;&#46;&#x63;&#x6f;&#x6d;&#x2e;</a>  I need to think about this more, but I think we just need to answer two questions:</p>
 
 <ol>
 <li>What am I struggling with:</li>
@@ -265,7 +371,7 @@
   
 
 
-<time datetime="2013-05-14T13:07:00-04:00" pubdate data-updated="true">May 14<span>th</span>, 2013</time>
+<time datetime="2013-05-14T13:07:00-07:00" pubdate data-updated="true">May 14<span>th</span>, 2013</time>
         
       </p>
     
@@ -391,6 +497,10 @@ stop on runlevel [!2345]
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/05/02/module-properties/">Module Properties | the Proxy Pattern</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/01/24/parallelize-your-lettuce-tests-to-win-friends-and-influence-others/">Parallelize Your Lettuce Tests to Win Friends and Influence Others</a>
       </li>
     
@@ -404,10 +514,6 @@ stop on runlevel [!2345]
     
       <li class="post">
         <a href="/blog/2013/10/10/shuffling-team-seating/">Shuffling Team Seating</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/08/15/introducing-pivotal-tools/">Introducing Pivotal_tools</a>
       </li>
     
   </ul>

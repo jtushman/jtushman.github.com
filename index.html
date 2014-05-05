@@ -9,7 +9,8 @@
   <meta name="author" content="Jonathan Tushman">
 
   
-  <meta name="description" content="tl;dr: I forked the lettuce package to use multiprocessing, tests run more then 4x faster on my MBP I am a fan of Gabriel Falcão&rsquo;s lettuce &hellip;">
+  <meta name="description" content="Have you ever tried to add a @property to a module? I was working on a authentication_manager. And I wanted to usage of the module to be like so: 1
+2 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -83,6 +84,216 @@
       
   <header>
     
+      <h1 class="entry-title"><a href="/blog/2014/05/02/module-properties/">Module Properties | the Proxy Pattern</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-05-02T16:58:00-07:00" pubdate data-updated="true">May 2<span>nd</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Have you ever tried to add a <code>@property</code> to a module?</p>
+
+<p>I was working on a authentication_manager.  And I wanted to usage of the module to be like so:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">from</span> <span class="nn">login_manager</span> <span class="kn">import</span> <span class="n">current_user</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">do_sometime_with_a_user</span><span class="p">():</span>
+</span><span class='line'>    <span class="k">print</span><span class="p">(</span><span class="n">current_user</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">current_user</span><span class="o">.</span><span class="n">speak</span><span class="p">()</span>
+</span><span class='line'>    <span class="n">current_user</span><span class="o">.</span><span class="n">say_hi</span><span class="p">(</span><span class="s">&#39;lauren&#39;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p><code>current_user</code> is going to return the current User if it exists.  In other words it needs to call a function.</p>
+
+<p>This would be pretty trivial if I would be okay with using parens all over the place</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="k">print</span><span class="p">(</span><span class="n">current_user</span><span class="p">()</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</span><span class='line'><span class="c"># gross ----------^^</span>
+</span><span class='line'><span class="n">current_user</span><span class="p">()</span><span class="o">.</span><span class="n">speak</span><span class="p">()</span>
+</span><span class='line'><span class="c"># gross ----^^</span>
+</span><span class='line'><span class="n">current_user</span><span class="p">()</span><span class="o">.</span><span class="n">say_hi</span><span class="p">(</span><span class="s">&#39;lauren&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="c"># gross ----^^</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>But that makes me want to barf.  Luckily python gives us the tools to clean this up.  We are going to use the Proxy pattern to solve it.  At its simplest we can do something like so:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="k">class</span> <span class="nc">Proxy</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">local</span><span class="p">):</span>
+</span><span class='line'>        <span class="bp">self</span><span class="o">.</span><span class="n">local</span> <span class="o">=</span> <span class="n">local</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+</span><span class='line'>        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">local</span><span class="p">(),</span> <span class="n">name</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># aliasing for better syntax        </span>
+</span><span class='line'><span class="n">module_property</span> <span class="o">=</span> <span class="n">Proxy</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">User</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+</span><span class='line'>    <span class="sd">&quot;&quot;&quot;Contrived User Object&quot;&quot;&quot;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span class='line'>        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;billy&#39;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">speak</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span class='line'>        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Well hello there!&quot;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">say_hi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">to_whom</span><span class="p">):</span>
+</span><span class='line'>        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Hi there {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">to_whom</span><span class="p">))</span>
+</span><span class='line'>
+</span><span class='line'><span class="nd">@module_property</span>
+</span><span class='line'><span class="k">def</span> <span class="nf">current_user</span><span class="p">():</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">User</span><span class="p">()</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>With this we have come close to achieving our goal:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">from</span> <span class="nn">login_manager</span> <span class="kn">import</span> <span class="n">current_user</span><span class="p">,</span> <span class="n">User</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+</span><span class='line'>    <span class="k">print</span> <span class="n">current_user</span><span class="o">.</span><span class="n">name</span>
+</span><span class='line'>    <span class="n">current_user</span><span class="o">.</span><span class="n">speak</span><span class="p">()</span>
+</span><span class='line'>    <span class="n">current_user</span><span class="o">.</span><span class="n">say_hi</span><span class="p">(</span><span class="s">&#39;lauren&#39;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This simple Proxy class that we defined.  Takes a function, stores in a local variable, and then when it is accessed it is executed with names and arguments passed through to it.  <code>__getattr__</code> is a pretty special feature of python.</p>
+
+<p>The big gotcha with this is that current_user does not return a User object (like the built-in @property will return), it is going to return the Proxy object.  So without a little bit of additional care you might run into issues.</p>
+
+<p>The werkzeug team has developed a fully featured Proxy within the werkzerg project.  If you are using werkzeug, you can find it: <code>from werkzeug.local import LocalProxy</code></p>
+
+<p>Its takes the proxy pattern further by overwriting all of the python <code>object</code> methods such as __eq__, __le__, __str__ and so on, to use the proxied object as the underlying target.</p>
+
+<p>If you are not using werkzeug I have created a mini library where you can get the extracted proxy code.  You can find it here: (<a href="http://github.com/jtushman/proxy_utils">http://github.com/jtushman/proxy_utils</a>)</p>
+
+<p>Or install it like so:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>pip install proxy_tools
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And use it like so:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="c"># your_module/__init__.py</span>
+</span><span class='line'><span class="kn">from</span> <span class="nn">proxy_tools</span> <span class="kn">import</span> <span class="n">module_property</span>
+</span><span class='line'>
+</span><span class='line'><span class="nd">@module_property</span>
+</span><span class='line'><span class="k">def</span> <span class="nf">current_user</span><span class="p">():</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">User</span><span class="o">.</span><span class="n">find_by_id</span><span class="p">(</span><span class="n">request</span><span class="p">[</span><span class="s">&#39;user_id&#39;</span><span class="p">])</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Or alternatively</span>
+</span><span class='line'><span class="kn">from</span> <span class="nn">proxy_tools</span> <span class="kn">import</span> <span class="n">Proxy</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">get_current_user</span><span class="p">():</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">User</span><span class="o">.</span><span class="n">find_by_id</span><span class="p">(</span><span class="n">request</span><span class="p">[</span><span class="s">&#39;user_id&#39;</span><span class="p">])</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">current_user</span> <span class="o">=</span> <span class="n">Proxy</span><span class="p">(</span><span class="n">get_current_user</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Then elsewhere</span>
+</span><span class='line'><span class="kn">from</span> <span class="nn">your_module</span> <span class="kn">import</span> <span class="n">current_user</span>
+</span><span class='line'><span class="k">print</span><span class="p">(</span><span class="n">current_user</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now &mdash; I am sure there was a very good reason why the python-powers-that-be chose not add the <code>@property</code> syntax to modules.  But for the time being I have found it useful and elegant.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
       <h1 class="entry-title"><a href="/blog/2014/01/24/parallelize-your-lettuce-tests-to-win-friends-and-influence-others/">Parallelize Your Lettuce Tests to Win Friends and Influence Others</a></h1>
     
     
@@ -99,7 +310,7 @@
   
 
 
-<time datetime="2014-01-24T15:23:00-05:00" pubdate data-updated="true">Jan 24<span>th</span>, 2014</time>
+<time datetime="2014-01-24T15:23:00-08:00" pubdate data-updated="true">Jan 24<span>th</span>, 2014</time>
         
       </p>
     
@@ -235,7 +446,7 @@
   
 
 
-<time datetime="2014-01-14T22:21:00-05:00" pubdate data-updated="true">Jan 14<span>th</span>, 2014</time>
+<time datetime="2014-01-14T22:21:00-08:00" pubdate data-updated="true">Jan 14<span>th</span>, 2014</time>
         
       </p>
     
@@ -651,7 +862,7 @@
   
 
 
-<time datetime="2013-11-06T18:18:00-05:00" pubdate data-updated="true">Nov 6<span>th</span>, 2013</time>
+<time datetime="2013-11-06T18:18:00-08:00" pubdate data-updated="true">Nov 6<span>th</span>, 2013</time>
         
       </p>
     
@@ -782,7 +993,7 @@
   
 
 
-<time datetime="2013-10-10T21:29:00-04:00" pubdate data-updated="true">Oct 10<span>th</span>, 2013</time>
+<time datetime="2013-10-10T21:29:00-07:00" pubdate data-updated="true">Oct 10<span>th</span>, 2013</time>
         
       </p>
     
@@ -936,7 +1147,7 @@
   
 
 
-<time datetime="2013-08-15T08:56:00-04:00" pubdate data-updated="true">Aug 15<span>th</span>, 2013</time>
+<time datetime="2013-08-15T08:56:00-07:00" pubdate data-updated="true">Aug 15<span>th</span>, 2013</time>
         
       </p>
     
@@ -1030,7 +1241,7 @@
   
 
 
-<time datetime="2013-06-19T21:02:00-04:00" pubdate data-updated="true">Jun 19<span>th</span>, 2013</time>
+<time datetime="2013-06-19T21:02:00-07:00" pubdate data-updated="true">Jun 19<span>th</span>, 2013</time>
         
       </p>
     
@@ -1146,7 +1357,7 @@
   
 
 
-<time datetime="2013-06-17T12:20:00-04:00" pubdate data-updated="true">Jun 17<span>th</span>, 2013</time>
+<time datetime="2013-06-17T12:20:00-07:00" pubdate data-updated="true">Jun 17<span>th</span>, 2013</time>
         
       </p>
     
@@ -1378,7 +1589,7 @@
   
 
 
-<time datetime="2013-06-12T10:16:00-04:00" pubdate data-updated="true">Jun 12<span>th</span>, 2013</time>
+<time datetime="2013-06-12T10:16:00-07:00" pubdate data-updated="true">Jun 12<span>th</span>, 2013</time>
         
       </p>
     
@@ -1575,7 +1786,7 @@
   
 
 
-<time datetime="2013-05-31T09:44:00-04:00" pubdate data-updated="true">May 31<span>st</span>, 2013</time>
+<time datetime="2013-05-31T09:44:00-07:00" pubdate data-updated="true">May 31<span>st</span>, 2013</time>
         
       </p>
     
@@ -1666,112 +1877,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/05/29/order-socks-without-leaving-the-terminal/">Order Socks Without Leaving the Terminal</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-05-29T19:21:00-04:00" pubdate data-updated="true">May 29<span>th</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>We all know using the mouse is a productivity killer.  So is shopping for essentials like socks and underwear.  Here is a solution to both of these problems.</p>
-
-<p>Zappos Labs just released an awesome new CLI for us developers to keep our eyes on the prize.</p>
-
-<p>To use it is simple (you do need to be running ruby 1.8.7 or greater. Install instructions <a href="http://www.ruby-lang.org/en/downloads/">here</a>).</p>
-
-<pre><code>&gt; gem install zappos_cli
-
-&gt; zappos configure
-</code></pre>
-
-<p><code>zappos configure</code> just created a template preferences file in your home directory (~/.zappos)</p>
-
-<p>Update the preferences file with your zappos credientials and some preferences (you will need to have an account set up online with your shipping and billing preferences).  Typically it looks like this:</p>
-
-<pre><code>[Credentials]
-zappos_username = jonathan
-zappos_password = p@ssw0rd
-
-[Preferences]
-favorite_colors = ['blue', 'black', 'green']
-celebrities_with_style_that_i_like = ['jack black','zach galifianakis'] 
-</code></pre>
-
-<p>Great!  Now you are all set .  Let&rsquo;s give it a spin …</p>
-
-<pre><code>&gt; zappos order:socks --quantity=4
-
-       mmm          mmm          mmm          mmm
-  mmm  | |     mmm  | |     mmm  | |     mmm  | |
-  | |  | |     | |  | |     | |  | |     | |  | |
-  | |  \) \    | |  \) \    | |  \) \    | |  \) \
-  \) \  \__)   \) \  \__)   \) \  \__)   \) \  \__)
-   \__)         \__)         \__)         \__)
-</code></pre>
-
-<p>You just ordered some socks! Nice! (<strong>note:</strong> the current version only supports following items: <code>['socks', 'boxers', 't-shirts', 'jeans', 'shoes', 'hoodies']</code>  Enough to keep us hackers clothed.)</p>
-
-<p>Really impressed with the ascii art &mdash; they are sweating the details.</p>
-
-<p>Want to see the status of your order:</p>
-
-<pre><code>&gt; zappos orders:status
-</code></pre>
-
-<p>Want to track your order:</p>
-
-<pre><code>&gt; zappos orders:status --tail
-</code></pre>
-
-<p>I like to keep this open in a tmux pane, and I can realtime see where my socks are.</p>
-
-<p>Don&rsquo;t like your socks.  No worries.  Returns are easy:</p>
-
-<pre><code>&gt; zappos returns:new --order=ORDER_NUMBER
-</code></pre>
-
-<p>This will generate a pdf return label and return instructions. note: ORDER_NUMBER comes from running <code>zappos orders:status</code></p>
-
-<p>The zappos_cli is in beta right now.  But I have found it invaluable.  Give it a shot!</p>
-
-<br/>
-
-
-<br/>
-
-
-<br/>
-
-
-<p><strong>JUST KIDDING!!!  But this would be sooooooooo awesome</strong>  Make it happen <a href="https://twitter.com/ZapposLabs">@ZapposLabs</a>!!</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -1802,6 +1907,10 @@ celebrities_with_style_that_i_like = ['jack black','zach galifianakis']
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/05/02/module-properties/">Module Properties | the Proxy Pattern</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/01/24/parallelize-your-lettuce-tests-to-win-friends-and-influence-others/">Parallelize Your Lettuce Tests to Win Friends and Influence Others</a>
       </li>
     
@@ -1815,10 +1924,6 @@ celebrities_with_style_that_i_like = ['jack black','zach galifianakis']
     
       <li class="post">
         <a href="/blog/2013/10/10/shuffling-team-seating/">Shuffling Team Seating</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/08/15/introducing-pivotal-tools/">Introducing Pivotal_tools</a>
       </li>
     
   </ul>

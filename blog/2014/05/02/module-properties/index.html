@@ -1,0 +1,439 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Module Properties | The Proxy Pattern - tushman.io</title>
+  <meta name="author" content="Jonathan Tushman">
+
+  
+  <meta name="description" content="Have you ever tried to add a @property to a module? I was working on a authentication_manager. And I wanted to usage of the module to be like so: 1
+2 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://jtushman.github.io/blog/2014/05/02/module-properties">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="tushman.io" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-41121782-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">tushman.io</a></h1>
+  
+    <h2>The musings of an insecure technologist</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:jtushman.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Module Properties | the Proxy Pattern</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-05-02T16:58:00-07:00" pubdate data-updated="true">May 2<span>nd</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Have you ever tried to add a <code>@property</code> to a module?</p>
+
+<p>I was working on a authentication_manager.  And I wanted to usage of the module to be like so:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">from</span> <span class="nn">login_manager</span> <span class="kn">import</span> <span class="n">current_user</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">do_sometime_with_a_user</span><span class="p">():</span>
+</span><span class='line'>    <span class="k">print</span><span class="p">(</span><span class="n">current_user</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">current_user</span><span class="o">.</span><span class="n">speak</span><span class="p">()</span>
+</span><span class='line'>    <span class="n">current_user</span><span class="o">.</span><span class="n">say_hi</span><span class="p">(</span><span class="s">&#39;lauren&#39;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p><code>current_user</code> is going to return the current User if it exists.  In other words it needs to call a function.</p>
+
+<p>This would be pretty trivial if I would be okay with using parens all over the place</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="k">print</span><span class="p">(</span><span class="n">current_user</span><span class="p">()</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</span><span class='line'><span class="c"># gross ----------^^</span>
+</span><span class='line'><span class="n">current_user</span><span class="p">()</span><span class="o">.</span><span class="n">speak</span><span class="p">()</span>
+</span><span class='line'><span class="c"># gross ----^^</span>
+</span><span class='line'><span class="n">current_user</span><span class="p">()</span><span class="o">.</span><span class="n">say_hi</span><span class="p">(</span><span class="s">&#39;lauren&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="c"># gross ----^^</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>But that makes me want to barf.  Luckily python gives us the tools to clean this up.  We are going to use the Proxy pattern to solve it.  At its simplest we can do something like so:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="k">class</span> <span class="nc">Proxy</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">local</span><span class="p">):</span>
+</span><span class='line'>        <span class="bp">self</span><span class="o">.</span><span class="n">local</span> <span class="o">=</span> <span class="n">local</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+</span><span class='line'>        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">local</span><span class="p">(),</span> <span class="n">name</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># aliasing for better syntax        </span>
+</span><span class='line'><span class="n">module_property</span> <span class="o">=</span> <span class="n">Proxy</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">User</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+</span><span class='line'>    <span class="sd">&quot;&quot;&quot;Contrived User Object&quot;&quot;&quot;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span class='line'>        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;billy&#39;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">speak</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span class='line'>        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Well hello there!&quot;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">say_hi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">to_whom</span><span class="p">):</span>
+</span><span class='line'>        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Hi there {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">to_whom</span><span class="p">))</span>
+</span><span class='line'>
+</span><span class='line'><span class="nd">@module_property</span>
+</span><span class='line'><span class="k">def</span> <span class="nf">current_user</span><span class="p">():</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">User</span><span class="p">()</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>With this we have come close to achieving our goal:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">from</span> <span class="nn">login_manager</span> <span class="kn">import</span> <span class="n">current_user</span><span class="p">,</span> <span class="n">User</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+</span><span class='line'>    <span class="k">print</span> <span class="n">current_user</span><span class="o">.</span><span class="n">name</span>
+</span><span class='line'>    <span class="n">current_user</span><span class="o">.</span><span class="n">speak</span><span class="p">()</span>
+</span><span class='line'>    <span class="n">current_user</span><span class="o">.</span><span class="n">say_hi</span><span class="p">(</span><span class="s">&#39;lauren&#39;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This simple Proxy class that we defined.  Takes a function, stores in a local variable, and then when it is accessed it is executed with names and arguments passed through to it.  <code>__getattr__</code> is a pretty special feature of python.</p>
+
+<p>The big gotcha with this is that current_user does not return a User object (like the built-in @property will return), it is going to return the Proxy object.  So without a little bit of additional care you might run into issues.</p>
+
+<p>The werkzeug team has developed a fully featured Proxy within the werkzerg project.  If you are using werkzeug, you can find it: <code>from werkzeug.local import LocalProxy</code></p>
+
+<p>Its takes the proxy pattern further by overwriting all of the python <code>object</code> methods such as __eq__, __le__, __str__ and so on, to use the proxied object as the underlying target.</p>
+
+<p>If you are not using werkzeug I have created a mini library where you can get the extracted proxy code.  You can find it here: (<a href="http://github.com/jtushman/proxy_utils">http://github.com/jtushman/proxy_utils</a>)</p>
+
+<p>Or install it like so:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>pip install proxy_tools
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And use it like so:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="c"># your_module/__init__.py</span>
+</span><span class='line'><span class="kn">from</span> <span class="nn">proxy_tools</span> <span class="kn">import</span> <span class="n">module_property</span>
+</span><span class='line'>
+</span><span class='line'><span class="nd">@module_property</span>
+</span><span class='line'><span class="k">def</span> <span class="nf">current_user</span><span class="p">():</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">User</span><span class="o">.</span><span class="n">find_by_id</span><span class="p">(</span><span class="n">request</span><span class="p">[</span><span class="s">&#39;user_id&#39;</span><span class="p">])</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Or alternatively</span>
+</span><span class='line'><span class="kn">from</span> <span class="nn">proxy_tools</span> <span class="kn">import</span> <span class="n">Proxy</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">get_current_user</span><span class="p">():</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">User</span><span class="o">.</span><span class="n">find_by_id</span><span class="p">(</span><span class="n">request</span><span class="p">[</span><span class="s">&#39;user_id&#39;</span><span class="p">])</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">current_user</span> <span class="o">=</span> <span class="n">Proxy</span><span class="p">(</span><span class="n">get_current_user</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Then elsewhere</span>
+</span><span class='line'><span class="kn">from</span> <span class="nn">your_module</span> <span class="kn">import</span> <span class="n">current_user</span>
+</span><span class='line'><span class="k">print</span><span class="p">(</span><span class="n">current_user</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now &mdash; I am sure there was a very good reason why the python-powers-that-be chose not add the <code>@property</code> syntax to modules.  But for the time being I have found it useful and elegant.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Jonathan Tushman</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-05-02T16:58:00-07:00" pubdate data-updated="true">May 2<span>nd</span>, 2014</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://jtushman.github.io/blog/2014/05/02/module-properties/" data-via="tushman" data-counturl="http://jtushman.github.io/blog/2014/05/02/module-properties/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/01/24/parallelize-your-lettuce-tests-to-win-friends-and-influence-others/" title="Previous Post: Parallelize your lettuce tests to win friends and influence others">&laquo; Parallelize your lettuce tests to win friends and influence others</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section xmlns="http://www.w3.org/1999/html">
+  <h1>About Me</h1>
+    <ul>
+        <li>I'm <a href="http://tushman.com" target="_blank">Jonathan Tushman</a>        </li>
+        <li>I am a pragmatic technologist (<a href="http://tushman.com/resume" target="_blank">bio</a>)        </li>
+        <li>I work at <a href="http://www.zefr.com" target="_blank">ZEFR</a>                            </li>
+        <li>... and we're <a href="http://careers.stackoverflow.com/company/zefr">hiring</a></li>
+        <li>I love to build <a href="http://tushman.com/resume" target="_blank">things</a>              </li>
+        <li>I like <a href="http://tushman.com/music" target="_blank">music</a> and playing board games </li>
+        <li>I read the <a href="http://www.economist.com" target="_blank">Economist</a>                 </li>
+        <li>Follow me if you like <a href="http://www.twitter.com/tushman" target="_blank">@tushman</a> </li>
+    </ul>
+
+
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/05/02/module-properties/">Module Properties | the Proxy Pattern</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/01/24/parallelize-your-lettuce-tests-to-win-friends-and-influence-others/">Parallelize Your Lettuce Tests to Win Friends and Influence Others</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/01/14/python-%7C-multiprocessing-and-interrupts/">Python | Multiprocessing and Interrupts</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/11/06/dict-digger/">Dict Digger</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/10/10/shuffling-team-seating/">Shuffling Team Seating</a>
+      </li>
+    
+  </ul>
+</section>
+<section>
+    <h1>Twitter</h1>
+    <a class="twitter-timeline" href="https://twitter.com/tushman" data-widget-id="338399291280326658">Tweets by @tushman</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+</section>
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Jonathan Tushman -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'jtushmanblog';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://jtushman.github.io/blog/2014/05/02/module-properties/';
+        var disqus_url = 'http://jtushman.github.io/blog/2014/05/02/module-properties/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

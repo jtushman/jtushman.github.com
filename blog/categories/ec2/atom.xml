@@ -4,7 +4,7 @@
   <title><![CDATA[Category: ec2 | tushman.io]]></title>
   <link href="http://jtushman.github.io/blog/categories/ec2/atom.xml" rel="self"/>
   <link href="http://jtushman.github.io/"/>
-  <updated>2014-01-24T15:41:58-05:00</updated>
+  <updated>2014-05-05T15:12:07-07:00</updated>
   <id>http://jtushman.github.io/</id>
   <author>
     <name><![CDATA[Jonathan Tushman]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[Deamonize Processes on Ubuntu]]></title>
     <link href="http://jtushman.github.io/blog/2013/05/14/deamonize-processes-on-ubuntu/"/>
-    <updated>2013-05-14T13:07:00-04:00</updated>
+    <updated>2013-05-14T13:07:00-07:00</updated>
     <id>http://jtushman.github.io/blog/2013/05/14/deamonize-processes-on-ubuntu</id>
     <content type="html"><![CDATA[<p><strong>Problem Statement:  What is the simplest was to deamonize a serivce (Celeryd)on Ubuntu.</strong></p>
 
