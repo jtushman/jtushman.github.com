@@ -4,7 +4,7 @@
   <title><![CDATA[Category: flask, ebs | tushman.io]]></title>
   <link href="http://jtushman.github.io/blog/categories/flask-ebs/atom.xml" rel="self"/>
   <link href="http://jtushman.github.io/"/>
-  <updated>2014-05-05T15:15:34-07:00</updated>
+  <updated>2014-07-22T17:52:08-04:00</updated>
   <id>http://jtushman.github.io/</id>
   <author>
     <name><![CDATA[Jonathan Tushman]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[First impressions with Flask and Elastic Beanstalk]]></title>
     <link href="http://jtushman.github.io/blog/2013/06/12/first-impressions-with-flask-and-elastic-beanstalk/"/>
-    <updated>2013-06-12T10:16:00-07:00</updated>
+    <updated>2013-06-12T10:16:00-04:00</updated>
     <id>http://jtushman.github.io/blog/2013/06/12/first-impressions-with-flask-and-elastic-beanstalk</id>
     <content type="html"><![CDATA[<p>All in all it was pretty simple to get my flask app up and running on Elastic Beanstalk.  I ran into a couple of gotchas, and wanted to share them to save others some time.</p>
 

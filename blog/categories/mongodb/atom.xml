@@ -4,7 +4,7 @@
   <title><![CDATA[Category: mongodb | tushman.io]]></title>
   <link href="http://jtushman.github.io/blog/categories/mongodb/atom.xml" rel="self"/>
   <link href="http://jtushman.github.io/"/>
-  <updated>2014-05-05T15:15:34-07:00</updated>
+  <updated>2014-07-22T17:52:08-04:00</updated>
   <id>http://jtushman.github.io/</id>
   <author>
     <name><![CDATA[Jonathan Tushman]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[A better way to manage indexes with mongoengine]]></title>
     <link href="http://jtushman.github.io/blog/2013/05/31/a-better-way-to-manage-indexes-with-mongoengine/"/>
-    <updated>2013-05-31T09:44:00-07:00</updated>
+    <updated>2013-05-31T09:44:00-04:00</updated>
     <id>http://jtushman.github.io/blog/2013/05/31/a-better-way-to-manage-indexes-with-mongoengine</id>
     <content type="html"><![CDATA[<p>I was unsatisfied with out-of-the-box solution that <a href="http://mongoengine.org/">mongoengine</a> gave me for managing indexes.  What they offer is adding some meta information to your model, and then it litters <code>ensure_indexes</code> when making calls.  There approach is shown <a href="https://mongoengine-odm.readthedocs.org/en/latest/guide/defining-documents.html#indexes">here</a></p>
 

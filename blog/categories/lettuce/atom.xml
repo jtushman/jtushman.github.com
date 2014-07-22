@@ -4,7 +4,7 @@
   <title><![CDATA[Category: lettuce, | tushman.io]]></title>
   <link href="http://jtushman.github.io/blog/categories/lettuce/atom.xml" rel="self"/>
   <link href="http://jtushman.github.io/"/>
-  <updated>2014-05-05T15:15:34-07:00</updated>
+  <updated>2014-07-22T17:52:08-04:00</updated>
   <id>http://jtushman.github.io/</id>
   <author>
     <name><![CDATA[Jonathan Tushman]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[Parallelize your lettuce tests to win friends and influence others]]></title>
     <link href="http://jtushman.github.io/blog/2014/01/24/parallelize-your-lettuce-tests-to-win-friends-and-influence-others/"/>
-    <updated>2014-01-24T15:23:00-08:00</updated>
+    <updated>2014-01-24T15:23:00-05:00</updated>
     <id>http://jtushman.github.io/blog/2014/01/24/parallelize-your-lettuce-tests-to-win-friends-and-influence-others</id>
     <content type="html"><![CDATA[<p><strong>tl;dr:</strong>  I forked the lettuce package to use multiprocessing, tests run more then 4x faster on my MBP</p>
 

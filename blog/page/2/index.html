@@ -9,7 +9,7 @@
   <meta name="author" content="Jonathan Tushman">
 
   
-  <meta name="description" content="We all know using the mouse is a productivity killer. So is shopping for essentials like socks and underwear. Here is a solution to both of these &hellip;">
+  <meta name="description" content="I was unsatisfied with out-of-the-box solution that mongoengine gave me for managing indexes. What they offer is adding some meta information to your &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -83,6 +83,118 @@
       
   <header>
     
+      <h1 class="entry-title"><a href="/blog/2013/05/31/a-better-way-to-manage-indexes-with-mongoengine/">A Better Way to Manage Indexes With Mongoengine</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-05-31T09:44:00-04:00" pubdate data-updated="true">May 31<span>st</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I was unsatisfied with out-of-the-box solution that <a href="http://mongoengine.org/">mongoengine</a> gave me for managing indexes.  What they offer is adding some meta information to your model, and then it litters <code>ensure_indexes</code> when making calls.  There approach is shown <a href="https://mongoengine-odm.readthedocs.org/en/latest/guide/defining-documents.html#indexes">here</a></p>
+
+<p>I find that I need more finegrained control of defining indexes, and more importantly when to kick off there creation.</p>
+
+<p>So I added an <code>ensure_indexes()</code> method to my manage.py, and then dropped down to <code>pymongo</code> to get the control that I want</p>
+
+<p>It looks something like this …</p>
+
+<figure class='code'><figcaption><span>manage.py </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">from</span> <span class="nn">pymongo</span> <span class="kn">import</span> <span class="n">ASCENDING</span><span class="p">,</span> <span class="n">DESCENDING</span>
+</span><span class='line'><span class="kn">from</span> <span class="nn">mongoengine.connection</span> <span class="kn">import</span> <span class="n">get_db</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">database</span>
+</span><span class='line'>
+</span><span class='line'><span class="nd">@manager.command</span>
+</span><span class='line'><span class="k">def</span> <span class="nf">ensure_indexes</span><span class="p">():</span>
+</span><span class='line'>    <span class="n">database</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+</span><span class='line'>    <span class="n">db</span> <span class="o">=</span> <span class="n">get_db</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">vt_collection</span> <span class="o">=</span> <span class="n">db</span><span class="p">[</span><span class="s">&#39;video_test&#39;</span><span class="p">]</span>
+</span><span class='line'>    <span class="n">vt_collection</span><span class="o">.</span><span class="n">ensure_index</span><span class="p">([(</span><span class="s">&#39;video_batch&#39;</span><span class="p">,</span> <span class="n">ASCENDING</span><span class="p">),</span> <span class="p">(</span><span class="s">&#39;video_total_views&#39;</span><span class="p">,</span> <span class="n">DESCENDING</span><span class="p">)],</span> <span class="n">background</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">vt_collection</span><span class="o">.</span><span class="n">ensure_index</span><span class="p">([(</span><span class="s">&#39;video_batch&#39;</span><span class="p">,</span> <span class="n">ASCENDING</span><span class="p">),</span> <span class="p">(</span><span class="s">&#39;video_name&#39;</span><span class="p">,</span> <span class="n">ASCENDING</span><span class="p">)],</span> <span class="n">background</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># show index info:</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">for</span> <span class="n">collection_name</span> <span class="ow">in</span> <span class="n">db</span><span class="o">.</span><span class="n">collection_names</span><span class="p">():</span>
+</span><span class='line'>        <span class="k">print</span> <span class="s">&quot;Collection: [{}]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">collection_name</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">col</span> <span class="o">=</span> <span class="n">db</span><span class="p">[</span><span class="n">collection_name</span><span class="p">]</span>
+</span><span class='line'>        <span class="k">print</span> <span class="n">col</span><span class="o">.</span><span class="n">index_information</span><span class="p">()</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I like using mongoengine&rsquo;s <code>get_db()</code> method to get a handle on a pymongo database object, it centralizes the connection logic which I keep in my <code>database.py</code> file, which for completeness is here:</p>
+
+<figure class='code'><figcaption><span>database.py </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">from</span> <span class="nn">settings</span> <span class="kn">import</span> <span class="o">*</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">mongoengine</span>
+</span><span class='line'>  
+</span><span class='line'><span class="k">def</span> <span class="nf">connect</span><span class="p">():</span>
+</span><span class='line'>    <span class="n">mongoengine</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">MONGO_DATABASE_NAME</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">MONGO_HOST</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">MONGO_PORT</span><span class="p">,</span>
+</span><span class='line'>                        <span class="n">username</span><span class="o">=</span><span class="n">MONGO_USERNAME</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">MONGO_PASSWORD</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>While figuring this out the following two docs to be useful:</p>
+
+<ul>
+<li><a href="http://api.mongodb.org/python/current/api/pymongo/collection.html#module-pymongo.collection">pymongo-collections</a></li>
+<li><a href="http://api.mongodb.org/python/current/api/pymongo/database.html#module-pymongo.database">pymongo-database</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
       <h1 class="entry-title"><a href="/blog/2013/05/29/order-socks-without-leaving-the-terminal/">Order Socks Without Leaving the Terminal</a></h1>
     
     
@@ -99,7 +211,7 @@
   
 
 
-<time datetime="2013-05-29T19:21:00-07:00" pubdate data-updated="true">May 29<span>th</span>, 2013</time>
+<time datetime="2013-05-29T19:21:00-04:00" pubdate data-updated="true">May 29<span>th</span>, 2013</time>
         
       </p>
     
@@ -205,7 +317,7 @@ celebrities_with_style_that_i_like = ['jack black','zach galifianakis']
   
 
 
-<time datetime="2013-05-22T07:51:00-07:00" pubdate data-updated="true">May 22<span>nd</span>, 2013</time>
+<time datetime="2013-05-22T07:51:00-04:00" pubdate data-updated="true">May 22<span>nd</span>, 2013</time>
         
       </p>
     
@@ -294,7 +406,7 @@ celebrities_with_style_that_i_like = ['jack black','zach galifianakis']
   
 
 
-<time datetime="2013-05-17T12:10:00-07:00" pubdate data-updated="true">May 17<span>th</span>, 2013</time>
+<time datetime="2013-05-17T12:10:00-04:00" pubdate data-updated="true">May 17<span>th</span>, 2013</time>
         
       </p>
     
@@ -321,7 +433,7 @@ celebrities_with_style_that_i_like = ['jack black','zach galifianakis']
 <p>My idea I am calling <strong>Mailing It In™</strong>.  This is what I want it to do:</p>
 
 <ol>
-<li><p>Everyday you send a <a href="http://daringfireball.net/projects/markdown/syntax">markdown</a> formated email to <a href="&#109;&#x61;&#105;&#x6c;&#116;&#111;&#58;&#109;&#97;&#105;&#108;&#x69;&#x74;&#105;&#x6e;&#64;&#x7a;&#101;&#102;&#x72;&#46;&#x63;&#x6f;&#109;&#46;">&#x6d;&#x61;&#105;&#108;&#105;&#116;&#105;&#x6e;&#64;&#x7a;&#x65;&#102;&#114;&#x2e;&#x63;&#111;&#x6d;&#46;</a>  I need to think about this more, but I think we just need to answer two questions:</p>
+<li><p>Everyday you send a <a href="http://daringfireball.net/projects/markdown/syntax">markdown</a> formated email to <a href="&#109;&#x61;&#x69;&#108;&#x74;&#x6f;&#x3a;&#109;&#97;&#105;&#108;&#x69;&#116;&#x69;&#x6e;&#64;&#x7a;&#101;&#x66;&#x72;&#46;&#99;&#x6f;&#109;&#x2e;">&#109;&#97;&#x69;&#108;&#105;&#116;&#105;&#110;&#x40;&#122;&#x65;&#102;&#x72;&#46;&#99;&#x6f;&#109;&#x2e;</a>  I need to think about this more, but I think we just need to answer two questions:</p>
 
 <ol>
 <li>What am I struggling with:</li>
@@ -371,7 +483,7 @@ celebrities_with_style_that_i_like = ['jack black','zach galifianakis']
   
 
 
-<time datetime="2013-05-14T13:07:00-07:00" pubdate data-updated="true">May 14<span>th</span>, 2013</time>
+<time datetime="2013-05-14T13:07:00-04:00" pubdate data-updated="true">May 14<span>th</span>, 2013</time>
         
       </p>
     
@@ -497,6 +609,10 @@ stop on runlevel [!2345]
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/07/22/boston-python-%7C-monarch-and-bouncer-notes/">Boston Python | Monarch and Bouncer Notes</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/05/02/module-properties/">Module Properties | the Proxy Pattern</a>
       </li>
     
@@ -510,10 +626,6 @@ stop on runlevel [!2345]
     
       <li class="post">
         <a href="/blog/2013/11/06/dict-digger/">Dict Digger</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/10/10/shuffling-team-seating/">Shuffling Team Seating</a>
       </li>
     
   </ul>
