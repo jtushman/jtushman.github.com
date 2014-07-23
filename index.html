@@ -9,8 +9,7 @@
   <meta name="author" content="Jonathan Tushman">
 
   
-  <meta name="description" content="The Boston Python group was nice enough to have me speak about things I built at work I spoke about: Monarch | Migration Framework
-Bouncer | &hellip;">
+  <meta name="description" content="Thanks again for Boston Python for having me last night. When covering bouncer at last nights event, I felt I did not answer a question &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -78,6 +77,284 @@ Bouncer | &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/07/23/explaining-bouncer-and-method-decorators/">Explaining Bouncer and Method_decorators</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-23T15:42:00-04:00" pubdate data-updated="true">Jul 23<span>rd</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Thanks again for <a href="http://www.meetup.com/bostonpython/">Boston Python</a> for having me last night.</p>
+
+<p>When covering <a href="https://github.com/jtushman/bouncer">bouncer</a> at last nights event, I felt I did not answer a question satisfactorily.</p>
+
+<p>When I shared the following code:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">from</span> <span class="nn">bouncer</span> <span class="kn">import</span> <span class="n">authorization_method</span>
+</span><span class='line'><span class="kn">from</span> <span class="nn">bouncer.constants</span> <span class="kn">import</span> <span class="n">READ</span><span class="p">,</span> <span class="n">EDIT</span><span class="p">,</span> <span class="n">MANAGE</span><span class="p">,</span> <span class="n">ALL</span>
+</span><span class='line'>
+</span><span class='line'><span class="nd">@authorization_method</span>
+</span><span class='line'><span class="k">def</span> <span class="nf">authorize</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">they</span><span class="p">):</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">is_admin</span><span class="p">:</span>
+</span><span class='line'>        <span class="n">they</span><span class="o">.</span><span class="n">can</span><span class="p">(</span><span class="n">MANAGE</span><span class="p">,</span> <span class="n">ALL</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">else</span><span class="p">:</span>
+</span><span class='line'>        <span class="n">they</span><span class="o">.</span><span class="n">can</span><span class="p">(</span><span class="n">READ</span><span class="p">,</span> <span class="n">ALL</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">they</span><span class="o">.</span><span class="n">cannot</span><span class="p">(</span><span class="n">READ</span><span class="p">,</span> <span class="s">&#39;TopSecretDocs&#39;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">def</span> <span class="nf">if_author</span><span class="p">(</span><span class="n">article</span><span class="p">):</span>
+</span><span class='line'>            <span class="k">return</span> <span class="n">article</span><span class="o">.</span><span class="n">author</span> <span class="o">==</span> <span class="n">user</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">they</span><span class="o">.</span><span class="n">can</span><span class="p">(</span><span class="n">EDIT</span><span class="p">,</span> <span class="s">&#39;Article&#39;</span><span class="p">,</span> <span class="n">if_author</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Someone asked: what is <code>user</code> and <code>they</code>?  It&rsquo;s a really good question, and deserves a bit explanation.</p>
+
+<p>The first thing that we should consider is <code>@authorization_method</code>  This is know as a <a href="http://legacy.python.org/dev/peps/pep-0318/">method decorator</a>.  Method decorators are a really nice Python feature &mdash; particularly when you are writing framework code.</p>
+
+<blockquote><p>A <code>method decorator</code> is a method that takes in a method as an argument and returns a mutated method. (pause to re-read that)</p></blockquote>
+
+<p>Let&rsquo;s take a look at this specific implementation:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="c"># in bouncer/__init__.py</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">get_authorization_method</span><span class="p">():</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">_authorization_method</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">_authorization_method</span> <span class="o">=</span> <span class="bp">None</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">authorization_method</span><span class="p">(</span><span class="n">original_method</span><span class="p">):</span>
+</span><span class='line'>    <span class="sd">&quot;&quot;&quot;The method that will be injected into the authorization target to perform authorization&quot;&quot;&quot;</span>
+</span><span class='line'>    <span class="k">global</span> <span class="n">_authorization_method</span>
+</span><span class='line'>    <span class="n">_authorization_method</span> <span class="o">=</span> <span class="n">original_method</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">original_method</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>So in the instance of our <code>authorization_method</code> we are taking in a function and storing it on a global variable <code>_authorization_method</code>.  So later in application execution we can make of use of it.</p>
+
+<p>For example.  In my talk I showed the <code>can</code> method:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">jonathan</span> <span class="o">=</span> <span class="n">User</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;jonathan&#39;</span><span class="p">,</span><span class="n">admin</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</span><span class='line'><span class="n">marc</span> <span class="o">=</span> <span class="n">User</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;marc&#39;</span><span class="p">,</span><span class="n">admin</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">article</span> <span class="o">=</span> <span class="n">Article</span><span class="p">(</span><span class="n">author</span><span class="o">=</span><span class="n">jonathan</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">print</span> <span class="n">can</span><span class="p">(</span><span class="n">jonathan</span><span class="p">,</span> <span class="n">EDIT</span><span class="p">,</span> <span class="n">article</span><span class="p">)</span>   <span class="c"># True</span>
+</span><span class='line'><span class="k">print</span> <span class="n">can</span><span class="p">(</span><span class="n">marc</span><span class="p">,</span> <span class="n">EDIT</span><span class="p">,</span> <span class="n">article</span><span class="p">)</span>       <span class="c"># False</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Can Marc view articles in general?</span>
+</span><span class='line'><span class="k">print</span> <span class="n">can</span><span class="p">(</span><span class="n">marc</span><span class="p">,</span> <span class="n">VIEW</span><span class="p">,</span> <span class="n">Article</span><span class="p">)</span>       <span class="c"># True</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>can</code> is defined as follows:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="k">def</span> <span class="nf">can</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">subject</span><span class="p">):</span>
+</span><span class='line'>    <span class="sd">&quot;&quot;&quot;Checks if a given user has the ability to perform the action on a subject</span>
+</span><span class='line'>
+</span><span class='line'><span class="sd">    :param user: A user object</span>
+</span><span class='line'><span class="sd">    :param action: an action string, typically &#39;read&#39;, &#39;edit&#39;, &#39;manage&#39;.  Use bouncer.constants for readability</span>
+</span><span class='line'><span class="sd">    :param subject: the resource in question.  Either a Class or an instance of a class.  Pass the class if you</span>
+</span><span class='line'><span class="sd">                    want to know if the user has general access to perform the action on that type of object.  Or</span>
+</span><span class='line'><span class="sd">                    pass a specific object, if you want to know if the user has the ability to that specific instance</span>
+</span><span class='line'>
+</span><span class='line'><span class="sd">    :returns: Boolean</span>
+</span><span class='line'><span class="sd">    &quot;&quot;&quot;</span>
+</span><span class='line'>    <span class="n">ability</span> <span class="o">=</span> <span class="n">Ability</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">get_authorization_method</span><span class="p">())</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">ability</span><span class="o">.</span><span class="n">can</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">subject</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So when <code>can</code> is called it will build up an <code>Ability</code> using the logic in method we decorated with <code>@authorization_method</code></p>
+
+<p>Okay with that explained.  Now I can explain what <code>they</code> and <code>they.can</code> is.</p>
+
+<p><code>they</code> is a <code>RuleList</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="c"># in bouncer/models.py</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">RuleList</span><span class="p">(</span><span class="nb">list</span><span class="p">):</span>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">item_description_or_rule</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span class='line'>        <span class="c"># Will check it a Rule or a description of a rule</span>
+</span><span class='line'>        <span class="c"># construct a rule if necessary then append</span>
+</span><span class='line'>        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">item_description_or_rule</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item_description_or_rule</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Rule</span><span class="p">):</span>
+</span><span class='line'>            <span class="n">item</span> <span class="o">=</span> <span class="n">item_description_or_rule</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span><span class='line'>            <span class="nb">super</span><span class="p">(</span><span class="n">RuleList</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+</span><span class='line'>        <span class="k">else</span><span class="p">:</span>
+</span><span class='line'>            <span class="c"># try to construct a rule</span>
+</span><span class='line'>            <span class="n">item</span> <span class="o">=</span> <span class="n">Rule</span><span class="p">(</span><span class="bp">True</span><span class="p">,</span> <span class="o">*</span><span class="n">item_description_or_rule</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span class='line'>            <span class="nb">super</span><span class="p">(</span><span class="n">RuleList</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># alias append</span>
+</span><span class='line'>    <span class="c"># so you can do things like this:</span>
+</span><span class='line'>    <span class="c">#     @authorization_method</span>
+</span><span class='line'>    <span class="c"># def authorize(user, they):</span>
+</span><span class='line'>    <span class="c">#</span>
+</span><span class='line'>    <span class="c">#     if user.is_admin:</span>
+</span><span class='line'>    <span class="c">#         # self.can_manage(ALL)</span>
+</span><span class='line'>    <span class="c">#         they.can(MANAGE, ALL)</span>
+</span><span class='line'>    <span class="c">#     else:</span>
+</span><span class='line'>    <span class="c">#         they.can(READ, ALL)</span>
+</span><span class='line'>    <span class="c">#</span>
+</span><span class='line'>    <span class="c">#         def if_author(article):</span>
+</span><span class='line'>    <span class="c">#             return article.author == user</span>
+</span><span class='line'>    <span class="c">#</span>
+</span><span class='line'>    <span class="c">#         they.can(EDIT, Article, if_author)</span>
+</span><span class='line'>    <span class="n">can</span> <span class="o">=</span> <span class="n">append</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>RuleList</code> is just a python <code>list</code> with two tweaks:</p>
+
+<ol>
+<li>override <code>append</code> to handle inputing of Rules or something I can construct into a rule</li>
+<li>alias append <code>can = append</code> which allowed us to have the desired syntax <code>they.can(READ, ALL)</code></li>
+</ol>
+
+
+<p>I am pretty pleased with this  I really like the <code>they.can(READ, ALL)</code> syntax.  Some may argue that it is not-pythonic for I could be more explicit &mdash; but in this case I think easy of readability trumped that in this case.</p>
+
+<p>But if you fall into that camp &mdash; no worries you can use the following equivalent syntax:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="nd">@authorization_method</span>
+</span><span class='line'><span class="k">def</span> <span class="nf">authorize</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">abilities</span><span class="p">):</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">is_admin</span><span class="p">:</span>
+</span><span class='line'>        <span class="n">abilities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">MANAGE</span><span class="p">,</span> <span class="n">ALL</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">else</span><span class="p">:</span>
+</span><span class='line'>        <span class="n">abilities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">READ</span><span class="p">,</span> <span class="n">ALL</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c"># See I am using a string here</span>
+</span><span class='line'>        <span class="n">abilities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">EDIT</span><span class="p">,</span> <span class="s">&#39;Article&#39;</span><span class="p">,</span> <span class="n">author</span><span class="o">=</span><span class="n">user</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Both work!</p>
+
+<p>Hopefully this clarifies things.  Feel free to ping me with additional questions</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1599,203 +1876,6 @@ Bouncer | &hellip;">
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/06/12/first-impressions-with-flask-and-elastic-beanstalk/">First Impressions With Flask and Elastic Beanstalk</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-06-12T10:16:00-04:00" pubdate data-updated="true">Jun 12<span>th</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>All in all it was pretty simple to get my flask app up and running on Elastic Beanstalk.  I ran into a couple of gotchas, and wanted to share them to save others some time.</p>
-
-<p>I relied heavily on two tutorials to get going my first app up:</p>
-
-<ol>
-<li><a href="http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create_deploy_Python_flask.html">Deploying a Flask Application to AWS Elastic Beanstalk</a></li>
-<li><a href="http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create_deploy_Python_custom_container.html">Customizing your python container</a></li>
-</ol>
-
-
-<h4>Three main gotchas where (see below for how to get solve / work around):</h4>
-
-<ol>
-<li><a href="#1">As of June 2013, <strong>EB only supports python 2.6</strong> (2.6.8 to be specific)</a></li>
-<li><a href="#2">Make sure your container is configured to point to your static files</a></li>
-<li><a href="#4">Make sure your Flask app is named application</a></li>
-</ol>
-
-
-<h4>Somethings that I am impressed with (again only been playing with this a day):</h4>
-
-<ol>
-<li>Fundamentally, easy to get up and running</li>
-<li>Autoscaling seems to be pretty slick</li>
-<li>Besides the python for the web server, the instances are highly configurable (<a href="http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/customize-containers-ec2.html">docs</a>)
-
-<ol>
-<li>in particular I like the configurable services that you can attach to each instance</li>
-</ol>
-</li>
-</ol>
-
-
-<h4>Things that I am currently struggling with (but again its only been a day) are:</h4>
-
-<ol>
-<li>Can not specify python version for their WSGI</li>
-<li>Not much of a community (or at least I can&rsquo;t find the community) around EB.  And so …
-
-<ol>
-<li>Forums and StackOverflow are not manned by Amazon employees, and in general is not active</li>
-<li>Documentation is pretty poor</li>
-<li>Few documented patterns or best practices</li>
-</ol>
-</li>
-<li>Logging is not great (<a href="#3">more below</a>)</li>
-<li>No console concept (<code>eb run python</code> &mdash;> and get an interactive python console)</li>
-</ol>
-
-
-<p><a id="1"></a></p>
-
-<h2>Currently Beanstalk only supports python 2.6</h2>
-
-<ul>
-<li><p>For now the only real option is to make sure your web app runs on 2.6.  I do not think thats critical, and I am sure in time they will upgrade to 2.7 and gasp maybe 3.0.  But if you need to run a higher version &mdash; you will need to look to another solution (ec2 or heroku).</p></li>
-<li><p>To get your localenv to run 2.6, make a virtualenv like so &hellip;</p>
-
-<pre><code>  virtualenv -p /usr/bin/python2.6 your_project_name
-</code></pre></li>
-<li><p>And you will need to keep another session open with 2.7 or greater to work with the <code>eb</code> cli (this still makes be laugh)</p></li>
-</ul>
-
-
-<p><a id="2"></a></p>
-
-<h2>Configure your container to point to your static files:</h2>
-
-<p>If you do not do this, all of your css, javascript and all your other static goodness will bot be served.</p>
-
-<ol>
-<li>Create a <code>.ebextensions</code> folder in your project root</li>
-<li>Create a [project_name].config file in that .ebextensions folder</li>
-<li><p>Mine looks like the following:</p>
-
-<pre><code> option_settings:
-   "aws:elasticbeanstalk:container:python:staticfiles":
-     "/static/": "static/"    
-</code></pre></li>
-</ol>
-
-
-<p>You can read more about configuration <a href="http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/customize-containers-ec2.html">here</a></p>
-
-<p><a id="4"></a></p>
-
-<h2>Make sure your flask app (or another WSGI app is named application)</h2>
-
-<p>EB WSGI looks for an <code>application</code> object inside an <code>application.py</code> file in your project root.  Mine looks like:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
-</span><span class='line'><span class="n">application</span> <span class="o">=</span> <span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'><span class="nd">@app.route</span><span class="p">(</span><span class="s">&quot;/&quot;</span><span class="p">)</span>
-</span><span class='line'><span class="k">def</span> <span class="nf">hello</span><span class="p">():</span>
-</span><span class='line'>    <span class="k">return</span> <span class="s">&quot;Hello World!&quot;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
-</span><span class='line'>    <span class="n">application</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Other tips</h2>
-
-<h3>Using brew to install the eb cli</h3>
-
-<ul>
-<li><p>If you are on a mac, you can use brew to install the elastic beanstalk cli (ironically you need to have python 2.7 or 3.x installed on your machine)</p>
-
-<pre><code>  brew install aws-elasticbeanstalk
-</code></pre></li>
-</ul>
-
-
-<p><a id="3"></a></p>
-
-<h3>To Check out the logs</h3>
-
-<p>You have a couple of options to check out the logs:</p>
-
-<ol>
-<li>using the CLI, <code>eb logs</code></li>
-<li>going to the web console, navigate to logs, and hit &lsquo;Snapshot logs&rsquo; (<a href="http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features.loggingS3.title.html">docs</a>)</li>
-</ol>
-
-
-<p>I found the that formatting of <code>eb logs</code> in the console to be pretty unreadable.  The code is found <a href="http://aws.amazon.com/code/6752709412171743">here</a> (couldn&rsquo;t find it on github).  If I find I rely on this a lot I will probably rewrite this.  I think the main issue is three fold:</p>
-
-<ol>
-<li>They probably are giving us too much info.  They provide us separate logs from the following sources:
-
-<ol>
-<li>/opt/python/log/httpd.out</li>
-<li>/var/log/httpd/error_log</li>
-<li>/var/log/cfn-hup.log</li>
-<li>/opt/python/log/supervisord.log</li>
-<li>/var/log/eb-tools.log</li>
-<li>/var/log/httpd/access_log</li>
-<li>/var/log/eb-cfn-init-call.log</li>
-<li>/var/log/eb-publish-logs.log</li>
-<li>/var/log/cfn-init.log</li>
-<li> /var/log/eb-cfn-init.log</li>
-</ol>
-</li>
-<li>Each log is presented in a different format (I know why thats the case &mdash; but still)</li>
-<li><p>And I think they are simply running <code>tail -n</code> on each each of these files. So you get the last n rows for each file, presented separately.  What I <em>really</em> want to know is what <em>just</em> happened or even better &mdash; what is happening right now (tailing).  AND to have all of these logs files interlaced and prefaced by its source.  Something like:</p>
-
-<pre><code> [timestamp] [source=error_log] message 1
- [timestamp] [source=error_log] message 2
- [timestamp] [source=access_log] message 3
-</code></pre></li>
-</ol>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -1826,6 +1906,10 @@ Bouncer | &hellip;">
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/07/23/explaining-bouncer-and-method-decorators/">Explaining Bouncer and Method_decorators</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/07/22/boston-python-%7C-monarch-and-bouncer-notes/">Boston Python | Monarch and Bouncer Notes</a>
       </li>
     
@@ -1839,10 +1923,6 @@ Bouncer | &hellip;">
     
       <li class="post">
         <a href="/blog/2014/01/14/python-%7C-multiprocessing-and-interrupts/">Python | Multiprocessing and Interrupts</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/11/06/dict-digger/">Dict Digger</a>
       </li>
     
   </ul>

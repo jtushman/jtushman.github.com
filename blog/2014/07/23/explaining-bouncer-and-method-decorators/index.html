@@ -1,0 +1,506 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Explaining bouncer and method_decorators - tushman.io</title>
+  <meta name="author" content="Jonathan Tushman">
+
+  
+  <meta name="description" content="Thanks again for Boston Python for having me last night. When covering bouncer at last nights event, I felt I did not answer a question &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://jtushman.github.io/blog/2014/07/23/explaining-bouncer-and-method-decorators">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="tushman.io" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-41121782-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">tushman.io</a></h1>
+  
+    <h2>The musings of an insecure technologist</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:jtushman.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Explaining Bouncer and Method_decorators</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-23T15:42:00-04:00" pubdate data-updated="true">Jul 23<span>rd</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Thanks again for <a href="http://www.meetup.com/bostonpython/">Boston Python</a> for having me last night.</p>
+
+<p>When covering <a href="https://github.com/jtushman/bouncer">bouncer</a> at last nights event, I felt I did not answer a question satisfactorily.</p>
+
+<p>When I shared the following code:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">from</span> <span class="nn">bouncer</span> <span class="kn">import</span> <span class="n">authorization_method</span>
+</span><span class='line'><span class="kn">from</span> <span class="nn">bouncer.constants</span> <span class="kn">import</span> <span class="n">READ</span><span class="p">,</span> <span class="n">EDIT</span><span class="p">,</span> <span class="n">MANAGE</span><span class="p">,</span> <span class="n">ALL</span>
+</span><span class='line'>
+</span><span class='line'><span class="nd">@authorization_method</span>
+</span><span class='line'><span class="k">def</span> <span class="nf">authorize</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">they</span><span class="p">):</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">is_admin</span><span class="p">:</span>
+</span><span class='line'>        <span class="n">they</span><span class="o">.</span><span class="n">can</span><span class="p">(</span><span class="n">MANAGE</span><span class="p">,</span> <span class="n">ALL</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">else</span><span class="p">:</span>
+</span><span class='line'>        <span class="n">they</span><span class="o">.</span><span class="n">can</span><span class="p">(</span><span class="n">READ</span><span class="p">,</span> <span class="n">ALL</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">they</span><span class="o">.</span><span class="n">cannot</span><span class="p">(</span><span class="n">READ</span><span class="p">,</span> <span class="s">&#39;TopSecretDocs&#39;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">def</span> <span class="nf">if_author</span><span class="p">(</span><span class="n">article</span><span class="p">):</span>
+</span><span class='line'>            <span class="k">return</span> <span class="n">article</span><span class="o">.</span><span class="n">author</span> <span class="o">==</span> <span class="n">user</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">they</span><span class="o">.</span><span class="n">can</span><span class="p">(</span><span class="n">EDIT</span><span class="p">,</span> <span class="s">&#39;Article&#39;</span><span class="p">,</span> <span class="n">if_author</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Someone asked: what is <code>user</code> and <code>they</code>?  It&rsquo;s a really good question, and deserves a bit explanation.</p>
+
+<p>The first thing that we should consider is <code>@authorization_method</code>  This is know as a <a href="http://legacy.python.org/dev/peps/pep-0318/">method decorator</a>.  Method decorators are a really nice Python feature &mdash; particularly when you are writing framework code.</p>
+
+<blockquote><p>A <code>method decorator</code> is a method that takes in a method as an argument and returns a mutated method. (pause to re-read that)</p></blockquote>
+
+<p>Let&rsquo;s take a look at this specific implementation:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="c"># in bouncer/__init__.py</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">get_authorization_method</span><span class="p">():</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">_authorization_method</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">_authorization_method</span> <span class="o">=</span> <span class="bp">None</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">authorization_method</span><span class="p">(</span><span class="n">original_method</span><span class="p">):</span>
+</span><span class='line'>    <span class="sd">&quot;&quot;&quot;The method that will be injected into the authorization target to perform authorization&quot;&quot;&quot;</span>
+</span><span class='line'>    <span class="k">global</span> <span class="n">_authorization_method</span>
+</span><span class='line'>    <span class="n">_authorization_method</span> <span class="o">=</span> <span class="n">original_method</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">original_method</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>So in the instance of our <code>authorization_method</code> we are taking in a function and storing it on a global variable <code>_authorization_method</code>.  So later in application execution we can make of use of it.</p>
+
+<p>For example.  In my talk I showed the <code>can</code> method:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">jonathan</span> <span class="o">=</span> <span class="n">User</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;jonathan&#39;</span><span class="p">,</span><span class="n">admin</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</span><span class='line'><span class="n">marc</span> <span class="o">=</span> <span class="n">User</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;marc&#39;</span><span class="p">,</span><span class="n">admin</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">article</span> <span class="o">=</span> <span class="n">Article</span><span class="p">(</span><span class="n">author</span><span class="o">=</span><span class="n">jonathan</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">print</span> <span class="n">can</span><span class="p">(</span><span class="n">jonathan</span><span class="p">,</span> <span class="n">EDIT</span><span class="p">,</span> <span class="n">article</span><span class="p">)</span>   <span class="c"># True</span>
+</span><span class='line'><span class="k">print</span> <span class="n">can</span><span class="p">(</span><span class="n">marc</span><span class="p">,</span> <span class="n">EDIT</span><span class="p">,</span> <span class="n">article</span><span class="p">)</span>       <span class="c"># False</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Can Marc view articles in general?</span>
+</span><span class='line'><span class="k">print</span> <span class="n">can</span><span class="p">(</span><span class="n">marc</span><span class="p">,</span> <span class="n">VIEW</span><span class="p">,</span> <span class="n">Article</span><span class="p">)</span>       <span class="c"># True</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>can</code> is defined as follows:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="k">def</span> <span class="nf">can</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">subject</span><span class="p">):</span>
+</span><span class='line'>    <span class="sd">&quot;&quot;&quot;Checks if a given user has the ability to perform the action on a subject</span>
+</span><span class='line'>
+</span><span class='line'><span class="sd">    :param user: A user object</span>
+</span><span class='line'><span class="sd">    :param action: an action string, typically &#39;read&#39;, &#39;edit&#39;, &#39;manage&#39;.  Use bouncer.constants for readability</span>
+</span><span class='line'><span class="sd">    :param subject: the resource in question.  Either a Class or an instance of a class.  Pass the class if you</span>
+</span><span class='line'><span class="sd">                    want to know if the user has general access to perform the action on that type of object.  Or</span>
+</span><span class='line'><span class="sd">                    pass a specific object, if you want to know if the user has the ability to that specific instance</span>
+</span><span class='line'>
+</span><span class='line'><span class="sd">    :returns: Boolean</span>
+</span><span class='line'><span class="sd">    &quot;&quot;&quot;</span>
+</span><span class='line'>    <span class="n">ability</span> <span class="o">=</span> <span class="n">Ability</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">get_authorization_method</span><span class="p">())</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">ability</span><span class="o">.</span><span class="n">can</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">subject</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>So when <code>can</code> is called it will build up an <code>Ability</code> using the logic in method we decorated with <code>@authorization_method</code></p>
+
+<p>Okay with that explained.  Now I can explain what <code>they</code> and <code>they.can</code> is.</p>
+
+<p><code>they</code> is a <code>RuleList</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="c"># in bouncer/models.py</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">RuleList</span><span class="p">(</span><span class="nb">list</span><span class="p">):</span>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">item_description_or_rule</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span class='line'>        <span class="c"># Will check it a Rule or a description of a rule</span>
+</span><span class='line'>        <span class="c"># construct a rule if necessary then append</span>
+</span><span class='line'>        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">item_description_or_rule</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item_description_or_rule</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Rule</span><span class="p">):</span>
+</span><span class='line'>            <span class="n">item</span> <span class="o">=</span> <span class="n">item_description_or_rule</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span><span class='line'>            <span class="nb">super</span><span class="p">(</span><span class="n">RuleList</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+</span><span class='line'>        <span class="k">else</span><span class="p">:</span>
+</span><span class='line'>            <span class="c"># try to construct a rule</span>
+</span><span class='line'>            <span class="n">item</span> <span class="o">=</span> <span class="n">Rule</span><span class="p">(</span><span class="bp">True</span><span class="p">,</span> <span class="o">*</span><span class="n">item_description_or_rule</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span class='line'>            <span class="nb">super</span><span class="p">(</span><span class="n">RuleList</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c"># alias append</span>
+</span><span class='line'>    <span class="c"># so you can do things like this:</span>
+</span><span class='line'>    <span class="c">#     @authorization_method</span>
+</span><span class='line'>    <span class="c"># def authorize(user, they):</span>
+</span><span class='line'>    <span class="c">#</span>
+</span><span class='line'>    <span class="c">#     if user.is_admin:</span>
+</span><span class='line'>    <span class="c">#         # self.can_manage(ALL)</span>
+</span><span class='line'>    <span class="c">#         they.can(MANAGE, ALL)</span>
+</span><span class='line'>    <span class="c">#     else:</span>
+</span><span class='line'>    <span class="c">#         they.can(READ, ALL)</span>
+</span><span class='line'>    <span class="c">#</span>
+</span><span class='line'>    <span class="c">#         def if_author(article):</span>
+</span><span class='line'>    <span class="c">#             return article.author == user</span>
+</span><span class='line'>    <span class="c">#</span>
+</span><span class='line'>    <span class="c">#         they.can(EDIT, Article, if_author)</span>
+</span><span class='line'>    <span class="n">can</span> <span class="o">=</span> <span class="n">append</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>RuleList</code> is just a python <code>list</code> with two tweaks:</p>
+
+<ol>
+<li>override <code>append</code> to handle inputing of Rules or something I can construct into a rule</li>
+<li>alias append <code>can = append</code> which allowed us to have the desired syntax <code>they.can(READ, ALL)</code></li>
+</ol>
+
+
+<p>I am pretty pleased with this  I really like the <code>they.can(READ, ALL)</code> syntax.  Some may argue that it is not-pythonic for I could be more explicit &mdash; but in this case I think easy of readability trumped that in this case.</p>
+
+<p>But if you fall into that camp &mdash; no worries you can use the following equivalent syntax:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="nd">@authorization_method</span>
+</span><span class='line'><span class="k">def</span> <span class="nf">authorize</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">abilities</span><span class="p">):</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">is_admin</span><span class="p">:</span>
+</span><span class='line'>        <span class="n">abilities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">MANAGE</span><span class="p">,</span> <span class="n">ALL</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">else</span><span class="p">:</span>
+</span><span class='line'>        <span class="n">abilities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">READ</span><span class="p">,</span> <span class="n">ALL</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c"># See I am using a string here</span>
+</span><span class='line'>        <span class="n">abilities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">EDIT</span><span class="p">,</span> <span class="s">&#39;Article&#39;</span><span class="p">,</span> <span class="n">author</span><span class="o">=</span><span class="n">user</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Both work!</p>
+
+<p>Hopefully this clarifies things.  Feel free to ping me with additional questions</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Jonathan Tushman</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-23T15:42:00-04:00" pubdate data-updated="true">Jul 23<span>rd</span>, 2014</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://jtushman.github.io/blog/2014/07/23/explaining-bouncer-and-method-decorators/" data-via="tushman" data-counturl="http://jtushman.github.io/blog/2014/07/23/explaining-bouncer-and-method-decorators/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/07/22/boston-python-%7C-monarch-and-bouncer-notes/" title="Previous Post: Boston Python | Monarch and Bouncer Notes">&laquo; Boston Python | Monarch and Bouncer Notes</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section xmlns="http://www.w3.org/1999/html">
+  <h1>About Me</h1>
+    <ul>
+        <li>I'm <a href="http://tushman.com" target="_blank">Jonathan Tushman</a>        </li>
+        <li>I am a pragmatic technologist (<a href="http://tushman.com/resume" target="_blank">bio</a>)        </li>
+        <li>I work at <a href="http://www.zefr.com" target="_blank">ZEFR</a>                            </li>
+        <li>... and we're <a href="http://careers.stackoverflow.com/company/zefr">hiring</a></li>
+        <li>I love to build <a href="http://tushman.com/resume" target="_blank">things</a>              </li>
+        <li>I like <a href="http://tushman.com/music" target="_blank">music</a> and playing board games </li>
+        <li>I read the <a href="http://www.economist.com" target="_blank">Economist</a>                 </li>
+        <li>Follow me if you like <a href="http://www.twitter.com/tushman" target="_blank">@tushman</a> </li>
+    </ul>
+
+
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/07/23/explaining-bouncer-and-method-decorators/">Explaining Bouncer and Method_decorators</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/07/22/boston-python-%7C-monarch-and-bouncer-notes/">Boston Python | Monarch and Bouncer Notes</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/05/02/module-properties/">Module Properties | the Proxy Pattern</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/01/24/parallelize-your-lettuce-tests-to-win-friends-and-influence-others/">Parallelize Your Lettuce Tests to Win Friends and Influence Others</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/01/14/python-%7C-multiprocessing-and-interrupts/">Python | Multiprocessing and Interrupts</a>
+      </li>
+    
+  </ul>
+</section>
+<section>
+    <h1>Twitter</h1>
+    <a class="twitter-timeline" href="https://twitter.com/tushman" data-widget-id="338399291280326658">Tweets by @tushman</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+</section>
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Jonathan Tushman -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'jtushmanblog';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://jtushman.github.io/blog/2014/07/23/explaining-bouncer-and-method-decorators/';
+        var disqus_url = 'http://jtushman.github.io/blog/2014/07/23/explaining-bouncer-and-method-decorators/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
