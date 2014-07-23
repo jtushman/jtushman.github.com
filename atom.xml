@@ -4,7 +4,7 @@
   <title><![CDATA[tushman.io]]></title>
   <link href="http://jtushman.github.io/atom.xml" rel="self"/>
   <link href="http://jtushman.github.io/"/>
-  <updated>2014-07-23T15:47:59-04:00</updated>
+  <updated>2014-07-23T16:24:05-04:00</updated>
   <id>http://jtushman.github.io/</id>
   <author>
     <name><![CDATA[Jonathan Tushman]]></name>
@@ -18,9 +18,9 @@
     <link href="http://jtushman.github.io/blog/2014/07/23/explaining-bouncer-and-method-decorators/"/>
     <updated>2014-07-23T15:42:00-04:00</updated>
     <id>http://jtushman.github.io/blog/2014/07/23/explaining-bouncer-and-method-decorators</id>
-    <content type="html"><![CDATA[<p>Thanks again for <a href="http://www.meetup.com/bostonpython/">Boston Python</a> for having me last night.</p>
+    <content type="html"><![CDATA[<p>Thank you Boston Python for the opportunity to present at <a href="http://www.meetup.com/bostonpython/events/179514872/">&ldquo;July Presentation Night: What I Built at Work&rdquo;</a>.</p>
 
-<p>When covering <a href="https://github.com/jtushman/bouncer">bouncer</a> at last nights event, I felt I did not answer a question satisfactorily.</p>
+<p>I would like to elaborate on one of the questions asked during the Q&amp;A after my presentation.  It was a question about <a href="https://github.com/jtushman/bouncer">bouncer</a>.</p>
 
 <p>When I shared the following code:</p>
 
@@ -59,9 +59,9 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Someone asked: what is <code>user</code> and <code>they</code>?  It&rsquo;s a really good question, and deserves a bit explanation.</p>
+<p>Someone asked: what is <code>user</code> and <code>they</code>?  It was a really good question and deserved a better explanation.</p>
 
-<p>The first thing that we should consider is <code>@authorization_method</code>  This is know as a <a href="http://legacy.python.org/dev/peps/pep-0318/">method decorator</a>.  Method decorators are a really nice Python feature &mdash; particularly when you are writing framework code.</p>
+<p>The first thing to consider is <code>@authorization_method</code>  This is a <a href="http://legacy.python.org/dev/peps/pep-0318/">method decorator</a>,a really nice Python feature &mdash; particularly when you are writing framework code.</p>
 
 <blockquote><p>A <code>method decorator</code> is a method that takes in a method as an argument and returns a mutated method. (pause to re-read that)</p></blockquote>
 
@@ -96,7 +96,7 @@
 
 <p></p>
 
-<p>So in the instance of our <code>authorization_method</code> we are taking in a function and storing it on a global variable <code>_authorization_method</code>.  So later in application execution we can make of use of it.</p>
+<p>So in the instance of our authorization_method, we receive a function and store it in the global variable _authorization_method.  We can make of use of this function later in application&rsquo;s execution.</p>
 
 <p>For example.  In my talk I showed the <code>can</code> method:</p>
 
@@ -154,9 +154,9 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>So when <code>can</code> is called it will build up an <code>Ability</code> using the logic in method we decorated with <code>@authorization_method</code></p>
+<p>When &ldquo;can&rdquo; is called, it builds an <code>Ability</code> using the logic in method we decorated (stored) with <code>@authorization_method</code></p>
 
-<p>Okay with that explained.  Now I can explain what <code>they</code> and <code>they.can</code> is.</p>
+<p>Having said that, let me explain what <code>they</code> and <code>they.can</code> is.</p>
 
 <p><code>they</code> is a <code>RuleList</code></p>
 
@@ -223,17 +223,17 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p><code>RuleList</code> is just a python <code>list</code> with two tweaks:</p>
+<p><code>RuleList</code> is a python <code>list</code> with two tweaks:</p>
 
 <ol>
 <li>override <code>append</code> to handle inputing of Rules or something I can construct into a rule</li>
-<li>alias append <code>can = append</code> which allowed us to have the desired syntax <code>they.can(READ, ALL)</code></li>
+<li>alias append <code>can = append</code> which allows us to have the desired syntax <code>they.can(READ, ALL)</code></li>
 </ol>
 
 
-<p>I am pretty pleased with this  I really like the <code>they.can(READ, ALL)</code> syntax.  Some may argue that it is not-pythonic for I could be more explicit &mdash; but in this case I think easy of readability trumped that in this case.</p>
+<p>I am pretty pleased with this; I really like the they.can(READ, ALL) syntax.  Some may argue that it is not pythonic since I could be more explicit &mdash; but in this case I think ease of readability trumps style.</p>
 
-<p>But if you fall into that camp &mdash; no worries you can use the following equivalent syntax:</p>
+<p>But if you don&rsquo;t agree, no worries you can use the following equivalent syntax:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -260,7 +260,7 @@
 
 <p>Both work!</p>
 
-<p>Hopefully this clarifies things.  Feel free to ping me with additional questions</p>
+<p>Hopefully this clarifies things.  Feel free to ping me with additional questions.</p>
 ]]></content>
   </entry>
   
@@ -1962,7 +1962,7 @@ celebrities_with_style_that_i_like = ['jack black','zach galifianakis']
 <p>My idea I am calling <strong>Mailing It In™</strong>.  This is what I want it to do:</p>
 
 <ol>
-<li><p>Everyday you send a <a href="http://daringfireball.net/projects/markdown/syntax">markdown</a> formated email to <a href="&#x6d;&#x61;&#105;&#108;&#116;&#x6f;&#x3a;&#x6d;&#x61;&#105;&#108;&#x69;&#x74;&#x69;&#110;&#64;&#122;&#101;&#x66;&#x72;&#x2e;&#x63;&#111;&#x6d;&#x2e;">&#x6d;&#x61;&#105;&#108;&#x69;&#116;&#x69;&#x6e;&#64;&#x7a;&#x65;&#x66;&#114;&#46;&#99;&#111;&#x6d;&#x2e;</a>  I need to think about this more, but I think we just need to answer two questions:</p>
+<li><p>Everyday you send a <a href="http://daringfireball.net/projects/markdown/syntax">markdown</a> formated email to <a href="&#x6d;&#x61;&#x69;&#x6c;&#x74;&#111;&#x3a;&#x6d;&#x61;&#105;&#x6c;&#x69;&#x74;&#x69;&#110;&#64;&#122;&#101;&#102;&#114;&#x2e;&#x63;&#x6f;&#x6d;&#x2e;">&#109;&#x61;&#x69;&#x6c;&#x69;&#x74;&#105;&#110;&#x40;&#x7a;&#x65;&#x66;&#114;&#46;&#99;&#111;&#x6d;&#x2e;</a>  I need to think about this more, but I think we just need to answer two questions:</p>
 
 <ol>
 <li>What am I struggling with:</li>
