@@ -1,0 +1,439 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Describing Descriptors Descriptively - tushman.io</title>
+  <meta name="author" content="Jonathan Tushman">
+
+  
+  <meta name="description" content="Is it ironic that the documentation for descriptors is not very descriptive Descriptors are one of my favorite Python features &mdash; but I feel &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://jtushman.github.io/blog/2014/08/15/describing-descriptors-descriptively">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="tushman.io" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-41121782-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">tushman.io</a></h1>
+  
+    <h2>The musings of an insecure technologist</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:jtushman.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Describing Descriptors Descriptively</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-08-15T15:33:00-04:00" pubdate data-updated="true">Aug 15<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><blockquote><p>Is it ironic that the documentation for descriptors is not very descriptive</p></blockquote>
+
+<p>Descriptors are one of my favorite Python features &mdash; but I feel that many tutorials go too deep.  Here I will show you one of the main use cases for descriptors &mdash; then you can delve into one of these articles to understand more of there power:</p>
+
+<p>Here are other resources:</p>
+
+<ul>
+<li>Our man Raymond Hettinger&rsquo;s  (<a href="http://twitter.com/raymondh">@raymondh</a>) <a href="https://docs.python.org/2/howto/descriptor.html">Descriptor HowTo Guide</a></li>
+<li>Chris Beaumont&rsquo;s: <a href="http://nbviewer.ipython.org/urls/gist.github.com/ChrisBeaumont/5758381/raw/descriptor_writeup.ipynb">Descriptors Demystified</a></li>
+</ul>
+
+
+<p>First a definition:</p>
+
+<blockquote><p>In general, a descriptor is an object attribute with “binding behavior”, one whose attribute access has been overridden by methods in the descriptor protocol. Those methods are __get__(), __set__(), and __delete__(). If any of those methods are defined for an object, it is said to be a descriptor.</p></blockquote>
+
+<p>Read that and stash it in your brain for a few minutes</p>
+
+<h3>My Appraoch</h3>
+
+<p>I am going to pose a <strong>common problem</strong> that descriptors can solve, propose a <strong>solution</strong> using descriptors, then provide an <strong>explaination</strong> some of the finer points.</p>
+
+<h3>Consider the Following Problem:</h3>
+
+<p>You Need to consume a 3rd party API, and the API returns json documents.  Often when I see this problem I see the code littered with <code>response.text[0]['results'][0]['name']</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">USER_API_URI</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="mi">111</span><span class="p">)</span>
+</span><span class='line'><span class="k">print</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">to_json</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;results&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;name&#39;</span><span class="p">])</span>
+</span><span class='line'><span class="k">print</span><span class="p">(</span><span class="s">&#39;barf&#39;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>(Did you just throw-up a little bit? &mdash; I did)</p>
+
+<h3>Proposed Solution with Descriptors:</h3>
+
+<p>Our goal is to write code like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">user</span> <span class="o">=</span> <span class="n">UserAPI</span><span class="o">.</span><span class="n">get_by_id</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+</span><span class='line'><span class="k">print</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</span><span class='line'><span class="k">print</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">street_address</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><strong>To the code !!!!</strong></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="c"># Hey guys this is a descriptor -- Woot!!        </span>
+</span><span class='line'><span class="k">class</span> <span class="nc">Extractor</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">path</span><span class="p">)</span>
+</span><span class='line'>        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">owner</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">_extract</span><span class="p">(</span><span class="n">instance</span><span class="o">.</span><span class="n">json_blob</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">_extract</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="o">*</span><span class="n">keys</span><span class="p">):</span>
+</span><span class='line'>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span class='line'><span class="sd">        digs into an dict or lists, if anything along the way is None, then simply return None</span>
+</span><span class='line'><span class="sd">        &quot;&quot;&quot;</span>
+</span><span class='line'>        <span class="n">end_of_chain</span> <span class="o">=</span> <span class="n">your_dict</span>
+</span><span class='line'>        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+</span><span class='line'>            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">end_of_chain</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">end_of_chain</span><span class="p">:</span>
+</span><span class='line'>                <span class="n">end_of_chain</span> <span class="o">=</span> <span class="n">end_of_chain</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+</span><span class='line'>            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">end_of_chain</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+</span><span class='line'>                <span class="n">end_of_chain</span> <span class="o">=</span> <span class="n">end_of_chain</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+</span><span class='line'>            <span class="k">else</span><span class="p">:</span>
+</span><span class='line'>                <span class="k">return</span> <span class="bp">None</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">return</span> <span class="n">end_of_chain</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now look how elegant our code can look</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="k">class</span> <span class="nc">JSONResponse</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json_blob</span><span class="p">):</span>
+</span><span class='line'>        <span class="bp">self</span><span class="o">.</span><span class="n">json_blob</span> <span class="o">=</span> <span class="n">json_blob</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">User</span><span class="p">(</span><span class="n">JSONRepsonse</span><span class="p">):</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">name</span> <span class="o">=</span> <span class="n">Exctractor</span><span class="p">(</span><span class="s">&#39;result&#39;</span><span class="p">,</span><span class="s">&#39;username&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">street_address</span> <span class="o">=</span> <span class="n">Exctractor</span><span class="p">(</span><span class="s">&#39;result&#39;</span><span class="p">,</span><span class="s">&#39;address&#39;</span><span class="p">,</span> <span class="s">&#39;street&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">status</span> <span class="o">=</span> <span class="n">Exctractor</span><span class="p">(</span><span class="s">&#39;result&#39;</span><span class="p">,</span><span class="s">&#39;status&#39;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">UserAPI</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@class_method</span>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">get_by_id</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+</span><span class='line'>        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">USER_GET_ENDPOINT</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">)</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">User</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And now are code is warm and fuzzy:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">user</span> <span class="o">=</span> <span class="n">UserAPI</span><span class="o">.</span><span class="n">get_by_id</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+</span><span class='line'><span class="k">print</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</span><span class='line'><span class="k">print</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">street_address</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Okay what just happened.</h3>
+
+<p>We made a descriptor <em>Extractor</em>.  An Extractor descriptor is able in inpect the instance of the class.  Lets walk through that final snippit of code:</p>
+
+<ul>
+<li><code>user = UserAPI.get_by_id(111)</code></li>
+</ul>
+
+
+<p>Here we get an instance of a User object which has the json_blob stored on it from the GET request</p>
+
+<ul>
+<li><code>print(user.name)</code></li>
+</ul>
+
+
+<p>Now we call <code>name</code> on that object, which we defined: <code>name = Extractor('result','username')</code>.  At this point when we call <code>name</code> it is going to use the Extractor descriptor to extract the value from the json_blob.</p>
+
+<p>I think this is one of many great ways to use descriptors to DRY up your code.</p>
+
+<p>Hope this is helpful!</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Jonathan Tushman</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-08-15T15:33:00-04:00" pubdate data-updated="true">Aug 15<span>th</span>, 2014</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://jtushman.github.io/blog/2014/08/15/describing-descriptors-descriptively/" data-via="tushman" data-counturl="http://jtushman.github.io/blog/2014/08/15/describing-descriptors-descriptively/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/07/23/explaining-bouncer-and-method-decorators/" title="Previous Post: Explaining bouncer and method_decorators">&laquo; Explaining bouncer and method_decorators</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section xmlns="http://www.w3.org/1999/html">
+  <h1>About Me</h1>
+    <ul>
+        <li>I'm <a href="http://tushman.com" target="_blank">Jonathan Tushman</a>        </li>
+        <li>I am a pragmatic technologist (<a href="http://tushman.com/resume" target="_blank">bio</a>)        </li>
+        <li>I work at <a href="http://www.zefr.com" target="_blank">ZEFR</a>                            </li>
+        <li>... and we're <a href="http://careers.stackoverflow.com/company/zefr">hiring</a></li>
+        <li>I love to build <a href="http://tushman.com/resume" target="_blank">things</a>              </li>
+        <li>I like <a href="http://tushman.com/music" target="_blank">music</a> and playing board games </li>
+        <li>I read the <a href="http://www.economist.com" target="_blank">Economist</a>                 </li>
+        <li>Follow me if you like <a href="http://www.twitter.com/tushman" target="_blank">@tushman</a> </li>
+    </ul>
+
+
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/08/15/describing-descriptors-descriptively/">Describing Descriptors Descriptively</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/07/23/explaining-bouncer-and-method-decorators/">Explaining Bouncer and Method_decorators</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/07/22/boston-python-%7C-monarch-and-bouncer-notes/">Boston Python | Monarch and Bouncer Notes</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/05/02/module-properties/">Module Properties | the Proxy Pattern</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/01/24/parallelize-your-lettuce-tests-to-win-friends-and-influence-others/">Parallelize Your Lettuce Tests to Win Friends and Influence Others</a>
+      </li>
+    
+  </ul>
+</section>
+<section>
+    <h1>Twitter</h1>
+    <a class="twitter-timeline" href="https://twitter.com/tushman" data-widget-id="338399291280326658">Tweets by @tushman</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+</section>
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Jonathan Tushman -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'jtushmanblog';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://jtushman.github.io/blog/2014/08/15/describing-descriptors-descriptively/';
+        var disqus_url = 'http://jtushman.github.io/blog/2014/08/15/describing-descriptors-descriptively/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

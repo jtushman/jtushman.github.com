@@ -9,7 +9,7 @@
   <meta name="author" content="Jonathan Tushman">
 
   
-  <meta name="description" content="Thank you Boston Python for the opportunity to present at &ldquo;July Presentation Night: What I Built at Work&rdquo;. I would like to elaborate on &hellip;">
+  <meta name="description" content="Is it ironic that the documentation for descriptors is not very descriptive Descriptors are one of my favorite Python features &mdash; but I feel &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,217 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/08/15/describing-descriptors-descriptively/">Describing Descriptors Descriptively</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-08-15T15:33:00-04:00" pubdate data-updated="true">Aug 15<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><blockquote><p>Is it ironic that the documentation for descriptors is not very descriptive</p></blockquote>
+
+<p>Descriptors are one of my favorite Python features &mdash; but I feel that many tutorials go too deep.  Here I will show you one of the main use cases for descriptors &mdash; then you can delve into one of these articles to understand more of there power:</p>
+
+<p>Here are other resources:</p>
+
+<ul>
+<li>Our man Raymond Hettinger&rsquo;s  (<a href="http://twitter.com/raymondh">@raymondh</a>) <a href="https://docs.python.org/2/howto/descriptor.html">Descriptor HowTo Guide</a></li>
+<li>Chris Beaumont&rsquo;s: <a href="http://nbviewer.ipython.org/urls/gist.github.com/ChrisBeaumont/5758381/raw/descriptor_writeup.ipynb">Descriptors Demystified</a></li>
+</ul>
+
+
+<p>First a definition:</p>
+
+<blockquote><p>In general, a descriptor is an object attribute with “binding behavior”, one whose attribute access has been overridden by methods in the descriptor protocol. Those methods are __get__(), __set__(), and __delete__(). If any of those methods are defined for an object, it is said to be a descriptor.</p></blockquote>
+
+<p>Read that and stash it in your brain for a few minutes</p>
+
+<h3>My Appraoch</h3>
+
+<p>I am going to pose a <strong>common problem</strong> that descriptors can solve, propose a <strong>solution</strong> using descriptors, then provide an <strong>explaination</strong> some of the finer points.</p>
+
+<h3>Consider the Following Problem:</h3>
+
+<p>You Need to consume a 3rd party API, and the API returns json documents.  Often when I see this problem I see the code littered with <code>response.text[0]['results'][0]['name']</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">USER_API_URI</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="mi">111</span><span class="p">)</span>
+</span><span class='line'><span class="k">print</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">to_json</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;results&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;name&#39;</span><span class="p">])</span>
+</span><span class='line'><span class="k">print</span><span class="p">(</span><span class="s">&#39;barf&#39;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>(Did you just throw-up a little bit? &mdash; I did)</p>
+
+<h3>Proposed Solution with Descriptors:</h3>
+
+<p>Our goal is to write code like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">user</span> <span class="o">=</span> <span class="n">UserAPI</span><span class="o">.</span><span class="n">get_by_id</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+</span><span class='line'><span class="k">print</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</span><span class='line'><span class="k">print</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">street_address</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><strong>To the code !!!!</strong></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="c"># Hey guys this is a descriptor -- Woot!!        </span>
+</span><span class='line'><span class="k">class</span> <span class="nc">Extractor</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">path</span><span class="p">)</span>
+</span><span class='line'>        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">owner</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">_extract</span><span class="p">(</span><span class="n">instance</span><span class="o">.</span><span class="n">json_blob</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">_extract</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="o">*</span><span class="n">keys</span><span class="p">):</span>
+</span><span class='line'>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span class='line'><span class="sd">        digs into an dict or lists, if anything along the way is None, then simply return None</span>
+</span><span class='line'><span class="sd">        &quot;&quot;&quot;</span>
+</span><span class='line'>        <span class="n">end_of_chain</span> <span class="o">=</span> <span class="n">your_dict</span>
+</span><span class='line'>        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+</span><span class='line'>            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">end_of_chain</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">end_of_chain</span><span class="p">:</span>
+</span><span class='line'>                <span class="n">end_of_chain</span> <span class="o">=</span> <span class="n">end_of_chain</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+</span><span class='line'>            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">end_of_chain</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+</span><span class='line'>                <span class="n">end_of_chain</span> <span class="o">=</span> <span class="n">end_of_chain</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+</span><span class='line'>            <span class="k">else</span><span class="p">:</span>
+</span><span class='line'>                <span class="k">return</span> <span class="bp">None</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">return</span> <span class="n">end_of_chain</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now look how elegant our code can look</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="k">class</span> <span class="nc">JSONResponse</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json_blob</span><span class="p">):</span>
+</span><span class='line'>        <span class="bp">self</span><span class="o">.</span><span class="n">json_blob</span> <span class="o">=</span> <span class="n">json_blob</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">User</span><span class="p">(</span><span class="n">JSONRepsonse</span><span class="p">):</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">name</span> <span class="o">=</span> <span class="n">Exctractor</span><span class="p">(</span><span class="s">&#39;result&#39;</span><span class="p">,</span><span class="s">&#39;username&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">street_address</span> <span class="o">=</span> <span class="n">Exctractor</span><span class="p">(</span><span class="s">&#39;result&#39;</span><span class="p">,</span><span class="s">&#39;address&#39;</span><span class="p">,</span> <span class="s">&#39;street&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">status</span> <span class="o">=</span> <span class="n">Exctractor</span><span class="p">(</span><span class="s">&#39;result&#39;</span><span class="p">,</span><span class="s">&#39;status&#39;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">UserAPI</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@class_method</span>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">get_by_id</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+</span><span class='line'>        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">USER_GET_ENDPOINT</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">)</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">User</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And now are code is warm and fuzzy:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">user</span> <span class="o">=</span> <span class="n">UserAPI</span><span class="o">.</span><span class="n">get_by_id</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+</span><span class='line'><span class="k">print</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</span><span class='line'><span class="k">print</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">street_address</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Okay what just happened.</h3>
+
+<p>We made a descriptor <em>Extractor</em>.  An Extractor descriptor is able in inpect the instance of the class.  Lets walk through that final snippit of code:</p>
+
+<ul>
+<li><code>user = UserAPI.get_by_id(111)</code></li>
+</ul>
+
+
+<p>Here we get an instance of a User object which has the json_blob stored on it from the GET request</p>
+
+<ul>
+<li><code>print(user.name)</code></li>
+</ul>
+
+
+<p>Now we call <code>name</code> on that object, which we defined: <code>name = Extractor('result','username')</code>.  At this point when we call <code>name</code> it is going to use the Extractor descriptor to extract the value from the json_blob.</p>
+
+<p>I think this is one of many great ways to use descriptors to DRY up your code.</p>
+
+<p>Hope this is helpful!</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1652,238 +1863,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/06/17/sharing-code-across-applications-with-python/">Sharing Code Across Applications With Python</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-06-17T12:20:00-04:00" pubdate data-updated="true">Jun 17<span>th</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h3>tl;dr:  Use pip, git(hub) and tags to share packages privately amongst your team</h3>
-
-<p><strong>Problem Statement</strong>  We have libraries that we need to share across multiple applications.  Using Git submodules, makes me cry &mdash; there has to be a better way (and there is)</p>
-
-<p>I am going to break this up into three sections:</p>
-
-<ul>
-<li><a href="#1">Packaging Python</a> (this needs to happen regardless of how you share)</li>
-<li><a href="#2">Sharing Publicly</a> (with the world via PyPi)</li>
-<li><a href="#3">Sharing Privately</a> (within your organization, with pip and git)</li>
-</ul>
-
-
-<p><a id="1"></a></p>
-
-<h2>Packaging Python</h2>
-
-<p>This section needs to happen regardless if you share in the public domain or privately</p>
-
-<p>Python (our beloved language with bells and whistles) has <a href="https://pypi.python.org/pypi/setuptools/0.7.2"><code>setuptools</code></a> built in that we can use to package our utility.</p>
-
-<p>I really do not having anything to say that hasn&rsquo;t been said before.  I found this tutorial to be excellent:</p>
-
-<blockquote><p><a href="http://www.scotttorborg.com/python-packaging/minimal.html">http://www.scotttorborg.com/python-packaging/minimal.html</a></p></blockquote>
-
-<p>But the gist of it is:</p>
-
-<ol>
-<li>create a <code>setup.py</code> (to define whats to be shared using <code>setuptools</code>)</li>
-<li>Gotsta have README.rst (sharing code with documenting it is useless)</li>
-<li>Test it locally</li>
-<li>Use <a href="http://semver.org/">Semantic Versioning</a> (or you are a bad person)</li>
-</ol>
-
-
-<p><a id="2"></a></p>
-
-<h2>Sharing in the public domain</h2>
-
-<p>Okay, you wrote an amazing utility and want to share it with the world.  I really was blown away how easy it was to do this with thanks to PyPi (Python Package Index) (aka the Cheeseshop)</p>
-
-<p>For this example, I wrote a package called <code>human_dates</code>  That takes some of the syntax sugar from the ruby and rails world and brings it over to python land.</p>
-
-<p>You can find the code <a href="https://github.com/jtushman/human_dates">here</a></p>
-
-<p>And you will see the light if you continue reading the <a href="http://www.scotttorborg.com/python-packaging/minimal.html">packaging tutorial from the first section</a></p>
-
-<p>Once you have you package tested locally, its as simple as:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>python setup.py register
-</span><span class='line'><span class="nv">$ </span>python setup.py sdist upload
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And now anyone can do the following:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>pip install human_dates
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And then in a python console, you can:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">from</span> <span class="nn">human_dates</span> <span class="kn">import</span> <span class="n">time_ago_in_words</span><span class="p">,</span> <span class="n">beginning_of_day</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">print</span> <span class="n">time_ago_in_words</span><span class="p">()</span>
-</span><span class='line'><span class="c">#prints &quot;just now&quot;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">print</span> <span class="n">time_ago_in_words</span><span class="p">(</span><span class="n">beginning_of_day</span><span class="p">())</span>
-</span><span class='line'><span class="c"># prints 8 hours ago</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>AWESOME!  I really enjoyed this experience.  <strong>I found the overhead very light for creating reusable components.</strong></p>
-
-<p>Also &mdash; if this still sounds like to much work for you &mdash; the <em>least</em> you can do is just write and share a <a href="https://gist.github.com/">gist</a> of your snippet.</p>
-
-<p><a id="3"></a></p>
-
-<h2>Sharing in the private domain (within your company)</h2>
-
-<p>Okay, now things get a bit more interesting.  You have a key component that is used in multiple code bases.  What is the best way to share that.  But we need to, a la Gandalf: &ldquo;Keep it secret, keep it safe&rdquo;</p>
-
-<iframe width="100%" height="315" src="http://www.youtube.com/embed/_YhpauKGgQ4" frameborder="0" allowfullscreen></iframe>
-
-
-<p>Our Requirements:</p>
-
-<ul>
-<li>The sharing should be done via pip, and the requirements.txt file</li>
-<li>I do not want to set up my own pypi server</li>
-<li>It needs to be secure within our organization</li>
-<li>But, needs to be deployable to 3rd party PaaS providers like heroku or elastic beanstalk</li>
-</ul>
-
-
-<br/>
-
-
-<p>To accomplish this, I am using pip&rsquo;s ability to interact with git over ssh.  That and git tagging.  Here are the steps that I took &hellip;</p>
-
-<ul>
-<li>Create a private git repo (I am using github)</li>
-<li><p>Make your package, just like we did before.  For this example I will share piece of code that I use to inspect into dictionaries. <a href="https://github.com/jtushman/dict_digger">here is the project</a> (note: its public to share with you guys &mdash; but it the real use case it MUST be private.)</p></li>
-<li><p>push to github.  It needs to have all the same trappings of a python package you would push to PyPi</p></li>
-<li><p>When working with git and pip, you need to go through an additional step of explicitly tagging your versions</p></li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>git tag -a v0.1.0 -m <span class="s1">&#39;version 0.1.0 initial version&#39;</span>
-</span><span class='line'>git push --tags
-</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>For YOU to install the most current version from HEAD, we can now do the following:</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>pip install git+ssh://git@github.com/jtushman/dict_digger.git
-</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>For YOU to install the a <strong>specific</strong> version, we can now do the following:</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>pip install git+ssh://git@github.com/jtushman/dict_digger.git@v0.1.0
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p></p>
-
-<p>&mdash; or &mdash;</p>
-
-<p>in your requirements.txt file</p>
-
-<figure class='code'><figcaption><span>requirements.txt</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='text'><span class='line'>requests==1.2.2
-</span><span class='line'>git+ssh://git@github.com/jtushman/dict_digger.git@v0.1.0
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><strong>At this point, your colleagues and deployment machines WILL NOT be able to access this package</strong></p>
-
-<p>Time to provision them &hellip;</p>
-
-<ul>
-<li><p>For your colleagues to access this library:</p>
-
-<ol>
-<li> First they will need to have access to your github repository.  So make sure you have added her/them as collaborators.  Best handled on the github website</li>
-<li> They will need to turn on ssh agent forwarding.  Following instructions (<a href="https://help.github.com/articles/using-ssh-agent-forwarding">here</a>)</li>
-</ol>
-</li>
-<li><p>For your deployment machines to access the library.  You will need to follow the following two steps:</p>
-
-<ol>
-<li> Create a <a href="https://help.github.com/articles/managing-deploy-keys#machine-users">Machine User</a></li>
-<li> Add the ssh keys to your deploy machine.  If you are using heroku.  Its as simple as <a href="https://devcenter.heroku.com/articles/keys#adding-keys-to-heroku">this</a></li>
-</ol>
-</li>
-</ul>
-
-
-<p>Note:  As an alternative you can host your own secure <a href="https://pypi.python.org/pypi/pypiserver">PyPi server</a>.</p>
-
-<p>What I really like about the GitHub approach is ( a ) all of the ACL heavy lift is handled by GitHub, and ( b ) they are responsible for keeping their server up.</p>
-
-<p>Cool &mdash; this is working for me.  Love to hear others thoughts and successful approaches.</p>
-
-<hr />
-
-<p>Other interesting articles while researching this &hellip;</p>
-
-<ul>
-<li><a href="http://lucumr.pocoo.org/2012/6/22/hate-hate-hate-everywhere/">Angry Armin on Packaging</a></li>
-<li><a href="http://blog.mozilla.org/webdev/2013/01/11/switching-to-pip-for-python-deployments/">Mozilla on moving from submodules to pip</a></li>
-<li><a href="https://github.com/kennethreitz/requests/blob/master/setup.py">When in doubt do what Kenneth does</a>
-<a href="https://jamiecurle.co.uk/blog/my-first-experience-adding-package-pypi/">Another nice article (with impressive formatting)</a></li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -1914,6 +1893,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/08/15/describing-descriptors-descriptively/">Describing Descriptors Descriptively</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/07/23/explaining-bouncer-and-method-decorators/">Explaining Bouncer and Method_decorators</a>
       </li>
     
@@ -1927,10 +1910,6 @@
     
       <li class="post">
         <a href="/blog/2014/01/24/parallelize-your-lettuce-tests-to-win-friends-and-influence-others/">Parallelize Your Lettuce Tests to Win Friends and Influence Others</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/01/14/python-%7C-multiprocessing-and-interrupts/">Python | Multiprocessing and Interrupts</a>
       </li>
     
   </ul>

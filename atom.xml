@@ -4,7 +4,7 @@
   <title><![CDATA[tushman.io]]></title>
   <link href="http://jtushman.github.io/atom.xml" rel="self"/>
   <link href="http://jtushman.github.io/"/>
-  <updated>2014-07-23T16:34:12-04:00</updated>
+  <updated>2014-08-15T15:36:37-04:00</updated>
   <id>http://jtushman.github.io/</id>
   <author>
     <name><![CDATA[Jonathan Tushman]]></name>
@@ -12,6 +12,190 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Describing Descriptors Descriptively]]></title>
+    <link href="http://jtushman.github.io/blog/2014/08/15/describing-descriptors-descriptively/"/>
+    <updated>2014-08-15T15:33:00-04:00</updated>
+    <id>http://jtushman.github.io/blog/2014/08/15/describing-descriptors-descriptively</id>
+    <content type="html"><![CDATA[<blockquote><p>Is it ironic that the documentation for descriptors is not very descriptive</p></blockquote>
+
+<p>Descriptors are one of my favorite Python features &mdash; but I feel that many tutorials go too deep.  Here I will show you one of the main use cases for descriptors &mdash; then you can delve into one of these articles to understand more of there power:</p>
+
+<p>Here are other resources:</p>
+
+<ul>
+<li>Our man Raymond Hettinger&rsquo;s  (<a href="http://twitter.com/raymondh">@raymondh</a>) <a href="https://docs.python.org/2/howto/descriptor.html">Descriptor HowTo Guide</a></li>
+<li>Chris Beaumont&rsquo;s: <a href="http://nbviewer.ipython.org/urls/gist.github.com/ChrisBeaumont/5758381/raw/descriptor_writeup.ipynb">Descriptors Demystified</a></li>
+</ul>
+
+
+<p>First a definition:</p>
+
+<blockquote><p>In general, a descriptor is an object attribute with “binding behavior”, one whose attribute access has been overridden by methods in the descriptor protocol. Those methods are __get__(), __set__(), and __delete__(). If any of those methods are defined for an object, it is said to be a descriptor.</p></blockquote>
+
+<p>Read that and stash it in your brain for a few minutes</p>
+
+<h3>My Appraoch</h3>
+
+<p>I am going to pose a <strong>common problem</strong> that descriptors can solve, propose a <strong>solution</strong> using descriptors, then provide an <strong>explaination</strong> some of the finer points.</p>
+
+<h3>Consider the Following Problem:</h3>
+
+<p>You Need to consume a 3rd party API, and the API returns json documents.  Often when I see this problem I see the code littered with <code>response.text[0]['results'][0]['name']</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">USER_API_URI</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="mi">111</span><span class="p">)</span>
+</span><span class='line'><span class="k">print</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">to_json</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;results&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;name&#39;</span><span class="p">])</span>
+</span><span class='line'><span class="k">print</span><span class="p">(</span><span class="s">&#39;barf&#39;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>(Did you just throw-up a little bit? &mdash; I did)</p>
+
+<h3>Proposed Solution with Descriptors:</h3>
+
+<p>Our goal is to write code like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">user</span> <span class="o">=</span> <span class="n">UserAPI</span><span class="o">.</span><span class="n">get_by_id</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+</span><span class='line'><span class="k">print</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</span><span class='line'><span class="k">print</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">street_address</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><strong>To the code !!!!</strong></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="c"># Hey guys this is a descriptor -- Woot!!        </span>
+</span><span class='line'><span class="k">class</span> <span class="nc">Extractor</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">path</span><span class="p">)</span>
+</span><span class='line'>        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">owner</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">_extract</span><span class="p">(</span><span class="n">instance</span><span class="o">.</span><span class="n">json_blob</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">_extract</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="o">*</span><span class="n">keys</span><span class="p">):</span>
+</span><span class='line'>        <span class="sd">&quot;&quot;&quot;</span>
+</span><span class='line'><span class="sd">        digs into an dict or lists, if anything along the way is None, then simply return None</span>
+</span><span class='line'><span class="sd">        &quot;&quot;&quot;</span>
+</span><span class='line'>        <span class="n">end_of_chain</span> <span class="o">=</span> <span class="n">your_dict</span>
+</span><span class='line'>        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+</span><span class='line'>            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">end_of_chain</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">end_of_chain</span><span class="p">:</span>
+</span><span class='line'>                <span class="n">end_of_chain</span> <span class="o">=</span> <span class="n">end_of_chain</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+</span><span class='line'>            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">end_of_chain</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+</span><span class='line'>                <span class="n">end_of_chain</span> <span class="o">=</span> <span class="n">end_of_chain</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+</span><span class='line'>            <span class="k">else</span><span class="p">:</span>
+</span><span class='line'>                <span class="k">return</span> <span class="bp">None</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">return</span> <span class="n">end_of_chain</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now look how elegant our code can look</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="k">class</span> <span class="nc">JSONResponse</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json_blob</span><span class="p">):</span>
+</span><span class='line'>        <span class="bp">self</span><span class="o">.</span><span class="n">json_blob</span> <span class="o">=</span> <span class="n">json_blob</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">User</span><span class="p">(</span><span class="n">JSONRepsonse</span><span class="p">):</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">name</span> <span class="o">=</span> <span class="n">Exctractor</span><span class="p">(</span><span class="s">&#39;result&#39;</span><span class="p">,</span><span class="s">&#39;username&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">street_address</span> <span class="o">=</span> <span class="n">Exctractor</span><span class="p">(</span><span class="s">&#39;result&#39;</span><span class="p">,</span><span class="s">&#39;address&#39;</span><span class="p">,</span> <span class="s">&#39;street&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">status</span> <span class="o">=</span> <span class="n">Exctractor</span><span class="p">(</span><span class="s">&#39;result&#39;</span><span class="p">,</span><span class="s">&#39;status&#39;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">UserAPI</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@class_method</span>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">get_by_id</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+</span><span class='line'>        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">USER_GET_ENDPOINT</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">)</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">User</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And now are code is warm and fuzzy:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">user</span> <span class="o">=</span> <span class="n">UserAPI</span><span class="o">.</span><span class="n">get_by_id</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+</span><span class='line'><span class="k">print</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</span><span class='line'><span class="k">print</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">street_address</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Okay what just happened.</h3>
+
+<p>We made a descriptor <em>Extractor</em>.  An Extractor descriptor is able in inpect the instance of the class.  Lets walk through that final snippit of code:</p>
+
+<ul>
+<li><code>user = UserAPI.get_by_id(111)</code></li>
+</ul>
+
+
+<p>Here we get an instance of a User object which has the json_blob stored on it from the GET request</p>
+
+<ul>
+<li><code>print(user.name)</code></li>
+</ul>
+
+
+<p>Now we call <code>name</code> on that object, which we defined: <code>name = Extractor('result','username')</code>.  At this point when we call <code>name</code> it is going to use the Extractor descriptor to extract the value from the json_blob.</p>
+
+<p>I think this is one of many great ways to use descriptors to DRY up your code.</p>
+
+<p>Hope this is helpful!</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Explaining bouncer and method_decorators]]></title>
@@ -1970,7 +2154,7 @@ celebrities_with_style_that_i_like = ['jack black','zach galifianakis']
 <p>My idea I am calling <strong>Mailing It In™</strong>.  This is what I want it to do:</p>
 
 <ol>
-<li><p>Everyday you send a <a href="http://daringfireball.net/projects/markdown/syntax">markdown</a> formated email to <a href="&#x6d;&#x61;&#x69;&#108;&#x74;&#x6f;&#x3a;&#x6d;&#97;&#105;&#108;&#x69;&#116;&#105;&#x6e;&#x40;&#122;&#x65;&#102;&#114;&#46;&#x63;&#111;&#x6d;&#x2e;">&#109;&#x61;&#105;&#x6c;&#x69;&#116;&#105;&#x6e;&#64;&#122;&#101;&#x66;&#114;&#46;&#x63;&#111;&#109;&#46;</a>  I need to think about this more, but I think we just need to answer two questions:</p>
+<li><p>Everyday you send a <a href="http://daringfireball.net/projects/markdown/syntax">markdown</a> formated email to <a href="&#109;&#97;&#105;&#x6c;&#116;&#x6f;&#58;&#x6d;&#x61;&#105;&#108;&#x69;&#x74;&#x69;&#110;&#x40;&#x7a;&#x65;&#x66;&#114;&#x2e;&#99;&#111;&#x6d;&#x2e;">&#109;&#97;&#x69;&#x6c;&#x69;&#116;&#x69;&#110;&#x40;&#122;&#101;&#102;&#114;&#x2e;&#x63;&#111;&#x6d;&#46;</a>  I need to think about this more, but I think we just need to answer two questions:</p>
 
 <ol>
 <li>What am I struggling with:</li>
