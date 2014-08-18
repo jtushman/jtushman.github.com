@@ -4,7 +4,7 @@
   <title><![CDATA[tushman.io]]></title>
   <link href="http://jtushman.github.io/atom.xml" rel="self"/>
   <link href="http://jtushman.github.io/"/>
-  <updated>2014-08-15T15:36:37-04:00</updated>
+  <updated>2014-08-18T08:59:22-04:00</updated>
   <id>http://jtushman.github.io/</id>
   <author>
     <name><![CDATA[Jonathan Tushman]]></name>
@@ -20,29 +20,27 @@
     <id>http://jtushman.github.io/blog/2014/08/15/describing-descriptors-descriptively</id>
     <content type="html"><![CDATA[<blockquote><p>Is it ironic that the documentation for descriptors is not very descriptive</p></blockquote>
 
-<p>Descriptors are one of my favorite Python features &mdash; but I feel that many tutorials go too deep.  Here I will show you one of the main use cases for descriptors &mdash; then you can delve into one of these articles to understand more of there power:</p>
+<p>Descriptors are one of my favorite Python features &mdash; but it took me too long to discover them.  The documentation and tutorials that I found were to complex for me.  So I would like to offer a different approach, a a <em>code first</em> approarch</p>
 
-<p>Here are other resources:</p>
+<h3>Agenda</h3>
 
 <ul>
-<li>Our man Raymond Hettinger&rsquo;s  (<a href="http://twitter.com/raymondh">@raymondh</a>) <a href="https://docs.python.org/2/howto/descriptor.html">Descriptor HowTo Guide</a></li>
-<li>Chris Beaumont&rsquo;s: <a href="http://nbviewer.ipython.org/urls/gist.github.com/ChrisBeaumont/5758381/raw/descriptor_writeup.ipynb">Descriptors Demystified</a></li>
+<li>Definition</li>
+<li>A Problem that Descriptors Can Solve</li>
+<li>CODE!!  Solution to the Problem</li>
+<li>Reflection on the Code, and explanation on how we used Descriptors</li>
 </ul>
 
 
-<p>First a definition:</p>
+<h3>Defination</h3>
 
 <blockquote><p>In general, a descriptor is an object attribute with “binding behavior”, one whose attribute access has been overridden by methods in the descriptor protocol. Those methods are __get__(), __set__(), and __delete__(). If any of those methods are defined for an object, it is said to be a descriptor.</p></blockquote>
 
-<p>Read that and stash it in your brain for a few minutes</p>
+<p>Read that and stash it in your brain for a few minutes.  By the end of this article you&rsquo;ll grok this</p>
 
-<h3>My Appraoch</h3>
+<h3>A Problem that Descriptors Can Solve</h3>
 
-<p>I am going to pose a <strong>common problem</strong> that descriptors can solve, propose a <strong>solution</strong> using descriptors, then provide an <strong>explaination</strong> some of the finer points.</p>
-
-<h3>Consider the Following Problem:</h3>
-
-<p>You Need to consume a 3rd party API, and the API returns json documents.  Often when I see this problem I see the code littered with <code>response.text[0]['results'][0]['name']</code></p>
+<p>Imagine that you need to consume a 3rd party API that returns json documents.  Often solutions to this problem look like this &hellip;</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -55,7 +53,9 @@
 
 <p>(Did you just throw-up a little bit? &mdash; I did)</p>
 
-<h3>Proposed Solution with Descriptors:</h3>
+<p>I dislike this solution, for while its concise, it breaks <a href="http://en.wikipedia.org/wiki/Separation_of_concerns">separation-of-concerns</a>.  The code consuming the API should not be concerned of the exact path and location of the data element in the json document.</p>
+
+<h4>Proposed Solution with Descriptors:</h4>
 
 <p>Our goal is to write code like this:</p>
 
@@ -68,7 +68,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p><strong>To the code !!!!</strong></p>
+<h3>CODE!!  Solution to the Problem</h3>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -99,7 +99,7 @@
 </span><span class='line'>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">path</span><span class="p">)</span>
 </span><span class='line'>        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
 </span><span class='line'>
-</span><span class='line'>    <span class="k">def</span> <span class="nf">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">owner</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+</span><span class='line'>    <span class="k">def</span> <span class="nf">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">owner</span><span class="p">):</span>
 </span><span class='line'>        <span class="k">return</span> <span class="n">_extract</span><span class="p">(</span><span class="n">instance</span><span class="o">.</span><span class="n">json_blob</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
 </span><span class='line'>
 </span><span class='line'>    <span class="k">def</span> <span class="nf">_extract</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="o">*</span><span class="n">keys</span><span class="p">):</span>
@@ -173,14 +173,25 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<h3>Okay what just happened.</h3>
+<h3>Reflection on the Code</h3>
 
-<p>We made a descriptor <em>Extractor</em>.  An Extractor descriptor is able in inpect the instance of the class.  Lets walk through that final snippit of code:</p>
+<p>The real magic of descriptors happens with the signatures of __get__(), __set__(), and __delete__():</p>
 
 <ul>
-<li><code>user = UserAPI.get_by_id(111)</code></li>
+<li><code>object.__get__(self, instance, owner)</code></li>
+<li><code>object.__set__(self, instance, value)</code></li>
+<li><code>object.__delete__(self, instance)</code></li>
 </ul>
 
+
+<p>Each of these signatures contains a reference to <code>instance</code>  Which is the instance of the <em>owner</em>&rsquo;s class.  So in our example:</p>
+
+<p><em>instance</em> will be be an instance of the User class
+<em>owner</em> will be the User class
+<em>self</em> is the instance of the Descriptor, which in our case holds the <code>path</code> attribute.</p>
+
+<p>Lets take a look at our example where we made a descriptor <em>Extractor</em>.
+&ndash; <code>user = UserAPI.get_by_id(111)</code></p>
 
 <p>Here we get an instance of a User object which has the json_blob stored on it from the GET request</p>
 
@@ -191,9 +202,17 @@
 
 <p>Now we call <code>name</code> on that object, which we defined: <code>name = Extractor('result','username')</code>.  At this point when we call <code>name</code> it is going to use the Extractor descriptor to extract the value from the json_blob.</p>
 
-<p>I think this is one of many great ways to use descriptors to DRY up your code.</p>
+<p>The concern of extracting data from a json blob is nicely contained in our Descriptor  I think this is one of many great ways to use descriptors to DRY up your code.</p>
 
 <p>Hope this is helpful!</p>
+
+<h3>Additional Resources</h3>
+
+<ul>
+<li>Our man Raymond Hettinger&rsquo;s  (<a href="http://twitter.com/raymondh">@raymondh</a>) <a href="https://docs.python.org/2/howto/descriptor.html">Descriptor HowTo Guide</a></li>
+<li>Chris Beaumont&rsquo;s: <a href="http://nbviewer.ipython.org/urls/gist.github.com/ChrisBeaumont/5758381/raw/descriptor_writeup.ipynb">Descriptors Demystified</a></li>
+</ul>
+
 ]]></content>
   </entry>
   
@@ -2154,7 +2173,7 @@ celebrities_with_style_that_i_like = ['jack black','zach galifianakis']
 <p>My idea I am calling <strong>Mailing It In™</strong>.  This is what I want it to do:</p>
 
 <ol>
-<li><p>Everyday you send a <a href="http://daringfireball.net/projects/markdown/syntax">markdown</a> formated email to <a href="&#109;&#97;&#105;&#x6c;&#116;&#x6f;&#58;&#x6d;&#x61;&#105;&#108;&#x69;&#x74;&#x69;&#110;&#x40;&#x7a;&#x65;&#x66;&#114;&#x2e;&#99;&#111;&#x6d;&#x2e;">&#109;&#97;&#x69;&#x6c;&#x69;&#116;&#x69;&#110;&#x40;&#122;&#101;&#102;&#114;&#x2e;&#x63;&#111;&#x6d;&#46;</a>  I need to think about this more, but I think we just need to answer two questions:</p>
+<li><p>Everyday you send a <a href="http://daringfireball.net/projects/markdown/syntax">markdown</a> formated email to <a href="&#109;&#97;&#105;&#108;&#x74;&#111;&#x3a;&#109;&#x61;&#x69;&#108;&#x69;&#x74;&#105;&#x6e;&#x40;&#122;&#x65;&#x66;&#114;&#46;&#x63;&#111;&#109;&#x2e;">&#109;&#97;&#105;&#x6c;&#105;&#116;&#105;&#110;&#64;&#122;&#x65;&#102;&#x72;&#x2e;&#x63;&#111;&#109;&#x2e;</a>  I need to think about this more, but I think we just need to answer two questions:</p>
 
 <ol>
 <li>What am I struggling with:</li>
