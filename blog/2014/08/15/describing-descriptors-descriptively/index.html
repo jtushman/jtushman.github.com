@@ -105,7 +105,7 @@
 
 <div class="entry-content"><blockquote><p>Is it ironic that the documentation for descriptors is not very descriptive</p></blockquote>
 
-<p>Descriptors are one of my favorite Python features &mdash; but it took me too long to discover them.  The documentation and tutorials that I found were to complex for me.  So I would like to offer a different approach, a a <em>code first</em> approarch</p>
+<p>Descriptors are one of my favorite Python features &mdash; but it took me too long to discover them.  The documentation and tutorials that I found were too complex for me.  So I would like to offer a different approach, a <em>code first</em> approach</p>
 
 <h3>Agenda</h3>
 
@@ -117,7 +117,7 @@
 </ul>
 
 
-<h3>Defination</h3>
+<h3>Definition</h3>
 
 <blockquote><p>In general, a descriptor is an object attribute with “binding behavior”, one whose attribute access has been overridden by methods in the descriptor protocol. Those methods are __get__(), __set__(), and __delete__(). If any of those methods are defined for an object, it is said to be a descriptor.</p></blockquote>
 
@@ -136,9 +136,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>(Did you just throw-up a little bit? &mdash; I did)</p>
-
-<p>I dislike this solution, for while its concise, it breaks <a href="http://en.wikipedia.org/wiki/Separation_of_concerns">separation-of-concerns</a>.  The code consuming the API should not be concerned of the exact path and location of the data element in the json document.</p>
+<p>I dislike this solution, Its concise, but it breaks <a href="http://en.wikipedia.org/wiki/Separation_of_concerns">separation-of-concerns</a>.  The code consuming the API should not be concerned about the exact path and location of the data element in the json document.</p>
 
 <h4>Proposed Solution with Descriptors:</h4>
 
@@ -269,13 +267,13 @@
 </ul>
 
 
-<p>Each of these signatures contains a reference to <code>instance</code>  Which is the instance of the <em>owner</em>&rsquo;s class.  So in our example:</p>
+<p>Each of these signatures contains a reference to <code>instance</code>, which is the instance of the <em>owner</em>&rsquo;s class.  So in our example:</p>
 
-<p><em>instance</em> will be be an instance of the User class
+<p><em>instance</em> will be an instance of the User class
 <em>owner</em> will be the User class
 <em>self</em> is the instance of the Descriptor, which in our case holds the <code>path</code> attribute.</p>
 
-<p>Lets take a look at our example where we made a descriptor <em>Extractor</em>.
+<p>Let&rsquo;s take a look at our example where we made a descriptor <em>Extractor</em>.
 &ndash; <code>user = UserAPI.get_by_id(111)</code></p>
 
 <p>Here we get an instance of a User object which has the json_blob stored on it from the GET request</p>
