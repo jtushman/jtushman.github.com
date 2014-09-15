@@ -89,8 +89,14 @@
         <lastmod>2014-08-18T11:41:14-04:00</lastmod>
     </url>
     <url>
+        <loc>
+            http://jtushman.github.io/blog/2014/09/15/pycon-proposal-pragmatic-behavior-driven-development/
+        </loc>
+        <lastmod>2014-09-15T10:29:15-04:00</lastmod>
+    </url>
+    <url>
         <loc>http://jtushman.github.io/blog/archives/</loc>
-        <lastmod>2014-08-18T11:41:14-04:00</lastmod>
+        <lastmod>2014-09-15T10:29:15-04:00</lastmod>
     </url>
     <url>
         <loc>http://jtushman.github.io/drafts/2013-07-01-working-with-csvs-in-python.html</loc>
@@ -102,7 +108,7 @@
     </url>
     <url>
         <loc>http://jtushman.github.io/</loc>
-        <lastmod>2014-08-18T11:41:14-04:00</lastmod>
+        <lastmod>2014-09-15T10:29:15-04:00</lastmod>
     </url>
     <url>
         <loc>http://jtushman.github.io/robots.txt</loc>

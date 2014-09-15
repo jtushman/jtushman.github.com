@@ -9,7 +9,7 @@
   <meta name="author" content="Jonathan Tushman">
 
   
-  <meta name="description" content="tl;dr: Use pip, git(hub) and tags to share packages privately amongst your team Problem Statement We have libraries that we need to share across &hellip;">
+  <meta name="description" content="(I&rsquo;ll give you a hint &mdash; it&rsquo;s not down-voting, or one-liner emails) tl;dr: Preface your constructive feedback with a compliment. And &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,122 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/06/19/how-to-give-constructive_feedback-to-an-engineer/">How to Give Constructive Feedback to an Engineer</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-06-19T21:02:00-04:00" pubdate data-updated="true">Jun 19<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>(I&rsquo;ll give you a hint &mdash; it&rsquo;s not down-voting, or one-liner emails)</p>
+
+<p><strong>tl;dr:  Preface your constructive feedback with a compliment.  And end the conversations with additional positive feedback.  Make the negative feedback precise and timely</strong></p>
+
+<p>First, here is my FAVORITE clip of a boss giving his employee feedback</p>
+
+<blockquote><p>Everything you&rsquo;re doing is bad, I want you to know this</p></blockquote>
+
+<iframe width="100%" height="400" src="http://www.youtube.com/embed/ncGHiVKJh0Y" frameborder="0" allowfullscreen></iframe>
+
+
+<p><strong>We engineers, for whatever reason are a sensitive bunch.</strong>  We are internally programmed to strive to get the acceptance of others.  Whether its gaining cread on StackOverflow, Getting up voted on Reddit, or more frequently, trying to impress your boss and peers.</p>
+
+<p>We can take it as fact that giving and receiving feedback is a Good Thing.</p>
+
+<p>But if it is not presented well, it can have some unnecessary consequences.  What we want to happen is have the person receiving the feedback, process it and hopefully take it to heart.</p>
+
+<p>What we do not want to happen is to make the receiver get defensive or feel bad.</p>
+
+<p>What works for me (and for others) is to <strong>wrap the constructive feedback with positive feedback</strong>.  For example:</p>
+
+<blockquote><p>Jonathan, you clearly have been putting a lot of work into your blog.  It has some really great ideas in here.  I particularly liked your article about buying socks.</p>
+
+<p>But, everything you are writing about has been written about already.  Have you seen this <a href="http://www.nytimes.com/2013/04/06/your-money/how-to-give-effective-feedback-both-positive-and-negative.html?pagewanted=all&amp;_r=0">New York Times Article</a> about giving feedback &mdash; its pretty solid?  I recommend doing a bit more research before posting</p>
+
+<p>I do really enjoy your posts, and I look forward to reading more!</p></blockquote>
+
+<p>Just as important, is the timing of the feedback.  Don&rsquo;t wait until your quarterly review.  If you have a way that a colleague could run a meeting better &mdash; tell her right afterwards.  Try to build a culture of real-time feedback.</p>
+
+<p>Now, this is not a silver bullet.  I have also heard this approach called a &ldquo;sh*t sandwich&rdquo;.  And if it is used too much &mdash; or without sincerity, it will not be effective.  But, I think its a good arrow to put into your feedback quiver.</p>
+
+<p>And just because this is a engineering blog &hellip;</p>
+
+<figure class='code'><figcaption><span>feedback.py</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">choice</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">beginning_affirmation</span> <span class="o">=</span> <span class="p">[</span>
+</span><span class='line'>  <span class="s">&quot;I like what you are doing here&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="s">&quot;Nice use of a context manager, you should share that with the rest of the team&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="s">&quot;I can not believe how much you have accomplished already&quot;</span>
+</span><span class='line'><span class="p">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">ending_affirmation</span> <span class="o">=</span> <span class="p">[</span>
+</span><span class='line'>  <span class="s">&quot;Dude, I am pumped the direction this is heading&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="s">&quot;Really good work&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="s">&quot;Hey, lets grab lunch&quot;</span><span class="p">,</span>
+</span><span class='line'><span class="p">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">constructive_feedback</span><span class="p">(</span><span class="n">feedback</span><span class="p">):</span>
+</span><span class='line'>  <span class="k">return</span> <span class="s">&quot;{} but, {}. {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">choice</span><span class="p">(</span><span class="n">beginning_affirmation</span><span class="p">),</span><span class="n">feedback</span><span class="p">,</span><span class="n">choice</span><span class="p">(</span><span class="n">ending_affirmation</span><span class="p">))</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># and so …</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">print</span> <span class="n">constructive_feedback</span><span class="p">(</span><span class="s">&quot;More cowbell&quot;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c">#yields: &#39;Nice use of a context manager, you should share that with the rest of the team but, More cowbell. Hey, lets grab lunch&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And dare I ask ….  feedback?</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -862,7 +978,7 @@ celebrities_with_style_that_i_like = ['jack black','zach galifianakis']
 <p>My idea I am calling <strong>Mailing It In™</strong>.  This is what I want it to do:</p>
 
 <ol>
-<li><p>Everyday you send a <a href="http://daringfireball.net/projects/markdown/syntax">markdown</a> formated email to <a href="&#109;&#x61;&#105;&#x6c;&#x74;&#111;&#x3a;&#109;&#97;&#x69;&#108;&#x69;&#116;&#105;&#x6e;&#x40;&#122;&#x65;&#x66;&#114;&#x2e;&#x63;&#x6f;&#x6d;&#x2e;">&#x6d;&#97;&#105;&#108;&#x69;&#116;&#105;&#110;&#64;&#x7a;&#x65;&#102;&#114;&#x2e;&#x63;&#111;&#x6d;&#46;</a>  I need to think about this more, but I think we just need to answer two questions:</p>
+<li><p>Everyday you send a <a href="http://daringfireball.net/projects/markdown/syntax">markdown</a> formated email to <a href="&#109;&#x61;&#105;&#x6c;&#116;&#x6f;&#x3a;&#109;&#97;&#x69;&#108;&#105;&#x74;&#x69;&#x6e;&#64;&#x7a;&#x65;&#102;&#x72;&#46;&#99;&#x6f;&#109;&#46;">&#x6d;&#x61;&#x69;&#x6c;&#x69;&#116;&#x69;&#x6e;&#x40;&#122;&#x65;&#102;&#x72;&#46;&#99;&#x6f;&#109;&#x2e;</a>  I need to think about this more, but I think we just need to answer two questions:</p>
 
 <ol>
 <li>What am I struggling with:</li>
@@ -1038,6 +1154,10 @@ stop on runlevel [!2345]
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/09/15/pycon-proposal-pragmatic-behavior-driven-development/">PyCon Proposal - Pragmatic Behavior Driven Development</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/08/15/describing-descriptors-descriptively/">Describing Descriptors Descriptively</a>
       </li>
     
@@ -1051,10 +1171,6 @@ stop on runlevel [!2345]
     
       <li class="post">
         <a href="/blog/2014/05/02/module-properties/">Module Properties | the Proxy Pattern</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/01/24/parallelize-your-lettuce-tests-to-win-friends-and-influence-others/">Parallelize Your Lettuce Tests to Win Friends and Influence Others</a>
       </li>
     
   </ul>
