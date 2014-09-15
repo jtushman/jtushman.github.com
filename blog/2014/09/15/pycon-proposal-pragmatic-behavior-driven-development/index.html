@@ -147,13 +147,57 @@
 
 <h4>Outline:</h4>
 
+<h3>Pragmatic Behavior Driven Development</h3>
+
+<h4>Description</h4>
+
+<p>Love your test suite again (or for the first time).</p>
+
+<p>Have you ever met a developer who loves their test suite for their web app?  There is subtle air of confidence surrounding them.  They stand a bit taller; walk with a bit of a swagger.</p>
+
+<p>This talk will put you on that path by showing an approach of Behavior Driven Development using lettuce and selenium.</p>
+
+<h4>Detailed Abstract</h4>
+
+<p>Behavior Driven Development (BDD) is a development process based on Test-Driven Development – but makes a significant modification.  With TDD – the main goal was to achieve test coverage (what percentage of your code is covered by tests).  With BDD the driving question is “What percentage of my user stories are covered?”  The main test unit is the user story.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Story: Returns go to stock  
+</span><span class='line'>
+</span><span class='line'>In order to keep track of stock 
+</span><span class='line'>As a store owner 
+</span><span class='line'>I want to add items back to stock when they're returned  
+</span><span class='line'>
+</span><span class='line'>Scenario 1: Refunded items should be returned to stock 
+</span><span class='line'>Given a customer previously bought a black sweater from me 
+</span><span class='line'>And I currently have three black sweaters left in stock 
+</span><span class='line'>When he returns the sweater for a refund 
+</span><span class='line'>Then I should have four black sweaters in stock</span></code></pre></td></tr></table></div></figure>
+
+
+<p>With an application that leverages BDD, we will have a set of feature files, and a feature file will have a collection of stories written is a specific format: Given, When, Then.</p>
+
+<p>Python has some tooling that helps turn this format into a fully automated test framework.  We use <em>lettuce</em> to process feature files and <em>selenium</em> to drive the web browser.</p>
+
+<h4>Outline:</h4>
+
 <ol>
 <li>Intro (5 mins)
 
 <ol>
-<li>Who I am?</li>
+<li>Who am I?</li>
 <li>20 years of development and testing, and what I have seen over time</li>
-<li>Explain why I think BDD is an important evolution</li>
+<li>Explain why BDD is an important evolution</li>
 </ol>
 </li>
 <li>Writing your first Test  (5 mins)
@@ -163,32 +207,19 @@
 <li>Write your first test – watch it fail</li>
 </ol>
 </li>
-<li>Given  (5 mins)
+<li>Given / When / Then  (15 mins)
 
 <ol>
-<li>Using Factories to set up your data</li>
-<li>Benefit of using factories</li>
-<li>Factory_boy</li>
-<li>Improve our example using factory_boy</li>
+<li><em>Given</em>: Using Factories to set up your data</li>
+<li><em>When</em>: Trigger Events</li>
+<li><em>Then</em>: Writing &ldquo;Deterministic&rdquo; assertions</li>
 </ol>
 </li>
-<li>When (10 mins)
+<li>Setting up your testing environment (10 mins)
 
 <ol>
-<li>Explain When steps – triggering events</li>
-<li>Introduce Selenium</li>
-<li>Selenium pitfalls with javascript heavy apps</li>
-<li>The importance of “deterministic” tests</li>
-<li>Show how to adapt selenium to deal with variable page loading issues</li>
-</ol>
-</li>
-<li>Then (5 mins)
-
-<ol>
-<li>Explain When steps</li>
-<li>Assertions</li>
-<li>Retry-assertion pattern</li>
-<li>Assertion helpers</li>
+<li>The <code>terrain.py</code> file</li>
+<li>Work around javascript timing issues with a selenium adaptor</li>
 </ol>
 </li>
 <li>Other tools to flesh out your test suite (5 mins)
@@ -197,12 +228,20 @@
 <li>Coverage</li>
 <li>Flake8</li>
 <li>Travis (or CI)</li>
-<li>Tests/<strong>main</strong>.py</li>
-<li>In conjunction with unit-tests</li>
-<li>Parellization</li>
+<li>Unit Test Frameworks (such as nose)</li>
 </ol>
 </li>
 </ol>
+
+
+<h4>Additional Notes:</h4>
+
+<ul>
+<li>My parallelized version of lettuce is open sourced <a href="https://github.com/jtushman/lettuce">here</a></li>
+<li>I have other open-source libraries, can find them <a href="https://github.com/jtushman">here</a></li>
+<li>This is my first time speaking at PyCon.  I have spoken at Boston Python.  My slides for that talk are <a href="http://jtushman.github.io/blog/2014/07/22/boston-python-%7C-monarch-and-bouncer-notes/">here</a></li>
+<li>I sometimes write about Python.  My blog is <a href="http://jtushman.github.io/">here</a></li>
+</ul>
 
 
 <h4>Additional Notes:</h4>
