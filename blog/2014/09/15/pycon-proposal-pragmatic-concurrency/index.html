@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Category: flask, ebs - tushman.io</title>
+  <title>PyCon Proposal - Pragmatic Concurrency - tushman.io</title>
   <meta name="author" content="Jonathan Tushman">
 
   
-  <meta name="description" content="Category: flask, ebs">
+  <meta name="description" content="Description Hmmmm how can I make this faster? I have idea, I&rsquo;ll just run it in parallel. Luckily I am working with Python, and we have PEP20: &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://jtushman.github.ioblog/categories/flask-ebs">
+  <link rel="canonical" href="http://jtushman.github.io/blog/2014/09/15/pycon-proposal-pragmatic-concurrency">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="tushman.io" type="application/atom+xml">
@@ -76,36 +76,190 @@
   <div id="main">
     <div id="content">
       <div>
-<article role="article">
+<article class="hentry" role="article">
   
   <header>
-    <h1 class="entry-title">Category: Flask, Ebs</h1>
+    
+      <h1 class="entry-title">PyCon Proposal - Pragmatic Concurrency</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-09-15T17:28:00-04:00" pubdate data-updated="true">Sep 15<span>th</span>, 2014</time>
+        
+      </p>
     
   </header>
-  
-  <div id="blog-archives" class="category">
 
 
+<div class="entry-content"><h3>Description</h3>
 
-  
-  <h2>2013</h2>
+<p>Hmmmm how can I make this faster?  I have idea, I&rsquo;ll just run it in parallel.</p>
 
-<article>
-  
-<h1><a href="/blog/2013/06/12/first-impressions-with-flask-and-elastic-beanstalk/">First impressions with Flask and Elastic Beanstalk</a></h1>
-<time datetime="2013-06-12T10:16:00-04:00" pubdate><span class='month'>Jun</span> <span class='day'>12</span> <span class='year'>2013</span></time>
+<p>Luckily I am working with Python, and we have PEP20:</p>
 
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/flask-ebs/'>flask, ebs</a></span>
-</footer>
+<blockquote><p>There should be one&mdash; and preferably only one &mdash;obvious way to do it.</p></blockquote>
+
+<p>So what is the obvious way to do it:</p>
+
+<p>There are 5 different popular packages to do this:  <code>multiprocessing</code>, <code>subprocess</code>, <code>threading</code>, <code>gevent</code></p>
+
+<p>:FacePalm:</p>
+
+<p>This talk will cover the main concurrency paradigms, show you the pros and cons of each and give you a framework for picking the right solution for your project</p>
+
+<h3>Objectives</h3>
+
+<p>Attendees will learn the main multiprocessing options in both python 2.7 and python 3.  Will leave with a framework for determining which approach is best for them</p>
+
+<h3>Detailed Abstract</h3>
+
+<p>Concurrency is hard.  As a lay-developer there is a lot of ramping up to figure out how to solve what would seem like simple problems:</p>
+
+<p>&ldquo;I want to check the status of 1000 urls?&rdquo;</p>
+
+<p>&ldquo;how can I run my test suite in parallel?&rdquo;</p>
+
+<p>&ldquo;I have millions of jobs on a queue &mdash; what is the best way to spawn workers to process them?&rdquo;</p>
+
+<p>With Python you have many options, each one does a certain thing well.  Here we will explain the tools in our toolbelt so you can pick the right tool the problem you are trying to solve.</p>
+
+<p><code>threading</code>: interface for threads, mutexs and queues</p>
+
+<p><code>multiprocessing</code>:  is similar to threading but offers local and remote concurrency (with some gotchas)</p>
+
+<p><code>subprocessing</code>:  Allows you to spawn new processes with minimal memory sharing support.  But great for a lot of things</p>
+
+<p><code>gevent</code>:  a coroutine-based Python networking library that uses greenlets</p>
+
+<h3>Outline</h3>
+
+<ol>
+<li>Background &mdash; This is hard
+
+<ol>
+<li> Threads</li>
+<li> Processes</li>
+<li> Pipes</li>
+<li> GIL</li>
+</ol>
+</li>
+<li>Subprocesses
+
+<ol>
+<li>How to use</li>
+<li>Joins</li>
+<li>Pipes</li>
+<li>Good use cases</li>
+</ol>
+</li>
+<li>Multiprocessing
+
+<ol>
+<li>How to use</li>
+<li>Sharing Memory (<code>SyncManager</code>)</li>
+<li>Handing Interupts</li>
+<li>Good use cases</li>
+</ol>
+</li>
+<li>Gevent
+
+<ol>
+<li>How to use</li>
+<li>Monkey Patching</li>
+<li>Good Use Cases</li>
+</ol>
+</li>
+<li>Threading
+
+<ol>
+<li>How to use</li>
+<li>Locks, Conditions, Timers</li>
+<li>Good Use Cases</li>
+</ol>
+</li>
+<li>Summary
+
+<ol>
+<li>&ldquo;Do not cross the streams&rdquo;</li>
+<li>Decision Framework</li>
+<li>What about tulip</li>
+</ol>
+</li>
+</ol>
 
 
-</article>
+<h4>Additional Notes:</h4>
+
+<ul>
+<li>My parallelized version of lettuce is open sourced <a href="https://github.com/jtushman/lettuce">here</a></li>
+<li>I have other open-source libraries, can find them <a href="https://github.com/jtushman">here</a></li>
+<li>This is my first time speaking at PyCon.  I have spoken at Boston Python.  My slides for that talk are <a href="http://jtushman.github.io/blog/2014/07/22/boston-python-%7C-monarch-and-bouncer-notes/">here</a></li>
+<li>I sometimes write about Python.  My blog is <a href="http://jtushman.github.io/">here</a></li>
+</ul>
 
 </div>
 
+
+  <footer>
+    <p class="meta">
+      
   
+
+<span class="byline author vcard">Posted by <span class="fn">Jonathan Tushman</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-09-15T17:28:00-04:00" pubdate data-updated="true">Sep 15<span>th</span>, 2014</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://jtushman.github.io/blog/2014/09/15/pycon-proposal-pragmatic-concurrency/" data-via="tushman" data-counturl="http://jtushman.github.io/blog/2014/09/15/pycon-proposal-pragmatic-concurrency/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/09/15/pycon-proposal-pragmatic-behavior-driven-development/" title="Previous Post: PyCon Proposal - Pragmatic Behavior Driven Development">&laquo; PyCon Proposal - Pragmatic Behavior Driven Development</a>
+      
+      
+    </p>
+  </footer>
 </article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
 
 </div>
 
@@ -179,7 +333,10 @@
       var disqus_shortname = 'jtushmanblog';
       
         
-        var disqus_script = 'count.js';
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://jtushman.github.io/blog/2014/09/15/pycon-proposal-pragmatic-concurrency/';
+        var disqus_url = 'http://jtushman.github.io/blog/2014/09/15/pycon-proposal-pragmatic-concurrency/';
+        var disqus_script = 'embed.js';
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
